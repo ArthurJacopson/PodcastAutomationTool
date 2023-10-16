@@ -1,5 +1,5 @@
 # Use official python docker image
-image: python:latest
+image: python:3.10.12
 
 # Run these commands in the docker container before each job
 before_script:
