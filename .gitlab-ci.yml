@@ -1,0 +1,15 @@
+# Use official python docker image
+image: python:latest
+
+# Run these commands in the docker container before each job
+before_script:
+  - python --version
+  - pip install -r requirements.txt
+
+stages:
+  - Linting
+
+pylint:
+  stage: Linting
+  script:
+  - pylint src/*.py
