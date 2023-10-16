@@ -1,4 +1,4 @@
-# Use official python docker image
+# Use official python 3.10 docker image
 image: python:3.10.12
 
 # Run these commands in the docker container before each job
