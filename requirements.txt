@@ -1,2 +1,10 @@
+audiosegment==0.23.0
+ffmpeg==1.4
+ipython==8.16.1
+librosa==0.10.1
+matplotlib==3.8.0
+matplotlib-inline==0.1.6
+numpy==1.26.1
+opencv-python==4.8.1.78
 pylint==2.4.4
 wrapt==1.11.2
