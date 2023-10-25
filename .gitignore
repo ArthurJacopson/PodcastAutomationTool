@@ -1,1 +1,4 @@
 .env/
+
+# Ignore directory containing example podcast files
+example-files/
