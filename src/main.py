@@ -1,4 +1,5 @@
 import os
+import subprocess
 import ffmpeg
 
 def trim(in_file, out_file,start,end,file_type):
@@ -23,6 +24,16 @@ def audio_trim(aud_in,aud_out,cut):
     audio_output = ffmpeg.output(audio_cut, aud_out)
     ffmpeg.run(audio_output)
 
+def merge_audio(input_audio1, input_audio2, output_audio):
+    command = [
+        "ffmpeg",
+        "-i", input_audio1,
+        "-i", input_audio2,
+        "-filter_complex", "[0:a][1:a]amerge=inputs=2[aout]",
+        "-map", "[aout]",
+        output_audio
+    ]
+    subprocess.run(command)
 
 def get_duration_ffmpeg(file_path):
    probe = ffmpeg.probe(file_path)
