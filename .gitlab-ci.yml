@@ -13,4 +13,4 @@ stages:
 pylint:
   stage: Linting
   script:
-  - pylint src/*.py
+  - pylint ./src --rcfile .pylintrc
