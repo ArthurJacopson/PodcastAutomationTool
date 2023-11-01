@@ -46,5 +46,6 @@ def combine_audio_with_video(inVid,inAu):
     ffmpeg.concat(input_video, input_audio, v=1, a=1).output('combinedvid.mp4').run()
 
 def main():
+    pass
 
 main()
