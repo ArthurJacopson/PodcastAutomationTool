@@ -1,6 +1,25 @@
 import os
 import subprocess
 import ffmpeg
+#Add comparing audio files and merging them dependign on the similarity
+def concatenate_videos(input_videos, output_video):
+    # Create a text file to list input video files
+    with open('input.txt', 'w') as file:
+        for video in input_videos:
+            file.write(f"file '{video}'\n")
+
+    # Concatenate the videos using FFmpeg
+    command = [
+        "ffmpeg",
+        "-f", "concat",  # Use the concat demuxer
+        "-safe", "0",     # Allow arbitrary file names
+        "-i", "input.txt",  # Input file with a list of videos
+        "-c", "copy",  # Copy video and audio streams without re-encoding
+        output_video
+    ]
+    subprocess.run(command)
+    os.remove('input.txt')
+
 
 def trim(in_file, out_file,start,end,file_type):
     if os.path.exists(out_file):
@@ -46,6 +65,5 @@ def combine_audio_with_video(inVid,inAu):
     ffmpeg.concat(input_video, input_audio, v=1, a=1).output('combinedvid.mp4').run()
 
 def main():
-    pass
-
+    print("I am under progress :)")
 main()
