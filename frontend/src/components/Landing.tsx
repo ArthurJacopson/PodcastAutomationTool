@@ -10,7 +10,7 @@ const Landing = () => {
     ]
 
     return (
-        <div className="Editor">
+        <div className="mainContent">
             {sampleData.map(({ name, date, size }) => {
                 return (<FileComponent name={name} date={date} size={size} />
                 )
