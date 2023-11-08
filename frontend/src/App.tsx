@@ -1,6 +1,10 @@
-import React from 'react';
+import { useState } from 'react';
 
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route
+} from 'react-router-dom';
 
 import './App.css';
 
@@ -9,15 +13,22 @@ import Editor from './components/Editor';
 import Navbar from './components/Navbar';
 
 function App() {
+
+  const [navbarTitle, setNavbarTitle] = useState("Podplistic");
+
+  const updateNavbarTitle = (data: string) => {
+    setNavbarTitle(data);
+  }
+
   return (
     <div className='App'>
-      <BrowserRouter>
-        <Navbar title={"Podplistic"}></Navbar>
+      <Router>
+        <Navbar title={navbarTitle}></Navbar>
         <Routes>
-          <Route path="/" element={<Landing />} />
-          <Route path="editor" element={<Editor />} />
+          <Route path="/" element={<Landing func={updateNavbarTitle} />} />
+          <Route path="editor/:project" element={<Editor func={updateNavbarTitle} />} />
         </Routes>
-      </BrowserRouter>
+      </Router>
     </div>
   );
 }
