@@ -55,15 +55,16 @@ def merge_audio(input_audio1, input_audio2, output_audio):
     subprocess.run(command)
 
 def get_duration_ffmpeg(file_path):
-   probe = ffmpeg.probe(file_path)
-   stream = next((stream for stream in probe['streams'] if stream['codec_type'] == 'audio'), None)
-   duration = float(stream['duration'])
-   return duration
+    probe = ffmpeg.probe(file_path)
+    stream = next((stream for stream in probe['streams'] if stream['codec_type'] == 'audio'), None)
+    duration = float(stream['duration'])
+    return duration
 def combine_audio_with_video(inVid,inAu):
     input_video = ffmpeg.input(inVid)
     input_audio = ffmpeg.input(inAu)
     ffmpeg.concat(input_video, input_audio, v=1, a=1).output('combinedvid.mp4').run()
 
 def main():
-    print("I am under progress :)")
+    pass
+
 main()

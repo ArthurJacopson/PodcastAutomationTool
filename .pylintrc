@@ -150,7 +150,8 @@ disable=print-statement,
         line-too-long,
         no-member,
         pointless-string-statement,
-        unused-variable
+        unused-variable,
+        subprocess-run-check
       
 
 # Enable the message, report, category or checker with the given id(s). You can

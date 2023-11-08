@@ -1,0 +1,36 @@
+.Editor {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+#main {
+    height: 100%;
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+    grid-template-rows: 4fr 1fr;
+    grid-template-areas:
+        "editor  transcript"
+        "timeline transcript"
+    ;
+
+    background-color: green;
+}
+
+#editor {
+    grid-area: editor;
+}
+
+#transcript {
+    grid-area: transcript;
+}
+
+#timeline {
+    grid-area: timeline;
+}
+
+.comp {
+    background-color: red;
+    border-radius: 10px;
+    margin: 10px;
+}
