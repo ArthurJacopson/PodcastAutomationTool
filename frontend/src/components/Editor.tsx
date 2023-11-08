@@ -1,8 +1,10 @@
+import '../App.css'
 import './Editor.css'
+
 
 const Editor = () => {
     return (
-        <div className="Editor">
+        <div className="Editor mainContent">
             <div className='comp' id='main'>
                 <div className='comp' id='editor'>Editor</div>
                 <div className='comp' id='transcript'>Transcript</div>
