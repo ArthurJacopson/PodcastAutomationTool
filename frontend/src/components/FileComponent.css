@@ -1,0 +1,42 @@
+.fileComponent {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+
+    background-color: #e4e4e4;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px;
+}
+
+.fileComponentLeft {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+
+    cursor: pointer;
+}
+
+.fileComponentRight {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.thumbnail {
+    width: 250px;
+    border-radius: 10px;
+    margin-right: 40px;
+}
+
+.name {
+    font-weight: 600;
+    font-size: 2em;
+}
+
+.fileInfo {
+    margin-right: 40px;
+}
