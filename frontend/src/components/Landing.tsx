@@ -1,4 +1,4 @@
-import './Editor.css'
+import styles from './Editor.module.css'
 
 import FileComponent from './FileComponent';
 
