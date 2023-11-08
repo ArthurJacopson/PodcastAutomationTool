@@ -2,17 +2,23 @@ import './Editor.css'
 
 import FileComponent from './FileComponent';
 
-const Landing = () => {
+interface funcProp {
+    func: (data: string) => void;
+}
+
+const Landing = (props: funcProp) => {
+
+    props.func("Podplisticss");
 
     const sampleData = [
-        { name: "Project A", date: "Oct 25, 2023", size: 55.71 },
-        { name: "Project B", date: "Oct 14, 2023", size: 25.61 },
+        { slug: "a", name: "Project A", date: "Oct 25, 2023", size: 55.71 },
+        { slug: "b", name: "Project B", date: "Oct 14, 2023", size: 25.61 },
     ]
 
     return (
         <div className="mainContent">
-            {sampleData.map(({ name, date, size }) => {
-                return (<FileComponent name={name} date={date} size={size} />
+            {sampleData.map(({ slug, name, date, size }) => {
+                return (<FileComponent slug={slug} name={name} date={date} size={size} />
                 )
             })}
         </div>
