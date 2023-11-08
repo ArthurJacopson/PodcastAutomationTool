@@ -6,7 +6,7 @@ import {
   Route
 } from 'react-router-dom';
 
-import './App.css';
+import globalStyles from './App.module.css';
 
 import Landing from './components/Landing';
 import Editor from './components/Editor';
@@ -21,13 +21,15 @@ function App() {
   }
 
   return (
-    <div className='App'>
+    <div className={globalStyles.App}>
       <Router>
         <Navbar title={navbarTitle}></Navbar>
-        <Routes>
-          <Route path="/" element={<Landing func={updateNavbarTitle} />} />
-          <Route path="editor/:project" element={<Editor func={updateNavbarTitle} />} />
-        </Routes>
+        <div className={globalStyles.mainContent}>
+          <Routes>
+            <Route path="/" element={<Landing func={updateNavbarTitle} />} />
+            <Route path="editor/:project" element={<Editor func={updateNavbarTitle} />} />
+          </Routes>
+        </div>
       </Router>
     </div>
   );

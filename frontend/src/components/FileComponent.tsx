@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 
-import './FileComponent.css'
-import '../App.css'
+import styles from './FileComponent.module.css'
+import globalStyles from '../App.module.css'
 
 import thumbnail from '../static/thumbnail1.png'
 
@@ -15,15 +15,15 @@ interface FileInfo {
 const FileComponent = ({ slug, name, date, size }: FileInfo) => {
 
     return (
-        <div className="fileComponent">
-            <Link to={`editor/${slug}`} className='Link' >
-                <div className='fileComponentLeft'>
-                    <img src={thumbnail} className='thumbnail'></img>
-                    <p className='name'>{name}</p>
+        <div className={styles.fileComponent}>
+            <Link to={`editor/${slug}`} className={globalStyles.Link} >
+                <div className={styles.fileComponentLeft}>
+                    <img src={thumbnail} className={styles.thumbnail}></img>
+                    <p className={styles.name}>{name}</p>
                 </div>
             </Link>
-            <div className='fileComponentRight'>
-                <div className='fileInfo'>
+            <div className={styles.fileComponentRight}>
+                <div className={styles.fileInfo}>
                     <p>Last modified: {date}</p>
                     <p>Project size: {size}</p>
                 </div>
