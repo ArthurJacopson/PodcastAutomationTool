@@ -16,9 +16,9 @@ def write_out_from_array(newfilename,array):
         write("".join([newfilename,".wav"]),32000,array)
 
 
-def trim(array,threashold):
+def trim(array,threshold):
     print(array.shape)
-    boolean = np.where(np.absolute(array) < threashold,False,True)
+    boolean = np.where(np.absolute(array) < threshold,False,True)
     array = array[boolean]
     return array
     
