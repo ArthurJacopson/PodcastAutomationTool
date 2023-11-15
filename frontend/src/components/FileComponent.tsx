@@ -4,13 +4,8 @@ import styles from './FileComponent.module.css'
 import globalStyles from '../App.module.css'
 
 import thumbnail from '../static/thumbnail1.png'
+import { FileInfo } from '../Interfaces'
 
-interface FileInfo {
-    slug: string;
-    name: string;
-    date: string;
-    size: number;
-}
 
 const FileComponent = ({ slug, name, date, size }: FileInfo) => {
 
