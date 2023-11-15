@@ -13,7 +13,7 @@ const FileComponent = ({ slug, name, date, size }: FileInfo) => {
         <div className={styles.fileComponent}>
             <Link to={`editor/${slug}`} className={globalStyles.Link} >
                 <div className={styles.fileComponentLeft}>
-                    <img src={thumbnail} className={styles.thumbnail}></img>
+                    <img src={thumbnail} className={styles.thumbnail} alt=""></img>
                     <p className={styles.name}>{name}</p>
                 </div>
             </Link>

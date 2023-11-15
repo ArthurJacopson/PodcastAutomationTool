@@ -1,5 +1,3 @@
-import styles from './Editor.module.css'
-
 import { useNavigate } from 'react-router-dom';
 import FileComponent from './FileComponent';
 import { funcProp } from '../Interfaces';
