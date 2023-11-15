@@ -1,16 +1,22 @@
-# Use official python 3.10 docker image
-image: python:3.10.12
-
-# Run these commands in the docker container before each job
-before_script:
-  - python --version
-  - pip3 install --upgrade pip
-  - pip3 install -r requirements.txt
-
 stages:
-  - Linting
+  - build
+  - lint
 
-pylint:
-  stage: Linting
+build-frontend:
+  stage: build
+  image: node:latest
   script:
-  - pylint ./src --rcfile .pylintrc
+    - cd frontend/
+    - npm install
+    - npm run build
+
+lint-backend:
+  stage: lint
+  image: stgit.dcs.gla.ac.uk:5050/team-project-h/2023/sh30/cs30-main:latest
+  before_script:
+    - cd backend/
+    - pip3 install --upgrade pip
+    - pip3 install -r requirements.txt
+  script:
+    - cd ../ 
+    - pylint ./backend/ --rcfile .pylintrc

@@ -1,4 +1,4 @@
-import { ChangeEvent, useEffect, useState, useRef } from "react";
+import { ChangeEvent, useState, useRef } from "react";
 import { Link } from 'react-router-dom';
 import FileComponent from "./FileComponent";
 import { FileInfo } from "../Interfaces";
@@ -9,27 +9,29 @@ import globalStyles from '../App.module.css';
 const CreatePodcast: React.FC = () => {
 
     const [files, setFiles] = useState<Array<FileInfo>>([]);
-    const [fileToUpload, setFileToUpload]:any = useState(null);
-    const [projectName, setProjectName]:any = useState('');
-    const inputFile:any = useRef(null);
-    
-    const handleFileUpload = (event:ChangeEvent<HTMLInputElement>) => {
+    const [fileToUpload, setFileToUpload]: any = useState(null);
+    const [projectName, setProjectName]: any = useState('');
+    const inputFile: any = useRef(null);
+
+    const handleFileUpload = (event: ChangeEvent<HTMLInputElement>) => {
         if (event.target.files)
             setFileToUpload(event.target.files[0]);
     }
 
-    const nameSlug = (name:string):string => {
-            return name.toLowerCase()
-                        .replace(/[^a-z0-9 -]/g, '')
-                        .replace(/\s+/g, '-')
-                        .replace(/-+/g, '-');
+    const nameSlug = (name: string): string => {
+        return name.toLowerCase()
+            .replace(/[^a-z0-9 -]/g, '')
+            .replace(/\s+/g, '-')
+            .replace(/-+/g, '-');
     }
     const uploadFile = () => {
-        if (fileToUpload !== null){
-            const file_metadata = {slug:nameSlug(fileToUpload.name),
-                name:fileToUpload.name, 
-                date:fileToUpload.lastModifiedDate.getDate(), 
-                size:fileToUpload.size};
+        if (fileToUpload !== null) {
+            const file_metadata = {
+                slug: nameSlug(fileToUpload.name),
+                name: fileToUpload.name,
+                date: fileToUpload.lastModifiedDate.getDate(),
+                size: fileToUpload.size
+            };
             setFiles([...files, file_metadata]);
             if (inputFile.current)
                 inputFile.current.value = null;
@@ -40,7 +42,7 @@ const CreatePodcast: React.FC = () => {
         console.log("HELLO");
     }
 
-    const changeProjectName = (event:ChangeEvent<HTMLInputElement>) => {
+    const changeProjectName = (event: ChangeEvent<HTMLInputElement>) => {
         setProjectName(event.target.value);
     }
 
@@ -49,11 +51,11 @@ const CreatePodcast: React.FC = () => {
             <div id={styles.fileAdd}>
                 <div className={styles.projectName}>
                     <p> Name of project </p>
-                    <input type="text" onChange={changeProjectName}/>
+                    <input type="text" onChange={changeProjectName} />
                 </div>
                 <div className={styles.dragFiles}>
                     <p> Drag and drop to add files </p>
-                    <input type="file" accept="video/*, audio/*" ref={inputFile} onChange={handleFileUpload}/>
+                    <input type="file" accept="video/*, audio/*" ref={inputFile} onChange={handleFileUpload} />
                     <button onClick={uploadFile}> Upload from computer </button>
                 </div>
                 <p> Uploaded Files </p>
@@ -72,10 +74,10 @@ const CreatePodcast: React.FC = () => {
                     <label><input type="checkbox" id="master" name="optionSelect" value="mastering" />Audio Mastering</label><br />
                 </div>
                 <div id={styles.startProcessing}>
-                    { (projectName && files[0]) &&
-                    <Link to={`../editor/${projectName}`} className={globalStyles.Link} >
-                       <button onClick={startProcessing}> Start Editing </button>
-                    </Link>
+                    {(projectName && files[0]) &&
+                        <Link to={`../editor/${projectName}`} className={globalStyles.Link} >
+                            <button onClick={startProcessing}> Start Editing </button>
+                        </Link>
                     }
                 </div>
             </div>
