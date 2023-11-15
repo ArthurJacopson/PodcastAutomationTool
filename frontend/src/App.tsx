@@ -11,6 +11,7 @@ import globalStyles from './App.module.css';
 import Landing from './components/Landing';
 import Editor from './components/Editor';
 import Navbar from './components/Navbar';
+import CreatePodcast from './components/CreatePodcast';
 
 function App() {
 
@@ -28,6 +29,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Landing func={updateNavbarTitle} />} />
             <Route path="editor/:project" element={<Editor func={updateNavbarTitle} />} />
+            <Route path="create" element={<CreatePodcast />} />
           </Routes>
         </div>
       </Router>
