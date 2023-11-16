@@ -1,18 +1,27 @@
-import renderer from 'react-test-renderer';
-import Navbar from './Navbar';
-import {
-  BrowserRouter as Router,
-} from 'react-router-dom';
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { MemoryRouter, useNavigate }  from "react-router-dom";
+import Navbar from "./Navbar";
 
-it('loads correctly', () => {
-    const title = "Podplistic";
-    const component:any = renderer.create(
-        <Router>
-           <Navbar title={title} />
-        </Router>
+const mockNavigate = jest.fn();
+
+jest.mock('react-router-dom', () => ({
+    ...jest.requireActual('react-router-dom') as any,
+    useNavigate: () => mockNavigate,
+}));
+
+test('if the navbar loads correctly and routes to the correct places', async () => {
+    render(
+        <MemoryRouter>
+            <Navbar title={"test title"}/>
+        </MemoryRouter>
     );
-    let tree = component.toJSON();
-    expect(tree).toMatchSnapshot();
 
+
+    expect(screen.getByRole('heading')).toHaveTextContent('test title');
+
+    await userEvent.click(screen.getByAltText("Logo"));
+
+    expect(mockNavigate).toHaveBeenCalledWith('/');
 
 });
