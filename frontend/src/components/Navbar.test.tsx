@@ -3,9 +3,8 @@ import Navbar from './Navbar';
 import {
   BrowserRouter as Router,
 } from 'react-router-dom';
-import { getByText } from '@testing-library/react';
 
-it('Has the correct title', () => {
+it('loads correctly', () => {
     const title = "Podplistic";
     const component:any = renderer.create(
         <Router>
@@ -14,4 +13,6 @@ it('Has the correct title', () => {
     );
     let tree = component.toJSON();
     expect(tree).toMatchSnapshot();
+
+
 });
