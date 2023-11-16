@@ -2,7 +2,6 @@ import {
     useParams,
 } from "react-router-dom";
 
-import globalStyles from '../App.module.css'
 import styles from './Editor.module.css'
 
 interface funcProp {
