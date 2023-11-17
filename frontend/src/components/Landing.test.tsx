@@ -52,7 +52,7 @@ test("podcast link goes to editor", () => {
 });
 
 
-test("podcast link goes to editor", () => {
+test("create podcast link goes to create podcast", () => {
     const history = createMemoryHistory();
     history.push = jest.fn();
 
