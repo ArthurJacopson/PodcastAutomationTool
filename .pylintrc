@@ -151,7 +151,8 @@ disable=print-statement,
         no-member,
         pointless-string-statement,
         unused-variable,
-        subprocess-run-check
+        subprocess-run-check,
+        bad-continuation
       
 
 # Enable the message, report, category or checker with the given id(s). You can

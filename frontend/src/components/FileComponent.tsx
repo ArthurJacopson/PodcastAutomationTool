@@ -4,13 +4,8 @@ import styles from './FileComponent.module.css'
 import globalStyles from '../App.module.css'
 
 import thumbnail from '../static/thumbnail1.png'
+import { FileInfo } from '../Interfaces'
 
-interface FileInfo {
-    slug: string;
-    name: string;
-    date: string;
-    size: number;
-}
 
 const FileComponent = ({ slug, name, date, size }: FileInfo) => {
 
@@ -18,7 +13,7 @@ const FileComponent = ({ slug, name, date, size }: FileInfo) => {
         <div className={styles.fileComponent}>
             <Link to={`editor/${slug}`} className={globalStyles.Link} >
                 <div className={styles.fileComponentLeft}>
-                    <img src={thumbnail} className={styles.thumbnail}></img>
+                    <img src={thumbnail} className={styles.thumbnail} alt=""></img>
                     <p className={styles.name}>{name}</p>
                 </div>
             </Link>
