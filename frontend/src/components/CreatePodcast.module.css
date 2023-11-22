@@ -15,6 +15,11 @@
 
 }
 
+.fileUpload {
+	color: rgba(0,0,0,0);
+	padding-left: 15%;
+}
+
 .projectName {
 	display: flex;
 	justify-content: center;

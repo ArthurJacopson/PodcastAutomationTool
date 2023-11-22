@@ -12,14 +12,9 @@ import globalStyles from '../App.module.css';
 const CreatePodcast: React.FC = () => {
 
     const [files, setFiles] = useState<Array<FileInfo>>([]);
-    const [fileToUpload, setFileToUpload]: any = useState(null);
     const [projectName, setProjectName]: any = useState('');
     const inputFile: any = useRef(null);
 
-    const handleFileUpload = (event: ChangeEvent<HTMLInputElement>) => {
-        if (event.target.files)
-            setFileToUpload(event.target.files[0]);
-    }
 
     const nameSlug = (name: string): string => {
         return name.toLowerCase()
@@ -27,13 +22,15 @@ const CreatePodcast: React.FC = () => {
             .replace(/\s+/g, '-')
             .replace(/-+/g, '-');
     }
-    const uploadFile = () => {
-        if (fileToUpload !== null) {
+    const uploadFile = (event: ChangeEvent<HTMLInputElement>) => {
+        if (event.target.files) {
+            console.log(event.target.files[0])
+            const date = new Date(event.target.files[0].lastModified);
             const file_metadata = {
-                slug: nameSlug(fileToUpload.name),
-                name: fileToUpload.name,
-                date: fileToUpload.lastModifiedDate.getDate(),
-                size: fileToUpload.size
+                slug: nameSlug(event.target.files[0].name),
+                name: event.target.files[0].name,
+                date: date.toDateString(),
+                size: event.target.files[0].size
             };
             setFiles([...files, file_metadata]);
             if (inputFile.current)
@@ -48,7 +45,7 @@ const CreatePodcast: React.FC = () => {
             const data = {
                 "slug": projectName,
                 "name": projectName,
-                "date": Date(),
+                "date": new Date().toDateString(),
                 "size": (Math.random() * 100).toFixed(2)
             }
             await axios.post(UPLOAD_ENDPOINT, data, {
@@ -80,8 +77,8 @@ const CreatePodcast: React.FC = () => {
                 </div>
                 <div className={styles.dragFiles}>
                     <p> Drag and drop to add files </p>
-                    <input type="file" accept="video/*, audio/*" ref={inputFile} onChange={handleFileUpload} />
-                    <button onClick={uploadFile}> Upload from computer </button>
+                    <input type="file" id="files" accept="video/*, audio/*" className={styles.fileUpload} ref={inputFile} onChange={uploadFile} />
+                    <label htmlFor="files"/>
                 </div>
                 <p> Uploaded Files </p>
                 <div className={styles.uploadedFiles}>
@@ -99,11 +96,15 @@ const CreatePodcast: React.FC = () => {
                     <label><input type="checkbox" id="master" name="optionSelect" value="mastering" />Audio Mastering</label><br />
                 </div>
                 <div id={styles.startProcessing}>
-                    {(projectName && files[0]) &&
+                    {(projectName && files[0]) ? (
                         <Link to={`../editor/${projectName}`} className={globalStyles.Link} >
                             <button onClick={startProcessing}> Start Editing </button>
-                        </Link>
-                    }
+                        </Link> 
+                    ) : (
+                        <Link to={`../editor/${projectName}`} className={globalStyles.Link} >
+                            <button onClick={startProcessing} disabled> Start Editing </button>
+                        </Link> 
+                        )}
                 </div>
             </div>
         </div>
