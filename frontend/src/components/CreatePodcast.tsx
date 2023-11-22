@@ -3,6 +3,9 @@ import { Link } from 'react-router-dom';
 import FileComponent from "./FileComponent";
 import { FileInfo } from "../Interfaces";
 
+import axios from "axios";
+
+
 import styles from "./CreatePodcast.module.css"
 import globalStyles from '../App.module.css';
 
@@ -38,8 +41,30 @@ const CreatePodcast: React.FC = () => {
         }
     }
 
+    const uploadPodcastToServer = async () => {
+        try {
+
+            const UPLOAD_ENDPOINT = `http://127.0.0.1:5000/create/${projectName}`
+            const data = {
+                "slug": projectName,
+                "name": projectName,
+                "date": Date(),
+                "size": (Math.random() * 100).toFixed(2)
+            }
+            await axios.post(UPLOAD_ENDPOINT, data, {
+                headers: {
+                    "content-type": "json",
+                },
+            });
+        }
+        catch (e) {
+            console.log(e);
+        }
+    }
+
     const startProcessing = () => {
         console.log("HELLO");
+        uploadPodcastToServer();
     }
 
     const changeProjectName = (event: ChangeEvent<HTMLInputElement>) => {
