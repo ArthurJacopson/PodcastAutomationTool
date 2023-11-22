@@ -16,33 +16,30 @@ const Editor = (props: funcProp) => {
     props.func(`Editing ${project!}`);
     return (
         <div id={styles.main}>
+
             <div className={styles.comp} id={styles.editor}>
-                <div>
-                    <ReactPlayer 
-                        url={sampleVideo}
-                        controls={true} 
-                        width="55vw"
-                        height="100%"
-                    />
-                </div>
+                <ReactPlayer
+                    className={styles.player}
+                    url={sampleVideo}
+                    // controls={true}
+                    width="100%"
+                    height="100%"
+                />
+            </div>
+
+            <div className={styles.comp} id={styles.transcript}>
+                Transcript
             </div>
 
             <div className={styles.comp} id={styles.timeline}>
-                <div className={styles.compHeading}>
-                    Timeline
-                </div>
+                Timeline
                 <div>
                     <WaveForm />
                 </div>
             </div>
 
-            <div className={styles.comp} id={styles.transcript}>
-                <div className={styles.compHeading}>
-                    Transcript
-                </div>
-            </div>
         </div>
-        );
-    };
+    );
+};
 
 export default Editor;

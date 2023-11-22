@@ -1,11 +1,12 @@
 #main {
+    max-width: 1670px;
     height: 100%;
     display: grid;
-    grid-template-columns: 3fr 1fr;
+    grid-template-columns: 5fr 2fr;
     grid-template-rows: 3fr 1fr;
     grid-template-areas:
         "editor  transcript"
-        "timeline transcript"
+        "timeline timeline"
     ;
 }
 
@@ -38,4 +39,8 @@
     font-size: 2em;
     font-family: "Epilogue", sans-serif;
     margin: 0;
+}
+
+.player video {
+    border-radius: 10px;
 }
