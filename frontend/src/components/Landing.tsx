@@ -35,6 +35,7 @@ const Landing = (props: funcProp) => {
         return (
             <div>
                 <p>No projects found...</p>
+                <button onClick={gotoCreate}>Create Podcast</button>
             </div>
         );
     }
