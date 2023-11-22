@@ -2,7 +2,7 @@
     height: 100%;
     display: grid;
     grid-template-columns: 3fr 1fr;
-    grid-template-rows: 4fr 1fr;
+    grid-template-rows: 3fr 1fr;
     grid-template-areas:
         "editor  transcript"
         "timeline transcript"
@@ -11,6 +11,10 @@
 
 #editor {
     grid-area: editor;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 #transcript {
@@ -19,10 +23,19 @@
 
 #timeline {
     grid-area: timeline;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .comp {
-    background-color: red;
+    background-color: #E2E2E2;
     border-radius: 10px;
     margin: 10px;
+}
+
+.compHeading {
+    font-size: 2em;
+    font-family: "Epilogue", sans-serif;
+    margin: 0;
 }

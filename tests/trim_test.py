@@ -6,32 +6,31 @@ from trim import *
 
 class test_trim(unittest.TestCase):
     
-    # assumes you have a example-files folder with a s1-trim.wav to test, can be changed
+    # assumes you have a example-files folder with a sample_audio.wav to test, can be changed
     def setUp(self):
-        self.target_file_path = os.path.abspath('../example-files/s1-trim.wav')
-        self.write_output_file_path = os.path.abspath('test.wav')
-        self.trim_output_file_path = os.path.abspath('test_trimmed.wav')
+        self.audio_input_filepath = os.path.abspath('../example-files/sample_audio.wav')
+        self.audio_output_filepath = os.path.abspath('test.wav')
         
     def tearDown(self):
-        if os.path.exists(self.write_output_file_path):
-            os.remove(self.write_output_file_path)
-        if os.path.exists(self.trim_output_file_path):
-            os.remove(self.trim_output_file_path)
+        if os.path.exists(self.audio_output_filepath):
+            os.remove(self.audio_output_filepath)
 
-    def test_array_read_type(self):
-        output = read_file_to_array(self.target_file_path)
-        self.assertTrue(isinstance(output, np.ndarray), f"{type(output)} is not an array.")
+    def test_array_read_is_array(self):
+        output = read_file_to_array(self.audio_input_filepath)
+        self.assertTrue(isinstance(output, np.ndarray), f"read_file_to_array outputted a file of type {type(output)}.")
         
-    def test_array_write_filetype(self):
-        write_out_from_array("test", read_file_to_array(self.target_file_path))
-        result = sndhdr.what(self.write_output_file_path)
-        self.assertTrue(result.filetype == 'wav', f"File outputted by 'write_out_from_array' isn't a wav file, instead it is a {result.filetype} file.")
+    def test_array_write_is_wav(self):
+        write_out_from_array("test", read_file_to_array(self.audio_input_filepath))
+        self.assertTrue(os.path.exists(self.audio_output_filepath), "write_out_from_array failed to output an audio file.")
+        result = sndhdr.what(self.audio_output_filepath)
+        self.assertTrue(result.filetype == 'wav', f"File outputted by write_out_from_array isn't a wav file, instead it is a {result.filetype} file.")
         
-    def test_array_trim_length(self):
-        array = read_file_to_array(self.target_file_path)
+    def test_array_trim_length_is_lower(self):
+        array = read_file_to_array(self.audio_input_filepath)
         trimmed_array = trim(array, 50)
-        write_out_from_array("test_trimmed", trimmed_array)
-        self.assertTrue(sndhdr.what(self.target_file_path).nframes > sndhdr.what(self.trim_output_file_path).nframes, "Trimmed array doesn't have less frames than the original.")
+        write_out_from_array("test", trimmed_array)
+        self.assertTrue(os.path.exists(self.audio_output_filepath), "write_out_from_array failed to output an audio file using an array trimmed using trim.")
+        self.assertTrue(sndhdr.what(self.audio_input_filepath).nframes > sndhdr.what(self.audio_output_filepath).nframes, "Trimmed array doesn't have less frames than the original.")
 
 if __name__ == '__main__':
     unittest.main()
