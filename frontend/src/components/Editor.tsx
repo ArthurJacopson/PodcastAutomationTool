@@ -5,7 +5,7 @@ import {
 import { useRef, useState } from "react";
 
 import styles from './Editor.module.css'
-import ReactPlayer from 'react-player';
+import ReactPlayer from '@ehibb/react-player';
 
 import sampleVideo from '../static/sample.mp4'
 import WaveForm from "./WaveForm";
