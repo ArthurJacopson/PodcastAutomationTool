@@ -153,7 +153,8 @@ disable=print-statement,
         unused-variable,
         subprocess-run-check,
         bad-continuation,
-        global-statement
+        global-statement,
+        unused-argument
       
 
 # Enable the message, report, category or checker with the given id(s). You can
