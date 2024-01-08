@@ -46,7 +46,7 @@ def get_projects():
     return response
 
 @bp.route('/create/<project_name>', methods=['POST'])
-def create_project():
+def create_project(project_name):
     data_str = request.data.decode('utf-8')
     data = json.loads(data_str)
     newProject = Project(data['slug'], data['name'], data['date'], data['size'])
