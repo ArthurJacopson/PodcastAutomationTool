@@ -1,13 +1,18 @@
-from flask import Flask, jsonify, request
 import json
-from flask_cors import CORS
+from flask import Blueprint, jsonify, request
 
-app = Flask(__name__)
-CORS(app)
+bp = Blueprint('project_routes', __name__)
+
 
 projects = []
 
 class Project:
+    """
+    Project model
+    TODO: needs to be moved to models directory when working on issue #88
+    TODO: move this class to models/project.py
+
+    """
     def __init__(self, slug, name, date, size):
         self.slug = slug
         self.name = name
@@ -32,7 +37,7 @@ def initialise_dummy_data():
 
     projects = [a, b, c]
 
-@app.route('/projects', methods=['GET'])
+@bp.route('/projects', methods=['GET'])
 def get_projects():
     print(projects[0])
     response = [project.toJSON() for project in projects]
@@ -40,17 +45,11 @@ def get_projects():
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
-@app.route('/create/<project_name>', methods=['POST'])
-def create_project(project_name):
+@bp.route('/create/<project_name>', methods=['POST'])
+def create_project():
     data_str = request.data.decode('utf-8')
     data = json.loads(data_str)
     newProject = Project(data['slug'], data['name'], data['date'], data['size'])
     projects.insert(0, newProject)
     response = "success"
     return response
-
-if __name__ == "__main__":
-
-    initialise_dummy_data()
-
-    app.run()
