@@ -14,7 +14,7 @@ tmux new-session -d -s "${session}"
 tmux rename-window -t 0 "Main"
 tmux split-window -h
 
-tmux send-keys -t "${flask_pane}" "cd flask && python3 server.py" Enter
+tmux send-keys -t "${flask_pane}" "cd flask-api && python3 app.py" Enter
 tmux send-keys -t "${frontend_pane}" "cd frontend && npm start" Enter
 
 tmux attach-session -t "${session}"
