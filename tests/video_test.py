@@ -1,7 +1,7 @@
 import unittest, os, sys, timeit
 import numpy as np
 import cv2 as cv
-sys.path.append('../src/utils')
+sys.path.append('../flask-api/api/editing/utils')
 from video import *
 
 
