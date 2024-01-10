@@ -8,18 +8,16 @@ const Landing = (props: funcProp) => {
 
     props.func("Podplistic");
 
-    // const [loading, setLoading] = useState(false);
     const [projects, setProjects] = useState([]);
     const navigate = useNavigate();
     const gotoCreate = () => navigate('/create');
 
     const makeAPICall = async () => {
         try {
-            // setLoading(true);
             const response = await fetch('http://127.0.0.1:5000/projects');
+            if(!response.ok) throw new Error(response.status.toString());
             const data = await response.json();
             setProjects(await data);
-            // setLoading(false);
             console.log({ data })
         }
         catch (e) {
@@ -39,11 +37,12 @@ const Landing = (props: funcProp) => {
             </div>
         );
     }
+    // TODO: Need to handle empty projects option otherwise map throws an error
     else {
         return (
             <div className="mainContent">
-                {projects.map(({ slug, name, date, size }) => {
-                    return (<FileComponent key={slug} slug={slug} name={name} date={date} size={size} />
+                {projects.map(({ project_id, name, date, size }) => {
+                    return (<FileComponent key={project_id} slug={project_id} name={name} date={date} size={size} />
                     )
                 })}
                 <button onClick={gotoCreate}>Create Podcast</button>

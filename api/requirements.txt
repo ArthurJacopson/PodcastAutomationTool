@@ -8,5 +8,8 @@ numpy==1.26.1
 opencv-python==4.8.1.78
 pylint==2.4.4
 wrapt==1.11.2
-Flask==2.2.2
-Flask-Cors==3.0.9
+
+flask==3.0.0
+flask_cors==4.0.0
+flask_sqlalchemy==3.1.1
+psycopg2==2.9.9

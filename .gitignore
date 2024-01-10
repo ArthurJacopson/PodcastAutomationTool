@@ -1,4 +1,6 @@
 .env/
+.docker-volumes/
+.secrets/
 
 # Ignore directory containing example podcast files
 example-files/
