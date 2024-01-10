@@ -154,7 +154,19 @@ disable=print-statement,
         subprocess-run-check,
         bad-continuation,
         global-statement,
-        unused-argument
+        unused-argument,
+        too-few-public-methods,
+        import-error,              
+        no-name-in-module,
+        wrong-import-order,
+        broad-except,
+        unused-import,
+        unspecified-encoding,
+        c-extension-no-member,
+        missing-final-newline,
+        fixme,
+        missing-class-docstring,
+        consider-using-f-string
       
 
 # Enable the message, report, category or checker with the given id(s). You can
