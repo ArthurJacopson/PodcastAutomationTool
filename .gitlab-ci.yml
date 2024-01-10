@@ -1,13 +1,17 @@
 stages:
   - build
   - lint
+  - test
 
 build-frontend:
   stage: build
   image: node:latest
+  artifacts:
+    paths:
+      - frontend/node_modules
   script:
     - cd frontend/
-    - npm install
+    - npm ci
     - npm run build
 
 lint-backend:
@@ -20,3 +24,30 @@ lint-backend:
   script:
     - cd ../ 
     - pylint ./api/ --rcfile .pylintrc --ignore=.env
+  dependencies: []
+
+test-frontend:
+  stage: test
+  image: node:latest
+  needs:
+    - build-frontend
+  dependencies:
+    - build-frontend
+  script:
+    - cd frontend/
+    - npm test
+
+test-backend:
+  stage: test
+  image: stgit.dcs.gla.ac.uk:5050/team-project-h/2023/sh30/cs30-main:latest
+  only:
+    variables:
+      - $NIGHTLY_TEST
+  before_script:
+    - cd api/
+    - pip3 install --upgrade pip
+    - pip3 install -r requirements.txt
+  script:
+    - cd ../tests/
+    - ./runtests.sh
+  dependencies: []

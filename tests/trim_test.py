@@ -1,6 +1,6 @@
 import unittest, os, sys, sndhdr
 import numpy as np
-sys.path.append('../src/utils')
+sys.path.append('../flask-api/api/editing/utils')
 from trim import *
 
 
