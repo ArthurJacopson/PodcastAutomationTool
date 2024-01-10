@@ -3,11 +3,14 @@
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+    box-siing: border-box;
 
     background-color: #e4e4e4;
     border-radius: 10px;
-    padding: 20px;
-    margin: 10px;
+    padding: 3vh;
+    margin: 3vh 7vh;
+    max-width: 100vh;
+    font-size: 2vh;
 }
 
 .fileComponentLeft {
@@ -27,18 +30,18 @@
 }
 
 .thumbnail {
-    width: 250px;
-    border-radius: 10px;
-    margin-right: 40px;
+    width: 25vh;
+    border-radius: 1vh;
+    margin-right: 4vh;
 }
 
 .name {
     font-weight: 600;
-    font-size: 2em;
+    font-size: 4vh;
     color: black;
     text-decoration: none;
 }
 
 .fileInfo {
-    margin-right: 40px;
+    margin-right: 4vh;
 }

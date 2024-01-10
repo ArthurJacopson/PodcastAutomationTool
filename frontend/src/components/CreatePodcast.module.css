@@ -1,46 +1,27 @@
 #main {
 	display: grid;
-	grid-template-columns: 1.3fr 1fr;
+	grid-template-columns: 1fr 1fr;
 	grid-template-areas:
 	"fileAdd configurePodcast";
+	font-size: 2vh;
+	margin-top: 5vh;
 }
 
-#fileAdd {
-	grid-area: fileAdd;
-}
 
 #configurePodcast {
 	grid-area: configurePodcast;
-	padding: 1em;
-
+	width: 100vh;
+	margin-left: 5vh;
 }
 
-.fileUpload {
-	color: rgba(0,0,0,0);
-	padding-left: 15%;
-}
-
-.projectName {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	padding: 10px;
-}
-.dragFiles {
-	padding: 10px;
-	border-style: dashed;
-	border-radius: 1em;
-}
-.uploadedFiles {
-	padding-top: 1em;
-	max-height: 25em;
-	width: auto;
-	overflow: auto;
+#configurePodcast > * {
+	margin-bottom: 5vh;
 }
 
 .optionSelect {
 	align-items: center;
 }
+
 
 input[type=checkbox] {
 	vertical-align: middle;

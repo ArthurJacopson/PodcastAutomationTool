@@ -1,18 +1,19 @@
 import { ChangeEvent, useState, useRef } from "react";
-import { Link } from 'react-router-dom';
-import FileComponent from "./FileComponent";
 import { FileInfo } from "../Interfaces";
-
+import  AddFile  from "./AddFile";
 import axios from "axios";
 
 
 import styles from "./CreatePodcast.module.css"
-import globalStyles from '../App.module.css';
+import StartEditingButton from "./StartEditingButton";
+import BasicOption from "./BasicOption";
+import AdvancedOption from "./AdvancedOption";
 
 const CreatePodcast: React.FC = () => {
 
     const [files, setFiles] = useState<Array<FileInfo>>([]);
-    const [projectName, setProjectName]: any = useState('');
+    const [projectName, setProjectName] = useState<string>('');
+    const [basicSelected, setBasicSelected] = useState<boolean>(true);
     const inputFile: any = useRef(null);
 
 
@@ -70,41 +71,29 @@ const CreatePodcast: React.FC = () => {
 
     return (
         <div className="mainContent" id={styles.main}>
-            <div id={styles.fileAdd}>
-                <div className={styles.projectName}>
-                    <p> Name of project </p>
-                    <input type="text" onChange={changeProjectName} />
-                </div>
-                <div className={styles.dragFiles}>
-                    <p> Drag and drop to add files </p>
-                    <input type="file" id="files" accept="video/*, audio/*" className={styles.fileUpload} ref={inputFile} onChange={uploadFile} />
-                    <label htmlFor="files"/>
-                </div>
-                <p> Uploaded Files </p>
-                <div className={styles.uploadedFiles}>
-                    {files.map((props: FileInfo) => {
-                        return (
-                            <FileComponent slug={props.slug} name={props.name} date={props.date} size={props.size} />
-                        )
-                    })}
-                </div>
-            </div>
+            <AddFile 
+                changeProjectName={changeProjectName}
+                inputFile={inputFile}
+                uploadFile={uploadFile}
+                files={files}
+            />
             <div id={styles.configurePodcast}>
-                <div className={styles.optionSelect}>
-                    <label><input type="checkbox" id="sync" name="optionSelect" value="synchronise" />Synchronisation</label><br />
-                    <label><input type="checkbox" id="transcript" name="optionSelect" value="transcription" />Transcription</label><br />
-                    <label><input type="checkbox" id="master" name="optionSelect" value="mastering" />Audio Mastering</label><br />
-                </div>
+                <BasicOption 
+                    chosen={basicSelected}
+                    handleChange={() => setBasicSelected(true)}
+                    className={styles.optionSelect}
+                />
+                <AdvancedOption
+                    chosen={!basicSelected}
+                    handleChange={() => setBasicSelected(false)}
+                    className={styles.optionSelect}
+                />
                 <div id={styles.startProcessing}>
-                    {(projectName && files[0]) ? (
-                        <Link to={`../editor/${projectName}`} className={globalStyles.Link} >
-                            <button onClick={startProcessing}> Start Editing </button>
-                        </Link> 
-                    ) : (
-                        <Link to={`../editor/${projectName}`} className={globalStyles.Link} >
-                            <button onClick={startProcessing} disabled> Start Editing </button>
-                        </Link> 
-                        )}
+                    <StartEditingButton
+                        canContinue={projectName && files[0]}
+                        startProcessing={startProcessing}
+                        projectName={projectName}
+                    />
                 </div>
             </div>
         </div>
