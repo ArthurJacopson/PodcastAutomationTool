@@ -1,16 +1,16 @@
 import unittest, os, sys, subprocess, json, librosa
 import numpy as np
-sys.path.append('../flask-api/api/editing/utils')
+sys.path.append('../api/api/editing/utils')
 from main import *
 
 
 class test_main(unittest.TestCase):
     
-    # assumes you have a example-files folder with a sample files to test
+    # assumes you have /sample-files folder with a sample files to test
     def setUp(self):
-        self.audio_input_filepath = os.path.abspath('../example-files/sample_audio.wav')
-        self.video_input_filepath = os.path.abspath('../example-files/sample_video.mp4')
-        self.video2_input_filepath = os.path.abspath('../example-files/sample_video_2.mp4')
+        self.audio_input_filepath = os.path.abspath('./sample-files/audio/sample1.mp3')
+        self.video_input_filepath = os.path.abspath('./sample-files/video/sample.mp4')
+        self.video2_input_filepath = os.path.abspath('./sample-files/video/goat.mp4')
         self.video_output_filepath = os.path.abspath('test.mp4')
         self.audio_output_filepath = os.path.abspath('test.wav')
         
