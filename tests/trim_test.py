@@ -1,6 +1,6 @@
 import unittest, os, sys, sndhdr
 import numpy as np
-sys.path.append('../flask-api/api/editing/utils')
+sys.path.append('../api/api/editing/utils')
 from trim import *
 
 
@@ -8,7 +8,7 @@ class test_trim(unittest.TestCase):
     
     # assumes you have a example-files folder with a sample_audio.wav to test, can be changed
     def setUp(self):
-        self.audio_input_filepath = os.path.abspath('../example-files/sample_audio.wav')
+        self.audio_input_filepath = os.path.abspath('./sample-files/audio/s1-trim.wav')
         self.audio_output_filepath = os.path.abspath('test.wav')
         
     def tearDown(self):

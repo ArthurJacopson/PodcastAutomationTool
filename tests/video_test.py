@@ -1,7 +1,7 @@
 import unittest, os, sys, timeit
 import numpy as np
 import cv2 as cv
-sys.path.append('../flask-api/api/editing/utils')
+sys.path.append('../api/api/editing/utils')
 from video import *
 
 
@@ -9,7 +9,7 @@ class test_video(unittest.TestCase):
     
     # assumes you have a example-files folder with a sample_video.mp4 to test
     def setUp(self):
-        self.video_input_filepath = os.path.abspath('../example-files/sample_video.mp4')
+        self.video_input_filepath = os.path.abspath('./sample-files/video/samples.mp4')
 
     def test_video_read_duration_similar(self):
         target = cv.VideoCapture(self.video_input_filepath)
