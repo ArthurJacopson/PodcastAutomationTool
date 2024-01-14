@@ -4,7 +4,7 @@ import thumbnail from '../static/thumbnail1.png'
 import { FileInfo } from '../Interfaces'
 
 
-const FileComponent = ({name, size, component_type }: FileInfo) => {
+const FileComponent = ({name, size, file_type }: FileInfo) => {
     return (
         <div className={styles.listComponent}>
                 <div className={styles.listComponentLeft}>
@@ -13,7 +13,7 @@ const FileComponent = ({name, size, component_type }: FileInfo) => {
                 </div>
             <div className={styles.listComponentRight}>
                 <div className={styles.listComponentInfo}>
-                    <p>Type: {component_type}</p>
+                    <p>Type: {file_type}</p>
                     <p>Size: {size}</p>
                 </div>
                 <p>Options</p>

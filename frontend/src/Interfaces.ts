@@ -2,7 +2,7 @@ export interface FileInfo {
     slug: string;
     name: string;
     size: string;
-    component_type: string;
+    file_type: string;
 }
 
 export interface ProjectInfo {

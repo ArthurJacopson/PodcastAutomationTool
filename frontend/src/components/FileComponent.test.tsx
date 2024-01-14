@@ -1,5 +1,4 @@
-import { render, screen, fireEvent } from "@testing-library/react";
-import { Router } from "react-router-dom";
+import { render, screen, } from "@testing-library/react";
 import { createMemoryHistory } from 'history';
 import FileComponent from "./FileComponent";
 import { sizeConversion} from "../utils"
@@ -12,7 +11,7 @@ test('Component is created with correct contents, as defined in sampleData', () 
         slug: "a", 
         name: "Project A",
         size: sizeConversion(15000),
-        component_type: "project"
+        file_type: "project"
         
     }
     const history = createMemoryHistory();
@@ -23,7 +22,7 @@ test('Component is created with correct contents, as defined in sampleData', () 
             slug={sampleData.slug}
             name={sampleData.name}
             size={sampleData.size}
-            component_type={sampleData.component_type}
+            file_type={sampleData.file_type}
         />
     )
 
