@@ -24,6 +24,7 @@ def get_single_project(project_id):
         error_message = f'Error retrieving projects: {str(e)}'
         return jsonify({'error': error_message}), 500  
 
+
 @bp.route('/projects', methods=['GET'])
 def get_projects():
     try:
@@ -43,12 +44,13 @@ def create_project(project_name):
     """
     Endpoint to be used when creating a new project.
     :param project_name: the name of the project to be created.
+    :return result: if unsuccessful return error code, if successful return id of new project.
     """
     try:
         new_project = Project(name=project_name)
         db.session.add(new_project)
         db.session.commit()
-        project = Project.query.first()
+        project = Project.query.filter_by(project_id=new_project.project_id).first()
     
     except Exception as e:
         error_message = f'Error connecting to the database: {str(e)}'
@@ -57,6 +59,7 @@ def create_project(project_name):
     else:
         result = {'message': 'Database connection successful', 'project_id': project.project_id, 'name': project.name}
         return jsonify(result), 200
+
 
 @bp.route('/delete/<project_id>', methods=['POST'])
 def delete_project(project_id):

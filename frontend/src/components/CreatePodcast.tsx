@@ -1,15 +1,22 @@
 import { ChangeEvent, useState, useRef } from "react";
-import { FileInfo } from "../Interfaces";
-import  AddFile  from "./AddFile";
-import { nameSlug, sizeConversion} from "../utils"
-import axios from "axios";
+import { Link, useNavigate } from "react-router-dom";
 
-import styles from "./CreatePodcast.module.css"
-import StartEditingButton from "./StartEditingButton";
+import { FileInfo } from "../Interfaces";
+import { nameSlug, sizeConversion} from "../utils"
+
+import  AddFile  from "./AddFile";
 import BasicOption from "./BasicOption";
 import AdvancedOption from "./AdvancedOption";
 
+import styles from "./CreatePodcast.module.css"
+import globalStyles from "../App.module.css"
+
+
 const CreatePodcast: React.FC = () => {
+
+    const API_ENDPOINT = process.env.REACT_APP_FLASK_API_DEVELOP;
+
+    const navigate = useNavigate();
 
     const [files, setFiles] = useState<Array<FileInfo>>([]);
     const [projectName, setProjectName] = useState<string>('');
@@ -32,33 +39,48 @@ const CreatePodcast: React.FC = () => {
         }
     }
 
-    const uploadPodcastToServer = async () => {
+    /**
+     * Sends a request to the API to create a new podcast called {projectName}.
+     * If successfully created, navigate to the editor page for the new project_id.
+     */
+    const uploadPodcast = async () => {
         try {
-            const UPLOAD_ENDPOINT = process.env.REACT_APP_FLASK_API_DEVELOP + `/create/${projectName}`
-            const data = {
-                "slug": projectName,
-                "name": projectName,
-                "date": new Date().toDateString(),
-                "size": (Math.random() * 100).toFixed(2)
-            }
-            await axios.post(UPLOAD_ENDPOINT, data, {
+            const response = await fetch(`${API_ENDPOINT}/create/${projectName}`, {
+                method: 'POST',
                 headers: {
                     "content-type": "json",
                 },
             });
+            if(!response.ok) {
+                throw new Error(`Failed to create new project. Status: ${response.status.toString()}`);
+            } 
+            const responseData = await response.json();
+            navigate(`/editor/${responseData.project_id}`);
         }
         catch (e) {
-            console.log(e);
+            console.error('Error creating new project:', e);
         }
-    }
-
-    const startProcessing = () => {
-        uploadPodcastToServer();
     }
 
     const changeProjectName = (event: ChangeEvent<HTMLInputElement>) => {
         setProjectName(event.target.value);
     }
+
+    /**
+     * Constructs the button element that allows the user to start editing.
+     * The button will be disabled until:
+     *   - At least one file has been uploaded
+     *   - There is a project name
+     */
+    const startEditingButton = (
+        projectName && files[0] ? (
+            <Link to={'#'} className={globalStyles.Link}>
+                <button onClick={uploadPodcast}>Start Editing</button>
+            </Link>
+        ) : (
+            <button disabled>Start Editing</button>
+        )
+    );
 
     return (
         <div className="mainContent" id={styles.main}>
@@ -79,13 +101,7 @@ const CreatePodcast: React.FC = () => {
                     handleChange={() => setBasicSelected(false)}
                     className={styles.optionSelect}
                 />
-                <div id={styles.startProcessing}>
-                    <StartEditingButton
-                        canContinue={projectName && files[0]}
-                        startProcessing={startProcessing}
-                        projectName={projectName}
-                    />
-                </div>
+                {startEditingButton}
             </div>
         </div>
     )
