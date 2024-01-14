@@ -34,8 +34,7 @@ const CreatePodcast: React.FC = () => {
 
     const uploadPodcastToServer = async () => {
         try {
-
-            const UPLOAD_ENDPOINT = `http://127.0.0.1:5000/create/${projectName}`
+            const UPLOAD_ENDPOINT = process.env.REACT_APP_FLASK_API_DEVELOP + `/create/${projectName}`
             const data = {
                 "slug": projectName,
                 "name": projectName,
