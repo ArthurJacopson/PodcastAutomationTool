@@ -2,9 +2,10 @@ import { ChangeEvent, useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import { FileInfo } from "../Interfaces";
-import { nameSlug, sizeConversion} from "../utils"
 
 import  AddFile  from "./AddFile";
+import { nameSlug, sizeConversion} from "../utils"
+
 import BasicOption from "./BasicOption";
 import AdvancedOption from "./AdvancedOption";
 
@@ -23,6 +24,8 @@ const CreatePodcast: React.FC = () => {
     const [basicSelected, setBasicSelected] = useState<boolean>(true);
     const inputFile: React.RefObject<HTMLInputElement> = useRef(null);
 
+
+
     const uploadFile = (event: ChangeEvent<HTMLInputElement>) => {
         if (event.target.files) {
             const date = new Date(event.target.files[0].lastModified);
@@ -31,7 +34,7 @@ const CreatePodcast: React.FC = () => {
                 name: event.target.files[0].name,
                 date: date.toDateString(),
                 size: sizeConversion(event.target.files[0].size),
-                component_type: event.target.files[0].type
+                file_type: event.target.files[0].type
             };
             setFiles([...files, file_metadata]);
             if (inputFile.current)

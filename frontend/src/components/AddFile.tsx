@@ -23,7 +23,7 @@ const AddFile:React.FC<PropsWithChildren<any>> = (props) => {
                             <FileComponent slug={props.slug}
                             name={props.name} 
                             size={props.size}
-                            component_type={props.component_type}/>
+                            file_type={props.file_type}/>
                         )
                     })}
                 </div>
