@@ -1,16 +1,22 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 import { useNavigate } from 'react-router-dom';
 import { ProjectInfo, funcProp } from '../Interfaces';
 import ProjectComponent from './ProjectComponent';
 
+import { useWaitAuth0Redirect } from '../hooks/useWaitAuthoRedirect';
+
 const Landing = (props: funcProp) => {
  
     props.func("Podplistic");
 
+    const isLoggedIn = useWaitAuth0Redirect('login');
+    
     const [projects, setProjects] = useState<ProjectInfo[]>([]);
+
     const navigate = useNavigate();
     const gotoCreate = () => navigate('/create');
+    const makeAPICallRef = useRef(true);
 
     /**
      * Fetches all projects from the database by calling the Flask API
@@ -60,6 +66,18 @@ const Landing = (props: funcProp) => {
         fetchProjects();
     }, [])
 
+    useEffect(() => {
+        if (makeAPICallRef.current){
+            const getData = () => {
+                if(isLoggedIn){
+                    fetchProjects();
+                }
+            }
+            getData();
+            makeAPICallRef.current = false;
+        }
+    },[isLoggedIn])
+        
     if (projects.length === 0) {
         return (
             <div>
