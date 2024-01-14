@@ -18,9 +18,9 @@ const Landing = (props: funcProp) => {
      * @returns {Promise<void>} - returns a Promise that is resolved when the project is deleted. 
      * @throws {Error} - throws an error if there is an issue fetching projects.
      */
-    const fetchProjects = async () => {
+    const fetchProjects = async (): Promise<void> => {
         try {
-            const response = await fetch('http://127.0.0.1:5000/projects');
+            const response = await fetch(process.env.REACT_APP_FLASK_API_DEVELOP + '/projects');
             if(!response.ok) {
                 throw new Error(`Failed to fetch projects. Status: ${response.status.toString()}`);
             } 
@@ -37,9 +37,9 @@ const Landing = (props: funcProp) => {
      * @param {string} project_id - the ID of the project to be deleted.
      * @returns {Promise<void>} - returns a Promise that is resolved when the project is deleted. 
      */
-    const handleDelete = async (project_id: string) => {
+    const handleDelete = async (project_id: string): Promise<void> => {
         try {
-            const response = await fetch(`http://127.0.0.1:5000/delete/${project_id}`, {
+            const response = await fetch(process.env.REACT_APP_FLASK_API_DEVELOP + `/delete/${project_id}`, {
                 method: 'POST',
             });
 
