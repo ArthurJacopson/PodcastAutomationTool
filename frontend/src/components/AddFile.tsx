@@ -20,7 +20,10 @@ const AddFile:React.FC<PropsWithChildren<any>> = (props) => {
                 <div className={styles.uploadedFiles}>
                     {props.files.map((props: FileInfo) => {
                         return (
-                            <FileComponent slug={props.slug} name={props.name} date={props.date} size={props.size} />
+                            <FileComponent slug={props.slug}
+                            name={props.name} 
+                            size={props.size}
+                            component_type={props.component_type}/>
                         )
                     })}
                 </div>

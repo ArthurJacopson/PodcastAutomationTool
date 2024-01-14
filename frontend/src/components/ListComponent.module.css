@@ -1,9 +1,8 @@
-.fileComponent {
+.listComponent {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    box-siing: border-box;
 
     background-color: #e4e4e4;
     border-radius: 10px;
@@ -13,16 +12,18 @@
     font-size: 2vh;
 }
 
-.fileComponentLeft {
+.listComponentLeft {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+}
 
+.projectComponentLeft {
     cursor: pointer;
 }
 
-.fileComponentRight {
+.listComponentRight {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -42,6 +43,6 @@
     text-decoration: none;
 }
 
-.fileInfo {
+.listComponentInfo {
     margin-right: 4vh;
 }

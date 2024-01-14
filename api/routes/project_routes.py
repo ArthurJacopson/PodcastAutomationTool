@@ -40,3 +40,24 @@ def create_project(project_name):
     else:
         result = {'message': 'Database connection successful', 'project_id': project.project_id, 'name': project.name}
         return jsonify(result), 200
+
+@bp.route('/delete/<project_id>', methods=['POST'])
+def delete_project(project_id):
+    """
+    Endpoint to be used when deleting a project.
+    :param project_id: the id of the project to be deleted. This is used as it is the PK in the projects table
+    """
+    try:
+        project = Project.query.get(project_id)
+        if not project:
+            return jsonify({'error': 'Project not found'}), 404
+        db.session.delete(project)
+        db.session.commit()
+
+    except Exception as e:
+        error_message = f'Error connecting to the database: {str(e)}'
+        return jsonify({'error': error_message}), 500
+
+    else:
+        result = {'message': 'Project deleted successfully'}
+        return jsonify(result), 200    
