@@ -2,49 +2,32 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { Router } from "react-router-dom";
 import { createMemoryHistory } from 'history';
 import FileComponent from "./FileComponent";
+import { sizeConversion} from "../utils"
 
 
 
-test('correct stuff is shown in component', () => {
+test('Component is created with correct contents, as defined in sampleData', () => {
 
     const sampleData = { 
         slug: "a", 
         name: "Project A",
-        date: "Oct 25, 2023",
-        size: 55.71 
+        size: sizeConversion(15000),
+        component_type: "project"
+        
     }
     const history = createMemoryHistory();
     history.push = jest.fn();
 
     render(
-        <Router location={history.location} navigator={history}>
-            <FileComponent 
-                slug={sampleData.slug}
-                name={sampleData.name}
-                date={sampleData.date}
-                size={sampleData.size}
-            />
-        </Router>
+        <FileComponent 
+            slug={sampleData.slug}
+            name={sampleData.name}
+            size={sampleData.size}
+            component_type={sampleData.component_type}
+        />
     )
 
     expect(screen.getByText('Project A')).toBeInTheDocument();
-    expect(screen.getByText('Project size: 55.71')).toBeInTheDocument();
+    expect(screen.getByText('Size: 15.00KB')).toBeInTheDocument();
     
-    fireEvent.click(screen.getByText(/Project A/i));
-    expect(history.push).toHaveBeenCalledWith(
-        {
-            hash: '',
-            pathname: '/editor/a',
-            search: '',
-            preventScrollReset: undefined,
-        },
-        undefined,
-        {
-            preventScrollReset: undefined,
-            relative: undefined,
-            replace: false,
-            state: undefined,
-        }
-    );
-
 });

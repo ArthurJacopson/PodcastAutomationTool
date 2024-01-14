@@ -1,8 +1,8 @@
 import { ChangeEvent, useState, useRef } from "react";
 import { FileInfo } from "../Interfaces";
 import  AddFile  from "./AddFile";
+import { nameSlug, sizeConversion} from "../utils"
 import axios from "axios";
-
 
 import styles from "./CreatePodcast.module.css"
 import StartEditingButton from "./StartEditingButton";
@@ -14,28 +14,21 @@ const CreatePodcast: React.FC = () => {
     const [files, setFiles] = useState<Array<FileInfo>>([]);
     const [projectName, setProjectName] = useState<string>('');
     const [basicSelected, setBasicSelected] = useState<boolean>(true);
-    const inputFile: any = useRef(null);
+    const inputFile: React.RefObject<HTMLInputElement> = useRef(null);
 
-
-    const nameSlug = (name: string): string => {
-        return name.toLowerCase()
-            .replace(/[^a-z0-9 -]/g, '')
-            .replace(/\s+/g, '-')
-            .replace(/-+/g, '-');
-    }
     const uploadFile = (event: ChangeEvent<HTMLInputElement>) => {
         if (event.target.files) {
-            console.log(event.target.files[0])
             const date = new Date(event.target.files[0].lastModified);
             const file_metadata = {
                 slug: nameSlug(event.target.files[0].name),
                 name: event.target.files[0].name,
                 date: date.toDateString(),
-                size: event.target.files[0].size
+                size: sizeConversion(event.target.files[0].size),
+                component_type: event.target.files[0].type
             };
             setFiles([...files, file_metadata]);
             if (inputFile.current)
-                inputFile.current.value = null;
+                inputFile.current.value = '';
         }
     }
 
@@ -61,7 +54,6 @@ const CreatePodcast: React.FC = () => {
     }
 
     const startProcessing = () => {
-        console.log("HELLO");
         uploadPodcastToServer();
     }
 
