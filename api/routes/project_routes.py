@@ -6,6 +6,23 @@ from api.models.project import Project
 
 bp = Blueprint('project_routes', __name__)
 
+@bp.route('/project/<project_id>', methods=['GET'])
+def get_single_project(project_id):
+    """
+    Fetches metadata on one project.
+    :param project_id: the id of the project to be fetched.
+    """
+    try:
+        project = Project.query.get(project_id)
+        if not project:
+            return jsonify({'error': 'Project not found'}), 404
+        response = jsonify(project.toJSON())
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response, 200
+
+    except Exception as e:
+        error_message = f'Error retrieving projects: {str(e)}'
+        return jsonify({'error': error_message}), 500  
 
 @bp.route('/projects', methods=['GET'])
 def get_projects():
