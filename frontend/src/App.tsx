@@ -3,7 +3,7 @@ import { useState } from 'react';
 import {
   BrowserRouter as Router,
   Routes,
-  Route
+  Route,
 } from 'react-router-dom';
 
 import globalStyles from './App.module.css';
@@ -12,6 +12,7 @@ import Landing from './components/Landing';
 import Editor from './components/Editor';
 import Navbar from './components/Navbar';
 import CreatePodcast from './components/CreatePodcast';
+import Login from './components/Login';
 
 function App() {
 
@@ -21,15 +22,22 @@ function App() {
     setNavbarTitle(data);
   }
 
+  const [showNavBar,setShowNavBar] = useState(true);
+
+  const disableNavBar = () => {
+    setShowNavBar(false);
+  }
+
   return (
     <div className={globalStyles.App}>
       <Router>
-        <Navbar title={navbarTitle}></Navbar>
+        {showNavBar && <Navbar title={navbarTitle}></Navbar>}
         <div className={globalStyles.mainContent}>
           <Routes>
             <Route path="/" element={<Landing func={updateNavbarTitle} />} />
             <Route path="editor/:project" element={<Editor func={updateNavbarTitle} />} />
             <Route path="create" element={<CreatePodcast />} />
+            <Route path="login" element={<Login  removeNavBar={disableNavBar} />} />
           </Routes>
         </div>
       </Router>

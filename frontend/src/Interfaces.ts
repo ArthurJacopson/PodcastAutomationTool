@@ -17,3 +17,7 @@ export interface ProjectInfo {
 export interface funcProp {
     func: (data: string) => void;
 }
+
+export interface removeNavBarFuncProp{
+    removeNavBar: () => void;
+}
