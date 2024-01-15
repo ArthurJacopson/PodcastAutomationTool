@@ -88,7 +88,7 @@ const Landing = (props: funcProp) => {
     }
     else {
         return (
-            <div className="mainContent">
+            <div>
                 {projects.map(({ project_id, name, created_at, size }) => {
                     return (
                         <ProjectComponent
