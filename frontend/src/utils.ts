@@ -1,4 +1,4 @@
-/*
+/**
  * Converts a string into a "slug", which does the following:
  *   - Converts all letters to lower-case
  *   - Removes any non-digit/letter/dash/white space
@@ -17,7 +17,7 @@ export const nameSlug = (name: string): string => {
         .replace(/-+/g, '-');
 }
 
-/*
+/**
  * Converts an integer representing a file size in bytes to a string with the closest SI prefix
  * (SI prefix being "kilo", "mega", "giga" and so on, hence "kilobyte", "megabyte"...)
  *
@@ -38,4 +38,45 @@ export const sizeConversion = (fileSize: number):string => {
     }
     return fileSize.toFixed(2) + sizeUnits[i];
 
+}
+
+/**
+ * Function to convert Date string to the time since that date
+ * 
+ * @param last_edited the time to convert
+ * @returns a formatted string detailing how long ago `last_edited` was
+ */
+export const getTimeAgo = (date: string) => {
+    const olddate = new Date(date);
+    const now = new Date();
+    const timeDifference = now.getTime() - olddate.getTime();
+
+    const seconds = Math.floor(timeDifference / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+    
+    if (days > 0) {
+        return `${days} day${days !== 1 ? 's' : ''} ago`;
+    } else if (hours > 0) {
+        return `${hours} hour${hours !== 1 ? 's' : ''} ago`;
+    } else if (minutes > 0) {
+        return `${minutes} minute${minutes !== 1 ? 's' : ''} ago`;
+    } else {
+        return 'just now';
+    } 
+}
+
+/**
+ * Function to crop a string to a certain length. Appends '...'
+ * 
+ * 
+ */
+
+export const cropString = (str: string, length: number) => {
+    if (str.length <= length) {
+        return str;
+    } else {
+        return str.substring(0, length) + '...';
+    }
 }

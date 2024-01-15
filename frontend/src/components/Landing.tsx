@@ -77,6 +77,10 @@ const Landing = (props: funcProp) => {
             makeAPICallRef.current = false;
         }
     },[isLoggedIn])
+
+    const sortedProjects = projects.slice().sort((a, b) => {
+        return new Date(b.last_edited).getTime() - new Date(a.last_edited).getTime();
+      });
         
     if (projects.length === 0) {
         return (
@@ -89,7 +93,7 @@ const Landing = (props: funcProp) => {
     else {
         return (
             <div>
-                {projects.map(({ project_id, name, created_at, size }) => {
+                {sortedProjects.map(({ project_id, name, created_at, last_edited, size }) => {
                     return (
                         <ProjectComponent
                             key={project_id}    // React wants a unique key for each item in map
@@ -97,6 +101,7 @@ const Landing = (props: funcProp) => {
                             slug={project_id} // TODO: change this to slug={slug} when slug feature is implemented
                             name={name} 
                             created_at={created_at} 
+                            last_edited={last_edited}
                             size={size} 
                             onDelete={() => handleDelete(project_id)}/>
                 )})}

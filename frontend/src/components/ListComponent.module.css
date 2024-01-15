@@ -44,5 +44,6 @@
 }
 
 .listComponentInfo {
-    margin-right: 4vh;
+    margin: 0vh 4vh;
+    text-align: right;
 }

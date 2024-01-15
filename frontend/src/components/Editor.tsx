@@ -4,6 +4,8 @@ import {
 
 import { useRef, useState, useEffect } from "react";
 
+import useUpdateLastEdited from "../hooks/useUpdateLastEdited";
+
 import styles from './Editor.module.css'
 import ReactPlayer from '@ehibb/react-player';
 
@@ -21,7 +23,8 @@ const Editor = (props: funcProp) => {
 
     props.func(`Editing ${projectInfo?.name!}`);
 
-
+    // Whenever this component is re-rendered (i.e. an edit was made) call this hook
+    useUpdateLastEdited(project_id);
 
     useEffect(() => {
 
@@ -48,7 +51,6 @@ const Editor = (props: funcProp) => {
             fetchProject();
         }
     }, [project_id])
-
 
     // Video player logic
     const [isPlaying, setIsPlaying] = useState(false);

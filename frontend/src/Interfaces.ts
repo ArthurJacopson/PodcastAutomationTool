@@ -10,6 +10,7 @@ export interface ProjectInfo {
     slug: string;
     name: string;
     created_at: string;
+    last_edited: string;
     size: string;
     onDelete: (slug: string) => void;
 }

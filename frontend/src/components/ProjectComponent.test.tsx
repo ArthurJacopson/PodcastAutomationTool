@@ -14,6 +14,7 @@ test('correct stuff is shown in component', () => {
         slug: "a", 
         name: "Project A",
         created_at: new Date(Date.now()).toString(),
+        last_edited: new Date(Date.now()).toString(),
         size: 15000
     }
     const history = createMemoryHistory();
@@ -26,6 +27,7 @@ test('correct stuff is shown in component', () => {
                 slug={sampleData.slug}
                 name={sampleData.name}
                 created_at={sampleData.created_at}
+                last_edited={sampleData.last_edited}
                 size={sizeConversion(sampleData.size)}
                 onDelete={onDeleteMock}
             />
