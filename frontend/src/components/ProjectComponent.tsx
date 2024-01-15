@@ -21,7 +21,6 @@ const ProjectComponent = ({ project_id, slug, name, created_at, size, onDelete }
                     <p>Created at: {created_at}</p>
                     <p>Project size: {size}</p>
                 </div>
-                <p>Options</p>
                 <button onClick={() => {onDelete(project_id)}}>Delete Project</button>
             </div>
         </div>

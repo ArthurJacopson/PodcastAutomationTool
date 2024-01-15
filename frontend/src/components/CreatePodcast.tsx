@@ -85,8 +85,9 @@ const CreatePodcast: React.FC = () => {
         )
     );
 
+
     return (
-        <div className="mainContent" id={styles.main}>
+        <div className={globalStyles.mainContent} id={styles.main}>
             <AddFile 
                 changeProjectName={changeProjectName}
                 inputFile={inputFile}

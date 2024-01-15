@@ -1,16 +1,15 @@
 #main {
 	display: grid;
-	grid-template-columns: 1fr 1fr;
+	grid-template-columns: 2fr 1fr;
 	grid-template-areas:
 	"fileAdd configurePodcast";
 	font-size: 2vh;
-	margin-top: 5vh;
+	margin: 2%;
 }
 
 
 #configurePodcast {
 	grid-area: configurePodcast;
-	width: 100vh;
 	margin-left: 5vh;
 }
 
