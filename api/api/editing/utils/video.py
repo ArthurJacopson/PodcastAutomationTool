@@ -1,23 +1,6 @@
 import os
-import cv2 as cv
 import numpy as np
 import ffmpeg
-
-def read_video(filename):
-    path = os.path.join(os.getcwd(),filename)
-    capture = cv.VideoCapture(path)
-    while capture.isOpened():
-        ret,frame = capture.read()
-        if not ret:
-            print("Cant retrieve frame")
-            break
-        colour = cv.cvtColor(frame,cv.COLOR_BGR2BGRA)
-        cv.imshow('frame',colour)
-        if cv.waitKey(1) == ord('q'):
-            break
-    capture.release()
-    cv.destroyAllWindows()
-
 
 
 def get_video_info(filepath):
@@ -33,8 +16,6 @@ def get_height(filepath):
 
 def get_frame_count(filepath):
     return int(get_video_info(filepath)["nb_frames"])
-
-
 
 def video_to_array(videoname):
     video_file =  os.path.join(os.getcwd(),videoname)
