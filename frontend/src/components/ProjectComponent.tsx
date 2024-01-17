@@ -6,7 +6,7 @@ import globalStyles from '../App.module.css'
 import thumbnail from '../static/thumbnail1.png'
 import { ProjectInfo } from '../Interfaces'
 
-import { getTimeAgo, cropString } from "../utils"
+import { nameSlug, getTimeAgo, cropString } from "../utils"
 
 
 const ProjectComponent = ({ project_id, slug, name, created_at, last_edited, size, onDelete }: ProjectInfo) => {
@@ -15,7 +15,7 @@ const ProjectComponent = ({ project_id, slug, name, created_at, last_edited, siz
     
     return (
         <div className={styles.listComponent}>
-            <Link to={`editor/${slug}`} className={globalStyles.Link} >
+            <Link to={`editor/${project_id}/${nameSlug(name)}`} className={globalStyles.Link} >
                 <div className={`${styles.listComponentLeft} {styles.projectComponentLeft}`}>
                     <img src={thumbnail} className={styles.thumbnail} alt=""></img>
                     <p className={styles.name}>{cropString(name, 20)}</p>
