@@ -8,7 +8,6 @@ import { sizeConversion} from "../utils"
 test('Component is created with correct contents, as defined in sampleData', () => {
 
     const sampleData = { 
-        slug: "a", 
         name: "Project A",
         size: sizeConversion(15000),
         file_type: "project"
@@ -19,7 +18,6 @@ test('Component is created with correct contents, as defined in sampleData', () 
 
     render(
         <FileComponent 
-            slug={sampleData.slug}
             name={sampleData.name}
             size={sampleData.size}
             file_type={sampleData.file_type}

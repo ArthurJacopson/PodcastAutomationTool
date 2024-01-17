@@ -41,7 +41,7 @@ test('correct stuff is shown in component', () => {
     expect(history.push).toHaveBeenCalledWith(
         {
             hash: '',
-            pathname: '/editor/a',
+            pathname: '/editor/1/project-a',
             search: '',
             preventScrollReset: undefined,
         },

@@ -51,7 +51,6 @@ const CreatePodcast: React.FC = () => {
 
             const date = new Date(event.target.files[0].lastModified);
             const file_metadata = {
-                slug: nameSlug(event.target.files[0].name),
                 name: event.target.files[0].name,
                 date: date.toDateString(),
                 size: sizeConversion(event.target.files[0].size),
@@ -79,7 +78,7 @@ const CreatePodcast: React.FC = () => {
                 throw new Error(`Failed to create new project. Status: ${response.status.toString()}`);
             } 
             const responseData = await response.json();
-            navigate(`/editor/${responseData.project_id}`);
+            navigate(`/editor/${responseData.project_id}/${nameSlug(responseData.name)}`);
         }
         catch (e) {
             console.error('Error creating new project:', e);

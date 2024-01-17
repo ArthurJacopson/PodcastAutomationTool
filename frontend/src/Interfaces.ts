@@ -1,5 +1,4 @@
 export interface FileInfo {
-    slug: string;
     name: string;
     size: string;
     file_type: string;

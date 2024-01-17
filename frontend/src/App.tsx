@@ -35,7 +35,7 @@ function App() {
         <div className={globalStyles.mainContent}>
           <Routes>
             <Route path="/" element={<Landing func={updateNavbarTitle} />} />
-            <Route path="editor/:project_id" element={<Editor func={updateNavbarTitle} />} />
+            <Route path="editor/:project_id/:slug" element={<Editor func={updateNavbarTitle} />} />
             <Route path="create" element={<CreatePodcast />} />
             <Route path="login" element={<Login  removeNavBar={disableNavBar} />} />
           </Routes>
