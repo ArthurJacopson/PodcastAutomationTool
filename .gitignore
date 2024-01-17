@@ -1,7 +1,7 @@
 .env/
 .docker-volumes/
 .secrets/
-
+minio
 # Ignore directory containing example podcast files
 example-files/
 __pycache__/
