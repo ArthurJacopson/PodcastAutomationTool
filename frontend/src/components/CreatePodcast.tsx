@@ -12,6 +12,7 @@ import AdvancedOption from "./AdvancedOption";
 import styles from "./CreatePodcast.module.css"
 import globalStyles from "../App.module.css"
 
+import AWS from 'aws-sdk';
 
 const CreatePodcast: React.FC = () => {
 
@@ -24,10 +25,30 @@ const CreatePodcast: React.FC = () => {
     const [basicSelected, setBasicSelected] = useState<boolean>(true);
     const inputFile: React.RefObject<HTMLInputElement> = useRef(null);
 
+    AWS.config.update({
+        accessKeyId: process.env.REACT_APP_MINIO_USER_NAME,
+        secretAccessKey: process.env.REACT_APP_MINIO_PASSWORD,
+        region: 'London', // Set the region accordingly
+        s3ForcePathStyle: true, // Required for Minio
+        signatureVersion: 'v4', // Use v4 signature for Minio
+      });
 
+    const s3 = new AWS.S3({
+    endpoint: process.env.REACT_APP_MINIO_ENDPOINT,
+    });
 
     const uploadFile = (event: ChangeEvent<HTMLInputElement>) => {
         if (event.target.files) {
+            
+
+            const s3Params = {
+                Bucket: 'content',
+                Key: event.target.files[0].name,
+                Body: event.target.files[0]
+            }
+
+            s3.upload(s3Params).promise();
+
             const date = new Date(event.target.files[0].lastModified);
             const file_metadata = {
                 slug: nameSlug(event.target.files[0].name),

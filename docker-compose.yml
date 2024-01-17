@@ -31,6 +31,37 @@ services:
     depends_on: 
       - db
 
+  minio:
+
+    image: quay.io/minio/minio:RELEASE.2024-01-13T07-53-03Z
+    command: server /content
+    hostname: minio
+    container_name: minio
+    volumes:
+      - content:/content
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: 'minio_user'
+      MINIO_ROOT_PASSWORD: 'minio_password'
+      MINIO_ADDRESS: ':9000'
+      MINIO_CONSOLE_ADDRESS: ':9001'
+    restart: always
+    
+
+  createbucket:
+    image: minio/mc:latest
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      mc config host add --api s3v4 mymio http://minio:9000 minio_user minio_password;
+      mc mb mymio/content/;
+      "
+
 volumes:
   db:
+    driver: local
+  content:
     driver: local

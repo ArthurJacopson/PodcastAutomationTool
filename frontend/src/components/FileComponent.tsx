@@ -25,3 +25,4 @@ const FileComponent = ({name, size, file_type }: FileInfo) => {
 }
 
 export default FileComponent;
+
