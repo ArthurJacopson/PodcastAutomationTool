@@ -1,16 +1,15 @@
 import styles from './ListComponent.module.css';
 
-import thumbnail from '../static/thumbnail1.png';
 import { FileInfo } from '../Interfaces';
 
 import { cropString } from "../utils";
 
 
-const FileComponent = ({name, size, file_type }: FileInfo) => {
+const FileComponent = ({name, size, file_type, thumbnail_url }: FileInfo) => {
     return (
         <div className={styles.listComponent}>
             <div className={styles.listComponentLeft}>
-                <img src={thumbnail} className={styles.thumbnail} alt=""></img>
+                <img src={thumbnail_url} className={styles.thumbnail} alt=""></img>
                 <p className={styles.name}>{cropString(name, 20)}</p>
             </div>
             <div className={styles.listComponentRight}>

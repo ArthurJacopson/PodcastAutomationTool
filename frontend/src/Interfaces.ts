@@ -2,6 +2,7 @@ export interface FileInfo {
     name: string;
     size: string;
     file_type: string;
+    thumbnail_url: string;
 }
 
 export interface ProjectInfo {

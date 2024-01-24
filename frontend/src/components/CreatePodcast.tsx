@@ -9,6 +9,7 @@ import { sizeConversion } from "../utils";
 import styles from "./CreatePodcast.module.css";
 import globalStyles from "../App.module.css";
 
+import axios from 'axios';
 import AWS from 'aws-sdk';
 import EditorOption from "./EditorOption";
 
@@ -22,6 +23,7 @@ const CreatePodcast: React.FC = () => {
     const [projectName, setProjectName] = useState<string>('');
     const [editorSelection, setEditorSelection] = useState<string>("regular");
     const inputFile: React.RefObject<HTMLInputElement> = useRef(null);
+    const bucketName = "temp";
 
     AWS.config.update({
         accessKeyId: process.env.REACT_APP_MINIO_USER_NAME,
@@ -36,27 +38,55 @@ const CreatePodcast: React.FC = () => {
     });
 
     const uploadFile = (event: ChangeEvent<HTMLInputElement>) => {
-        if (event.target.files) {
-            
 
+        const getThumbnail = async () => {
+            if(event.target.files){
+                const key = event.target.files[0].name;
+                try{
+                    const UPLOAD_ENDPOINT = (process.env.REACT_APP_FLASK_API_DEVELOP + '/get-thumbnail');
+                    const data = {
+                        "bucket": bucketName,
+                        "key": key,
+                    };
+                    await axios.post(UPLOAD_ENDPOINT, data, {
+                        headers: {
+                            "content-type": "json",
+                        },
+                    });
+                }catch (e) {
+                    console.error(e);
+                }
+            }
+        };
+        if (event.target.files) {
+            const key = event.target.files[0].name;
             const s3Params = {
-                Bucket: 'content',
+                Bucket: bucketName,
                 Key: event.target.files[0].name,
                 Body: event.target.files[0]
             };
 
-            s3.upload(s3Params).promise();
-
-            const date = new Date(event.target.files[0].lastModified);
-            const fileMetadata = {
-                name: event.target.files[0].name,
-                date: date.toDateString(),
-                size: sizeConversion(event.target.files[0].size),
-                file_type: event.target.files[0].type
-            };
-            setFiles([...files, fileMetadata]);
-            if (inputFile.current)
-                inputFile.current.value = '';
+            s3.upload(s3Params).promise().then((data)=>{
+                return s3.waitFor('objectExists', {Bucket: bucketName, Key: key});
+            })
+                .then(() =>{
+                    getThumbnail().then(()=>{
+                        if(event.target.files){
+    
+                            const date = new Date(event.target.files[0].lastModified);
+                            const file_metadata = {
+                                name: event.target.files[0].name,
+                                date: date.toDateString(),
+                                size: sizeConversion(event.target.files[0].size),
+                                file_type: event.target.files[0].type,
+                                thumbnail_url: (process.env.REACT_APP_MINIO_ENDPOINT + "/" + bucketName + "/" + event.target.files[0].name + "_thumbnail.jpg")
+                            };
+                            setFiles([...files, file_metadata]);
+                            if (inputFile.current)
+                                inputFile.current.value = '';
+                        }
+                    });
+                });
         }
     };
 
