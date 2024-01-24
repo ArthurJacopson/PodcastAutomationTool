@@ -10,11 +10,10 @@ const useUpdateLastEdited = (project_id: string | undefined) => {
             if(!response.ok) {
                 throw new Error(`Failed to update last edited. Status: ${response.status.toString()}`);
             } 
-        }
-        catch (e) {
+        } catch (e) {
             console.error('Error updating last edited:', e);
         }
-    }
+    };
 
     useEffect(() => {
         if (project_id) {

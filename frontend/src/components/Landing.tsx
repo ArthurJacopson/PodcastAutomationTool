@@ -31,11 +31,11 @@ const Landing = (props: funcProp) => {
                 throw new Error(`Failed to fetch projects. Status: ${response.status.toString()}`);
             } 
             setProjects(await response.json());
+        } catch (e) {
+            console.error('Error fetching projects:', e);
         }
-        catch (e) {
-            console.log('Error fetching projects:', e);
-        }
-    }
+    };
+
 
     /**
      * Deletes a project by calling the Flask API.
@@ -62,25 +62,20 @@ const Landing = (props: funcProp) => {
         }
     };
 
-    useEffect(() => {
-        fetchProjects();
-    }, [])
 
     useEffect(() => {
         if (makeAPICallRef.current){
-            const getData = () => {
-                if(isLoggedIn){
-                    fetchProjects();
-                }
+            if(isLoggedIn){
+                fetchProjects();
             }
-            getData();
             makeAPICallRef.current = false;
         }
-    },[isLoggedIn])
+    },[isLoggedIn]);
+
 
     const sortedProjects = projects.slice().sort((a, b) => {
         return new Date(b.last_edited).getTime() - new Date(a.last_edited).getTime();
-      });
+    });
         
     if (projects.length === 0) {
         return (
@@ -89,8 +84,7 @@ const Landing = (props: funcProp) => {
                 <button onClick={gotoCreate}>Create Podcast</button>
             </div>
         );
-    }
-    else {
+    } else {
         return (
             <div>
                 {sortedProjects.map(({ project_id, name, created_at, last_edited, size }) => {
@@ -104,12 +98,13 @@ const Landing = (props: funcProp) => {
                             last_edited={last_edited}
                             size={size} 
                             onDelete={() => handleDelete(project_id)}/>
-                )})}
+                    );
+                })}
                 <button onClick={gotoCreate}>Create Podcast</button>
             </div>
         );
     }
 
-}
+};
 
 export default Landing;

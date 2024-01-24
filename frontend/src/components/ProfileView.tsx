@@ -1,7 +1,7 @@
 
-import styles from './ProfileView.module.css'
+import styles from './ProfileView.module.css';
 
-import { useAuth0 } from '@auth0/auth0-react'
+import { useAuth0 } from '@auth0/auth0-react';
 
 
 const ProfileView = () => {
@@ -9,7 +9,7 @@ const ProfileView = () => {
     const {logout,isAuthenticated,user,loginWithRedirect} = useAuth0();
     
     const profileIcon = user?.picture;
-    const username = user?.nickname
+    const username = user?.nickname;
 
     const handleLogOut =  async () => {
         await logout({});
@@ -28,21 +28,21 @@ const ProfileView = () => {
         <div className={styles.dropDownMenu}>
             {isAuthenticated ? 
                 <>
-                <img className={styles.profileIcon} src={profileIcon} alt='Profile'></img>
-                <p className={styles.username}>You are logged in as {username}</p>
-                <button className={styles.logOutButton} onClick={handleLogOut}>Log Out</button>
+                    <img className={styles.profileIcon} src={profileIcon} alt='Profile'></img>
+                    <p className={styles.username}>You are logged in as {username}</p>
+                    <button className={styles.logOutButton} onClick={handleLogOut}>Log Out</button>
                 </>
                 :
                 <>
-                <p className={styles.username}>You are not logged in</p>
-                <button className={styles.logOutButton} onClick={handleLogin}>Log In</button>
+                    <p className={styles.username}>You are not logged in</p>
+                    <button className={styles.logOutButton} onClick={handleLogin}>Log In</button>
                 </>
             }
         </div>
-    )
-}
+    );
+};
 
 
-export default ProfileView
+export default ProfileView;
 
 

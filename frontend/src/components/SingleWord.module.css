@@ -1,0 +1,7 @@
+.word button{
+    border: 0px;
+    font-size: small;
+    cursor: pointer;
+    padding-left: 0px;
+    padding-right: 0px;
+}

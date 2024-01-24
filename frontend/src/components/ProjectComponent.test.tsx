@@ -16,7 +16,7 @@ test('correct stuff is shown in component', () => {
         created_at: new Date(Date.now()).toString(),
         last_edited: new Date(Date.now()).toString(),
         size: 15000
-    }
+    };
     const history = createMemoryHistory();
     history.push = jest.fn();
 
@@ -32,7 +32,7 @@ test('correct stuff is shown in component', () => {
                 onDelete={onDeleteMock}
             />
         </Router>
-    )
+    );
 
     expect(screen.getByText('Project A')).toBeInTheDocument();
     expect(screen.getByText('Project size: 15.00KB')).toBeInTheDocument();
@@ -41,7 +41,7 @@ test('correct stuff is shown in component', () => {
     expect(history.push).toHaveBeenCalledWith(
         {
             hash: '',
-            pathname: '/editor/1/project-a',
+            pathname: '/editor/regular/a',
             search: '',
             preventScrollReset: undefined,
         },

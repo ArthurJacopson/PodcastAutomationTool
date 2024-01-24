@@ -15,7 +15,7 @@ export const nameSlug = (name: string): string => {
         .replace(/[^a-z0-9 -]/g, '')
         .replace(/\s+/g, '-')
         .replace(/-+/g, '-');
-}
+};
 
 /**
  * Converts an integer representing a file size in bytes to a string with the closest SI prefix
@@ -27,18 +27,18 @@ export const nameSlug = (name: string): string => {
  */
 
 export const sizeConversion = (fileSize: number):string => {
-    let sizeUnits = ["B", "KB", "MB", "GB", "TB"]
+    const sizeUnits = ["B", "KB", "MB", "GB", "TB"];
     let i = 0;
     while (fileSize > 1000){
         i++;
         fileSize /= 1000;
     }
     if (i > 4){
-        return "very big!"
+        return "very big!";
     }
     return fileSize.toFixed(2) + sizeUnits[i];
 
-}
+};
 
 /**
  * Function to convert Date string to the time since that date
@@ -47,9 +47,9 @@ export const sizeConversion = (fileSize: number):string => {
  * @returns a formatted string detailing how long ago `last_edited` was
  */
 export const getTimeAgo = (date: string) => {
-    const olddate = new Date(date);
+    const oldDate = new Date(date);
     const now = new Date();
-    const timeDifference = now.getTime() - olddate.getTime();
+    const timeDifference = now.getTime() - oldDate.getTime();
 
     const seconds = Math.floor(timeDifference / 1000);
     const minutes = Math.floor(seconds / 60);
@@ -65,7 +65,7 @@ export const getTimeAgo = (date: string) => {
     } else {
         return 'just now';
     } 
-}
+};
 
 /**
  * Function to crop a string to a certain length. Appends '...'
@@ -79,4 +79,4 @@ export const cropString = (str: string, length: number) => {
     } else {
         return str.substring(0, length) + '...';
     }
-}
+};

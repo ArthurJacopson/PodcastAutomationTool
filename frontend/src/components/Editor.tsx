@@ -1,27 +1,23 @@
-import {
-    useParams
-} from "react-router-dom";
+import { useParams } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
 
-import { useRef, useState, useEffect } from "react";
+import { funcProp, ProjectInfo } from "../Interfaces";
 
+import ReactPlayer from "@ehibb/react-player";
+
+import styles from './Editor.module.css';
+
+import sampleVideo from '../static/sample.mp4';
+import Transcript from "./Transcript";
+import WaveForm from "./WaveForm";
 import useUpdateLastEdited from "../hooks/useUpdateLastEdited";
 
-import styles from './Editor.module.css'
-import ReactPlayer from '@ehibb/react-player';
-
-import sampleVideo from '../static/sample.mp4'
-import WaveForm from "./WaveForm";
-import { ProjectInfo, funcProp } from "../Interfaces";
-
-
-const Editor = (props: funcProp) => {
-
-    // Get the project name and pass it to the navbar
-    const { project_id } = useParams();
+const Editor  =  (props: funcProp) => {
+    const { controller_type, project_id } = useParams();
 
     const [projectInfo, setProjectInfo] = useState<ProjectInfo>();
 
-    props.func(`Editing ${projectInfo?.name!}`);
+    props.func(`Editing ${projectInfo?.name || 'Unnamed Project'}`);
 
     // Whenever this component is re-rendered (i.e. an edit was made) call this hook
     useUpdateLastEdited(project_id);
@@ -41,64 +37,77 @@ const Editor = (props: funcProp) => {
                     throw new Error(`Failed to fetch project. Status: ${response.status.toString()}`);
                 } 
                 setProjectInfo(await response.json());
+            } catch (e) {
+                console.error('Error fetching project:', e);
             }
-            catch (e) {
-                console.log('Error fetching project:', e);
-            }
-        }
+        };
 
         if (project_id) {
             fetchProject();
         }
-    }, [project_id])
+    }, [project_id]);
 
     // Video player logic
     const [isPlaying, setIsPlaying] = useState(false);
     const playerRef = useRef<ReactPlayer>(null);
 
-    const handleSeek = (newTime: number) => {
+    const handlePlay = () => {
+        setIsPlaying(!isPlaying);
+    };
 
+    const handleSeek = (e : any) => {
+        if (playerRef.current != null){
+            const seekFromButton : number = +(e.target.value);
+            const newTime = seekFromButton + playerRef.current.getCurrentTime();
+            playerRef.current.seekTo(newTime);
+        }
+    };
+
+    const handleSeekWaveform = (newTime: number) => {
         if (playerRef.current) {
             playerRef.current.seekTo(newTime);
         }
     };
 
+    const videoController = controller_type === "regular" ? (
+        <div className={styles.videoControlsContainer}>
+            <button onClick={handleSeek} value="-5">Back 5s</button>
+            <button onClick={handlePlay}>Play</button>
+            <button onClick={handleSeek} value="5">Forward 5s</button>
+        </div>
+    )
+        : (
+            <div className={styles.comp} id={styles.timeline}>
+            Timeline
+                <div>
+                    <WaveForm setVideoTime={handleSeekWaveform} setPlaying={setIsPlaying} />
+                </div>
+            </div>
+        );
     if (!projectInfo) {
-        return <div>Loading...</div>
+        return <div>Loading...</div>;
     }
 
     return (
-        <div id={styles.main}>
-
-            <div className={styles.comp} id={styles.editor}>
+        <div className={styles.mainContainer}>
+            <div id={styles.video}>
                 <ReactPlayer
-                    className={styles.player}
-                    url={sampleVideo}
-                    muted={true}
-
-                    width="100%"
-                    height="100%"
-
-                    controls={false}
-
                     ref={playerRef}
+                    url={sampleVideo}
+                    muted={false}
+                    width="100%"
+                    height="auto"
+                    controls={false}
                     playing={isPlaying}
+                    onSeek={(e) => console.log("onSeek",e)}
                 />
+                {videoController}
             </div>
-
-            <div className={styles.comp} id={styles.transcript}>
-                Transcript
+            <div id={styles.transcript}>
+                <h1>Transcript</h1>
+                <Transcript/>
             </div>
-
-            <div className={styles.comp} id={styles.timeline}>
-                Timeline
-                <div>
-                    <WaveForm setVideoTime={handleSeek} setPlaying={setIsPlaying} />
-                </div>
-            </div>
-
         </div>
     );
 };
-
 export default Editor;
