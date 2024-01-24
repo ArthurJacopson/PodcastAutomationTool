@@ -5,7 +5,7 @@ from config import DevelopmentDatabaseConfig as Dev
 
 from db import db
 
-from routes import project_routes, transcript_route
+from routes import project_routes, transcript_route, thumbnail_route
 
 app = Flask(__name__)
 CORS(app)
@@ -15,6 +15,7 @@ db.init_app(app)
 
 # Register all route blueprints
 app.register_blueprint(project_routes.bp)
+app.register_blueprint(thumbnail_route.bp)
 app.register_blueprint(transcript_route.bp)
 
 if __name__ == "__main__":

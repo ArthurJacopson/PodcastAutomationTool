@@ -2,7 +2,7 @@ import { render, screen, } from "@testing-library/react";
 import { createMemoryHistory } from 'history';
 import FileComponent from "./FileComponent";
 import { sizeConversion} from "../utils";
-
+import thumbnail from '../static/thumbnail1.png';
 
 
 test('Component is created with correct contents, as defined in sampleData', () => {
@@ -10,7 +10,8 @@ test('Component is created with correct contents, as defined in sampleData', () 
     const sampleData = { 
         name: "Project A",
         size: sizeConversion(15000),
-        file_type: "project"
+        file_type: "project",
+        thumbnail: thumbnail
         
     };
     const history = createMemoryHistory();
@@ -21,6 +22,7 @@ test('Component is created with correct contents, as defined in sampleData', () 
             name={sampleData.name}
             size={sampleData.size}
             file_type={sampleData.file_type}
+            thumbnail_url={sampleData.thumbnail}
         />
     );
 

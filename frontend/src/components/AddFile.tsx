@@ -24,7 +24,8 @@ const AddFile:React.FC<PropsWithChildren<any>> = (props) => {
                             key={props.name}
                             name={props.name} 
                             size={props.size}
-                            file_type={props.file_type}/>
+                            file_type={props.file_type}
+                            thumbnail_url={props.thumbnail_url}/>
                     );
                 })}
             </div>
