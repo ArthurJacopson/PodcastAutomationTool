@@ -4,15 +4,13 @@ import { Link, useNavigate } from "react-router-dom";
 import { FileInfo } from "../Interfaces";
 
 import  AddFile  from "./AddFile";
-import { nameSlug, sizeConversion} from "../utils"
+import { sizeConversion } from "../utils";
 
-import BasicOption from "./BasicOption";
-import AdvancedOption from "./AdvancedOption";
-
-import styles from "./CreatePodcast.module.css"
-import globalStyles from "../App.module.css"
+import styles from "./CreatePodcast.module.css";
+import globalStyles from "../App.module.css";
 
 import AWS from 'aws-sdk';
+import EditorOption from "./EditorOption";
 
 const CreatePodcast: React.FC = () => {
 
@@ -22,7 +20,7 @@ const CreatePodcast: React.FC = () => {
 
     const [files, setFiles] = useState<Array<FileInfo>>([]);
     const [projectName, setProjectName] = useState<string>('');
-    const [basicSelected, setBasicSelected] = useState<boolean>(true);
+    const [editorSelection, setEditorSelection] = useState<string>("regular");
     const inputFile: React.RefObject<HTMLInputElement> = useRef(null);
 
     AWS.config.update({
@@ -31,10 +29,10 @@ const CreatePodcast: React.FC = () => {
         region: 'London', // Set the region accordingly
         s3ForcePathStyle: true, // Required for Minio
         signatureVersion: 'v4', // Use v4 signature for Minio
-      });
+    });
 
     const s3 = new AWS.S3({
-    endpoint: process.env.REACT_APP_MINIO_ENDPOINT,
+        endpoint: process.env.REACT_APP_MINIO_ENDPOINT,
     });
 
     const uploadFile = (event: ChangeEvent<HTMLInputElement>) => {
@@ -45,22 +43,22 @@ const CreatePodcast: React.FC = () => {
                 Bucket: 'content',
                 Key: event.target.files[0].name,
                 Body: event.target.files[0]
-            }
+            };
 
             s3.upload(s3Params).promise();
 
             const date = new Date(event.target.files[0].lastModified);
-            const file_metadata = {
+            const fileMetadata = {
                 name: event.target.files[0].name,
                 date: date.toDateString(),
                 size: sizeConversion(event.target.files[0].size),
                 file_type: event.target.files[0].type
             };
-            setFiles([...files, file_metadata]);
+            setFiles([...files, fileMetadata]);
             if (inputFile.current)
                 inputFile.current.value = '';
         }
-    }
+    };
 
     /**
      * Sends a request to the API to create a new podcast called {projectName}.
@@ -74,20 +72,20 @@ const CreatePodcast: React.FC = () => {
                     "content-type": "json",
                 },
             });
+                
             if(!response.ok) {
                 throw new Error(`Failed to create new project. Status: ${response.status.toString()}`);
             } 
             const responseData = await response.json();
-            navigate(`/editor/${responseData.project_id}/${nameSlug(responseData.name)}`);
-        }
-        catch (e) {
+            navigate(`/editor/${editorSelection}/${responseData.project_id}`);
+        } catch (e) {
             console.error('Error creating new project:', e);
         }
-    }
+    };
 
     const changeProjectName = (event: ChangeEvent<HTMLInputElement>) => {
         setProjectName(event.target.value);
-    }
+    };
 
     /**
      * Constructs the button element that allows the user to start editing.
@@ -115,20 +113,20 @@ const CreatePodcast: React.FC = () => {
                 files={files}
             />
             <div id={styles.configurePodcast}>
-                <BasicOption 
-                    chosen={basicSelected}
-                    handleChange={() => setBasicSelected(true)}
-                    className={styles.optionSelect}
+                <EditorOption
+                    chosen={editorSelection}
+                    optionType={"Regular"}
+                    handleChange={() => setEditorSelection("regular")}
                 />
-                <AdvancedOption
-                    chosen={!basicSelected}
-                    handleChange={() => setBasicSelected(false)}
-                    className={styles.optionSelect}
+                <EditorOption
+                    chosen={editorSelection}
+                    optionType={"Waveform"}
+                    handleChange={() => setEditorSelection("waveform")}
                 />
                 {startEditingButton}
             </div>
         </div>
-    )
-}
+    );
+};
 
 export default CreatePodcast;

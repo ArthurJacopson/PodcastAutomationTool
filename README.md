@@ -1,7 +1,7 @@
 # CS30 Main - Podplistic Podcast Editor
 
 <img src="https://static.wixstatic.com/media/4ae805_8f7ae020838c4a47adbf40181bf111d1~mv2.png/v1/fill/w_558,h_156,al_c,q_85,usm_0.66_1.00_0.01,enc_auto/Podplistic%20Logo%20PNG_edited.png" align="right"
-     alt="Size Limit logo by Anton Lovchikov" height="50">
+     alt="Podplistic Logo" height="50">
 
 
 
@@ -15,7 +15,7 @@ Major features include:
 - [ ] Automatic removal of 'dead sections' (and user ability to tweak)
 - [ ] Automatic audio mastering (and user ability to tweak)
 - [ ] Persistent video editing sessions
-- [ ] Dummy login page
+- [x] Dummy login page
 
 A key aim of the project is to create an application that is accessible to users of multiple skill levels. As such, many features must have an automatic mode (handled entirely by the application) **as well as** the ability for more experienced users to manually tweak their work.
 
@@ -31,18 +31,7 @@ Install Docker.\
 Once Docker is installed, run `docker compose up` from the project's root directory.\
 Everything should now work!
 
-## Usage
-To quickly launch a demo of the frontend, execute the `demo.sh` script from the root of the project. Note that [TMUX](https://github.com/tmux/tmux/wiki) is required to run this script.
-
-### To run the docker container for database:
-Run these commands from the root directory. You may need to run as `sudo` unless you add your user to the Docker group.\
-First you need to build the image:\
-`docker build -t postgres-db database/`\
-Once the image has been built you can run it:\
-`docker run -p 5432:5432 --name postgres-db -v ./.docker-volumes/db:/var/lib/postgresql/data -d postgres-db`\
-For now the container will also need to be killed by you. Run these commands:\
-`docker stop postgres-db`\
-`docker rm postgres-db`
+## Project Dependencies
 
 ## Authors
 Jamie Robb, Ewan Hibberd, Boris Velinov, Michael Anderson, Miko Osak, Arif Yakupogullari

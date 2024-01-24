@@ -9,6 +9,8 @@ build-frontend:
   artifacts:
     paths:
       - frontend/node_modules
+  variables:
+    CI: "false"  # Set CI to false for this job
   script:
     - cd frontend/
     - export REACT_APP_AUTH0_DOMAIN=${REACT_APP_AUTH0_DOMAIN}
@@ -17,6 +19,28 @@ build-frontend:
     - npm install
     - npm ci
     - npm run build
+
+lint-frontend:
+  stage: lint
+  image: node:lts
+  # image: "stgit.dcs.gla.ac.uk:5050/team-project-h/2023/sh30/cs30-main:latest"
+  artifacts:
+    paths:
+      - frontend/node_modules
+  variables:
+    CI: "false"  # Set CI to false for this job
+  before_script:
+    - npm install eslint
+    - npm install typescript 
+    - npm install eslint-plugin-react
+    - npm install eslint-plugin-react-hooks
+    - npm install eslint-plugin-spellcheck
+    - npm install @stylistic/eslint-plugin
+    - npm install @typescript-eslint/parser
+    - npm install @typescript-eslint/eslint-plugin eslint
+  script:
+    - cd frontend/
+    - npx eslint ./src/ --quiet
 
 lint-backend:
   stage: lint

@@ -1,0 +1,26 @@
+.MainContainer{
+    width: 100%;
+    height: 90%;
+    display: grid;
+    grid-template-columns: 0.5fr 2.5fr 0.5fr 5fr 0.5fr;
+    grid-template-areas: 
+    ". timestamp . sentence .";
+}
+
+
+.timestamps{
+    grid-area: timestamp;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    row-gap: 15vh;
+}
+
+
+.transcriptions{
+    grid-area: sentence;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    row-gap: 9vh;
+}

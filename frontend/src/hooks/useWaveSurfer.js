@@ -2,15 +2,12 @@ import { useState, useEffect } from "react";
 
 import WaveSurfer from "wavesurfer.js";
 
-import sampleAudio from '../static/sample.mp3'
+import sampleAudio from '../static/sample.mp3';
 
-export function useWaveSurfer(containerRef)
-{
-    const [wavesurfer, setWavesurfer] = useState(null)
-    useEffect(() =>
-    {
-        if (containerRef.current != null)
-        {
+export function useWaveSurfer(containerRef) {
+    const [wavesurfer, setWavesurfer] = useState(null);
+    useEffect(() => {
+        if (containerRef.current != null) {
             const wavesurfer = WaveSurfer.create({
                 waveColor: '#01C1FF',
                 progressColor: '#6DDBFF',
@@ -20,17 +17,16 @@ export function useWaveSurfer(containerRef)
                 url: sampleAudio,
                 height: 80,
                 container: containerRef.current,
-            })
+            });
 
             setWavesurfer(wavesurfer);
 
-            return () =>
-            {
+            return () => {
                 wavesurfer.destroy();
-            }
+            };
         }
 
     }, [containerRef]);
 
-    return wavesurfer
-};
+    return wavesurfer;
+}
