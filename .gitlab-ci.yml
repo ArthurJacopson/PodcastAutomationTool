@@ -7,6 +7,7 @@ build-frontend:
   stage: build
   image: node:latest
   artifacts:
+    expire_in: 1 day
     paths:
       - frontend/node_modules
   variables:
@@ -16,7 +17,6 @@ build-frontend:
     - export REACT_APP_AUTH0_DOMAIN=${REACT_APP_AUTH0_DOMAIN}
     - export REACT_APP_AUTH0_CLIENT_ID=${REACT_APP_AUTH0_CLIENT_ID}
     - export REACT_APP_AUTH0_CALLBACK_URL=${REACT_APP_AUTH0_CALLBACK_URL}
-    - npm install
     - npm ci
     - npm run build
 
@@ -25,6 +25,7 @@ lint-frontend:
   image: node:lts
   # image: "stgit.dcs.gla.ac.uk:5050/team-project-h/2023/sh30/cs30-main:latest"
   artifacts:
+    expire_in: 1 day
     paths:
       - frontend/node_modules
   variables:
