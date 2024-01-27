@@ -18,10 +18,12 @@ def get_audio_from_video(video_file: str,destination_path: str,out_file_name: st
     if not os.path.exists(destination_path):
         os.makedirs(destination_path)
     video_file_full = os.path.realpath(video_file)
-    output_file = os.path.realpath("".join([destination_path,out_file_name]))
+    output_file = os.path.realpath(os.path.join(destination_path, out_file_name))
+    if os.path.exists(output_file):
+        os.remove(output_file)
     try:
         subprocess.run(['ffmpeg', '-i', video_file_full, '-vn', '-acodec', 'libmp3lame','-q:a','2', output_file])
-        print(f"Audio extracted successfully to {destination_path}")
+        print(f"Audio extracted successfully to {output_file}")
     except subprocess.CalledProcessError as e:
         print(f"Error: {e}")
 

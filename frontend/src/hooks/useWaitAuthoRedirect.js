@@ -1,16 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import { useAuth0 } from "@auth0/auth0-react";
 
 import { useNavigate } from "react-router-dom";
 
-export function useWaitAuth0Redirect (redirectURL) {
+export function useWaitAuth0Redirect (redirectURL)  {
 
     const [authenticated, setAuthenticated] = useState(true);
 
     const {isLoading,isAuthenticated} = useAuth0();
 
     const navigate = useNavigate();
+    
     
     useEffect(() => {
         const waitAuth0 =  async() => {

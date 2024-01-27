@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ProjectInfo, funcProp } from '../Interfaces';
 import ProjectComponent from './ProjectComponent';
+import Loading from './Loading';
 
 import { useWaitAuth0Redirect } from '../hooks/useWaitAuthoRedirect';
 
@@ -10,13 +11,15 @@ const Landing = (props: funcProp) => {
  
     props.func("Podplistic");
 
-    const isLoggedIn = useWaitAuth0Redirect('login');
+    const isLoggedIn =  useWaitAuth0Redirect('login');
     
     const [projects, setProjects] = useState<ProjectInfo[]>([]);
 
     const navigate = useNavigate();
     const gotoCreate = () => navigate('/create');
     const makeAPICallRef = useRef(true);
+
+    const [isLoading,setIsLoading] = useState<boolean>(true);
 
     /**
      * Fetches all projects from the database by calling the Flask API
@@ -29,13 +32,14 @@ const Landing = (props: funcProp) => {
             const response = await fetch(process.env.REACT_APP_FLASK_API_DEVELOP + '/projects');
             if(!response.ok) {
                 throw new Error(`Failed to fetch projects. Status: ${response.status.toString()}`);
-            } 
-            setProjects(await response.json());
+            }
+            const projects = await response.json(); 
+            setProjects(projects);
+            setIsLoading(false);
         } catch (e) {
             console.error('Error fetching projects:', e);
         }
     };
-
 
     /**
      * Deletes a project by calling the Flask API.
@@ -73,11 +77,17 @@ const Landing = (props: funcProp) => {
     },[isLoggedIn]);
 
 
+
     const sortedProjects = projects.slice().sort((a, b) => {
         return new Date(b.last_edited).getTime() - new Date(a.last_edited).getTime();
     });
-        
-    if (projects.length === 0) {
+
+
+    if (isLoading){
+        return (
+            <Loading />
+        );
+    } else if (projects.length === 0) {
         return (
             <div>
                 <p>No projects found...</p>

@@ -5,6 +5,7 @@ import axios from 'axios';
 import styles from './Transcript.module.css';
 import TimeStamp from './TimeStamp';
 import Quote from './Quote';
+import Loading from './Loading';
 
 
 const Transcript = () => {
@@ -55,6 +56,7 @@ const Transcript = () => {
         <div>
             {isLoading ? 
                 <>
+                    <Loading />
                 </> 
                 :
                 <div className={styles.MainContainer}>

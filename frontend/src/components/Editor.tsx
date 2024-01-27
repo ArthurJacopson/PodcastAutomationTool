@@ -11,6 +11,7 @@ import sampleVideo from '../static/sample.mp4';
 import Transcript from "./Transcript";
 import WaveForm from "./WaveForm";
 import useUpdateLastEdited from "../hooks/useUpdateLastEdited";
+import Loading from "./Loading";
 
 const Editor  =  (props: funcProp) => {
     const { controller_type, project_id } = useParams();
@@ -77,15 +78,15 @@ const Editor  =  (props: funcProp) => {
         </div>
     )
         : (
-            <div className={styles.comp} id={styles.timeline}>
-            Timeline
-                <div>
+            <div className={styles.waveFormWrapper}>
+                <div className={styles.comp}>
+                Timeline
                     <WaveForm setVideoTime={handleSeekWaveform} setPlaying={setIsPlaying} />
                 </div>
             </div>
         );
     if (!projectInfo) {
-        return <div>Loading...</div>;
+        return <Loading />;
     }
 
     return (
