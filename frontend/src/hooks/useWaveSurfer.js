@@ -17,6 +17,7 @@ export function useWaveSurfer(containerRef) {
                 url: sampleAudio,
                 height: 80,
                 container: containerRef.current,
+                fillParent:true
             });
 
             setWavesurfer(wavesurfer);

@@ -6,6 +6,8 @@ minio
 example-files/
 __pycache__/
 
+api/temp_output/
+
 # dependencies
 frontend/node_modules
 frontend/.package-lock.json
