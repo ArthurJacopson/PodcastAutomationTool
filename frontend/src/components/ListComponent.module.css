@@ -32,6 +32,7 @@
 
 .thumbnail {
     width: 25vh;
+    height: 15vh;
     border-radius: 1vh;
     margin-right: 4vh;
 }
