@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ProjectInfo, funcProp } from '../Interfaces';
 import ProjectComponent from './ProjectComponent';
+import DeleteConfirmation from './DeleteConfirmation';
 import Loading from './Loading';
 
 import { useWaitAuth0Redirect } from '../hooks/useWaitAuthoRedirect';
@@ -14,6 +15,9 @@ const Landing = (props: funcProp) => {
     const isLoggedIn =  useWaitAuth0Redirect('login');
     
     const [projects, setProjects] = useState<ProjectInfo[]>([]);
+    const [isConfirmationOpen, setConfirmationOpen] = useState(false);
+    const [projectToDelete, setProjectToDelete] = useState<string>('');
+
 
     const navigate = useNavigate();
     const gotoCreate = () => navigate('/create');
@@ -41,13 +45,24 @@ const Landing = (props: funcProp) => {
         }
     };
 
+    const handleDelete = (project_id : string) => {
+        setProjectToDelete(project_id);
+        setConfirmationOpen(true);
+    };
+
+    const handleCancelDelete = () => {
+        setConfirmationOpen(false);
+        setProjectToDelete('');
+    };
+
+
     /**
      * Deletes a project by calling the Flask API.
      * 
      * @param {string} project_id - the ID of the project to be deleted.
      * @returns {Promise<void>} - returns a Promise that is resolved when the project is deleted. 
      */
-    const handleDelete = async (project_id: string): Promise<void> => {
+    const handleConfirmDelete = async (project_id: string): Promise<void> => {
         try {
             const response = await fetch(process.env.REACT_APP_FLASK_API_DEVELOP + `/delete/${project_id}`, {
                 method: 'POST',
@@ -61,6 +76,8 @@ const Landing = (props: funcProp) => {
             setProjects((currentProjects) =>
                 currentProjects.filter((project) => project.project_id !== project_id)
             );
+
+            setConfirmationOpen(false);
         } catch (error) {
             console.error('Error deleting project:', error);
         }
@@ -111,6 +128,11 @@ const Landing = (props: funcProp) => {
                     );
                 })}
                 <button onClick={gotoCreate}>Create Podcast</button>
+                <DeleteConfirmation
+                    isOpen={isConfirmationOpen}
+                    onCancelDelete={() => setConfirmationOpen(false)}
+                    onConfirmDelete={() => handleConfirmDelete(projectToDelete)}
+                />
             </div>
         );
     }

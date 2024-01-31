@@ -45,3 +45,9 @@ export interface OptionsInfo {
 export interface NavbarProps {
     title: string;
 }
+
+export interface DeleteConfirmationProps {
+    isOpen: boolean;
+    onConfirmDelete: () => void;
+    onCancelDelete: () => void;
+}
