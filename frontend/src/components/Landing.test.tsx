@@ -3,6 +3,11 @@ import { createMemoryHistory } from "history";
 import { Router } from "react-router-dom";
 import Landing from "./Landing";
 
+// Mock the react-modal module
+jest.mock('react-modal', () => ({
+    setAppElement: jest.fn(),
+    // Other modal-related functions or components can be mocked here
+}));
 
 describe('fetchProjects', () => {
     beforeEach(() => {
