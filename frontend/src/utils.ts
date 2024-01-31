@@ -80,3 +80,23 @@ export const cropString = (str: string, length: number) => {
         return str.substring(0, length) + '...';
     }
 };
+
+
+/**
+ * Function to convert a number in seconds to a HH:MM:SS string representation
+ * 
+ * @param seconds the time in seconds
+ * @returns a formatted string in the form HH:MM:SS
+ */
+
+export const getTime = (seconds : number) => {
+    seconds = Math.round(seconds);
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+
+    const formattedHours = String(hours).padStart(2, '0');
+    const formattedMinutes = String(minutes).padStart(2, '0');
+    const formattedSeconds = String(remainingSeconds).padStart(2, '0');
+    return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
+};

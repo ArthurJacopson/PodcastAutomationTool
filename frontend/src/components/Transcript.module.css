@@ -1,26 +1,38 @@
+.parent{
+    width: 100%;
+    height: 90%;  
+}
+
+
 .MainContainer{
     width: 100%;
-    height: 90%;
+    height: 100%; 
+    display: flex;
+    flex-direction: column;
+    gap: 5vh;
+}
+
+.segmentContainer{
     display: grid;
-    grid-template-columns: 0.5fr 2.5fr 0.5fr 5fr 0.5fr;
+    grid-template-columns: 0.3fr 2.5fr 0.5fr 5fr 0.3fr;
     grid-template-areas: 
     ". timestamp . sentence .";
 }
 
 
-.timestamps{
+.timestamp{
     grid-area: timestamp;
     display: flex;
     flex-direction: column;
     align-items: center;
-    row-gap: 15vh;
+    justify-content: center;
 }
 
 
-.transcriptions{
+.transcription{
     grid-area: sentence;
     display: flex;
     flex-direction: column;
     align-items: center;
-    row-gap: 9vh;
+    justify-content: center;
 }
