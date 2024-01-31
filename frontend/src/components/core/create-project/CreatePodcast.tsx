@@ -1,13 +1,13 @@
 import { ChangeEvent, useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-import { FileInfo } from "../Interfaces";
+import { FileInfo } from "../../../Interfaces";
 
 import  AddFile  from "./AddFile";
-import { sizeConversion } from "../utils";
+import { sizeConversion } from "../../../utils";
 
 import styles from "./CreatePodcast.module.css";
-import globalStyles from "../App.module.css";
+import globalStyles from "../../../App.module.css";
 
 import axios from 'axios';
 import AWS from 'aws-sdk';

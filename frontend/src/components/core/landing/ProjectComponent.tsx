@@ -1,12 +1,12 @@
 import { Link } from 'react-router-dom';
 
-import styles from './ListComponent.module.css';
-import globalStyles from '../App.module.css';
+import styles from '../../shared/file-comp/ListComponent.module.css';
+import globalStyles from '../../../App.module.css';
 
-import thumbnail from '../static/thumbnail1.png';
-import { ProjectInfo } from '../Interfaces';
+import thumbnail from '../../../static/thumbnail1.png';
+import { ProjectInfo } from '../../../Interfaces';
 
-import { getTimeAgo, cropString } from "../utils";
+import { getTimeAgo, cropString } from "../../../utils";
 
 
 const ProjectComponent = ({ project_id, slug, name, created_at, last_edited, size, onDelete }: ProjectInfo) => {

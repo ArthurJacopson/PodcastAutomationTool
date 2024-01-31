@@ -1,6 +1,6 @@
 import SingleWord from "./SingleWord";
 
-import { TranscriptWordInfo } from "../Interfaces";
+import { TranscriptWordInfo } from "../../../Interfaces";
 
 import styles from './Quote.module.css';
 

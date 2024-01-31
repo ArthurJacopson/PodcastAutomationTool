@@ -1,8 +1,8 @@
-import { removeNavBarFuncProp } from "../Interfaces";
+import { removeNavBarFuncProp } from "../../../Interfaces";
 
 import styles from './Login.module.css';
 
-import podplistic from '../static/podplistic.png';
+import podplistic from '../../../static/podplistic.png';
 
 import { useAuth0 } from "@auth0/auth0-react";
 
