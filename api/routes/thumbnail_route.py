@@ -1,6 +1,7 @@
 import json
-from api.editing.utils import thumbnail
 from flask import Blueprint, request, jsonify
+
+from api.editing.utils import thumbnail
 
 
 bp = Blueprint('thumbnail_route', __name__)

@@ -1,8 +1,7 @@
 import subprocess
-import random
-import boto3
 import os
-import ffmpeg
+
+import boto3
 
 # Set environnment vairables
 
@@ -12,17 +11,17 @@ os.environ["SECRET_KEY"] = "minio_password"
 
 # Creates an S3 client with MinIO configuration
 s3_client = boto3.client('s3',
-                        endpoint_url=os.environ["MINIO_ENDPOINT"],
-                        aws_access_key_id=os.environ["ACCESS_KEY"],
-                        aws_secret_access_key=os.environ["SECRET_KEY"])
+                         endpoint_url=os.environ["MINIO_ENDPOINT"],
+                         aws_access_key_id=os.environ["ACCESS_KEY"],
+                         aws_secret_access_key=os.environ["SECRET_KEY"])
 
 
 def generate_thumbnail(bucket_name, object_key):
     """
-    API function that recieves an mp4 file and generates a thumbnail from the frame 5s in, then uploads it to server.
+    Recieves an mp4 file and generates a thumbnail from the frame 5s in, then uploads to server.
     :param bucket_name: name of bucket that video is going to be recieved from in the server.
     :param object_key: name of the video file that is being recieved from server.
-    
+
     """
 
     response = s3_client.get_object(Bucket=bucket_name, Key=object_key)
@@ -35,20 +34,21 @@ def generate_thumbnail(bucket_name, object_key):
     output_file = 'thumbnail.jpg'
 
     command = [
-    'ffmpeg',
-    '-i', input_file,
-    '-ss', '00:00:05',
-    '-vframes', '1',
-    output_file
+        'ffmpeg',
+        '-i', input_file,
+        '-ss', '00:00:05',
+        '-vframes', '1',
+        output_file
     ]
     subprocess.run(command)
 
     with open(output_file, 'rb') as file:
-        s3_client.put_object(Bucket=bucket_name, Key=(object_key + "_thumbnail.jpg"), Body=file, ACL='public-read')
+        s3_client.put_object(Bucket=bucket_name, Key=(
+            object_key + "_thumbnail.jpg"), Body=file, ACL='public-read')
 
     s3_client.get_waiter('object_exists').wait(
-        Bucket = bucket_name,
-        Key = (object_key + "_thumbnail.jpg")
+        Bucket=bucket_name,
+        Key=(object_key + "_thumbnail.jpg")
     )
 
     try:
@@ -58,7 +58,7 @@ def generate_thumbnail(bucket_name, object_key):
     except FileNotFoundError:
         print("Files not found.")
     except Exception as e:
-        print("An error occurred: {e}")
+        print(f"An error occurred: {e}")
 
-
-    return {"thumbnail_url": (os.environ["MINIO_ENDPOINT"] + "/" + bucket_name + "/" + (object_key + "_thumbnail.jpg") )}
+    return {"thumbnail_url":
+            f'{os.environ["MINIO_ENDPOINT"]}/{bucket_name}/{object_key}_thumbnail.jpg'}
