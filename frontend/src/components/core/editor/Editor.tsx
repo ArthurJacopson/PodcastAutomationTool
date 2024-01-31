@@ -1,17 +1,17 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 
-import { funcProp, ProjectInfo } from "../Interfaces";
+import { funcProp, ProjectInfo } from "../../../Interfaces";
 
 import ReactPlayer from "@ehibb/react-player";
 
 import styles from './Editor.module.css';
 
-import sampleVideo from '../static/sample.mp4';
-import Transcript from "./Transcript";
-import WaveForm from "./WaveForm";
-import useUpdateLastEdited from "../hooks/useUpdateLastEdited";
-import Loading from "./Loading";
+import sampleVideo from '../../../static/sample.mp4';
+import Transcript from "../../features/transcription/Transcript";
+import WaveForm from "../../shared/waveform/WaveForm";
+import useUpdateLastEdited from "../../../hooks/useUpdateLastEdited";
+import Loading from "../../shared/loading-animation/Loading";
 
 const Editor  =  (props: funcProp) => {
     const { controller_type, project_id } = useParams();

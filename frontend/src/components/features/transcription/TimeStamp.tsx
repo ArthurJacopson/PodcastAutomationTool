@@ -1,8 +1,8 @@
-import { TimeStampInfo } from "../Interfaces";
+import { TimeStampInfo } from "../../../Interfaces";
 
 import styles from "./TimeStamp.module.css";
 
-import { getTime }  from "../utils";
+import { getTime }  from "../../../utils";
 
 
 

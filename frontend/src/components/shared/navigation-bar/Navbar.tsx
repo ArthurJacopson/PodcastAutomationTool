@@ -2,14 +2,14 @@ import { useNavigate } from 'react-router-dom';
 
 import styles from './Navbar.module.css';
 
-import ProfileView from './ProfileView';
+import ProfileView from '../../features/log-in/ProfileView';
 
 
-import podplistic from '../static/podplistic.png';
-import profile from '../static/account.png';
+import podplistic from '../../../static/podplistic.png';
+import profile from '../../../static/account.png';
 import { useState } from 'react';
 
-import { NavbarProps } from '../Interfaces';
+import { NavbarProps } from "../../../Interfaces";
 
 const Navbar: React.FC<{ title: string }> = ({ title } : NavbarProps ) => {
     const navigate = useNavigate();

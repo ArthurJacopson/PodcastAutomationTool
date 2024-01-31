@@ -8,11 +8,11 @@ import {
 
 import globalStyles from './App.module.css';
 
-import Landing from './components/Landing';
-import Editor from './components/Editor';
-import Navbar from './components/Navbar';
-import CreatePodcast from './components/CreatePodcast';
-import Login from './components/Login';
+import Landing from './components/core/landing/Landing';
+import Editor from './components/core/editor/Editor';
+import Navbar from './components/shared/navigation-bar/Navbar';
+import CreatePodcast from './components/core/create-project/CreatePodcast';
+import Login from './components/features/log-in/Login';
 
 function App() {
 

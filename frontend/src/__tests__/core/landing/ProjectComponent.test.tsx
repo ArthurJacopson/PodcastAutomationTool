@@ -1,9 +1,9 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import { Router } from "react-router-dom";
 import { createMemoryHistory } from 'history';
-import { sizeConversion } from "../utils";
+import { sizeConversion } from "../../../utils";
 
-import ProjectComponent from "./ProjectComponent";
+import ProjectComponent from "../../../components/core/landing/ProjectComponent";
 
 const onDeleteMock = jest.fn();
 

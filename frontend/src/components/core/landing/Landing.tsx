@@ -1,12 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
 
 import { useNavigate } from 'react-router-dom';
-import { ProjectInfo, funcProp } from '../Interfaces';
+import { ProjectInfo, funcProp } from '../../../Interfaces';
 import ProjectComponent from './ProjectComponent';
-import DeleteConfirmation from './DeleteConfirmation';
-import Loading from './Loading';
+import Loading from '../../shared/loading-animation/Loading';
+import DeleteConfirmation from '../../shared/delete-confirmation/DeleteConfirmation';
 
-import { useWaitAuth0Redirect } from '../hooks/useWaitAuthoRedirect';
+import { useWaitAuth0Redirect } from '../../../hooks/useWaitAuthoRedirect';
 
 const Landing = (props: funcProp) => {
  
