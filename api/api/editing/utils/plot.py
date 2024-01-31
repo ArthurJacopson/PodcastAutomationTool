@@ -1,3 +1,8 @@
+"""
+Utility methods to give a visual representation of audio.
+Note: Make sure audio file is in the same directory as the script.
+"""
+
 import os
 
 import librosa
@@ -6,15 +11,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-"""
-
-Util methods to plot give a visial represnetation of audio
-Make sure audio file is in the same directory as the script
-
-"""
-
 def plot_spectogram(filename):
-    path = os.path.join(os.getcwd(),filename)
+    path = os.path.join(os.getcwd(), filename)
     y, sr = librosa.load(path)
 
     display(Audio(data=y, rate=sr))
@@ -27,8 +25,8 @@ def plot_spectogram(filename):
 
 
 def plot_waveform(filename):
-    path = os.path.join(os.getcwd(),filename)
-    y, sr = librosa.load(path)
+    path = os.path.join(os.getcwd(), filename)
+    y, _ = librosa.load(path)
     time = librosa.times_like(y)
     plt.figure(figsize=(10, 6))
     plt.plot(time, y)
@@ -37,4 +35,3 @@ def plot_waveform(filename):
     plt.ylabel("Amplitude")
     plt.grid()
     plt.show()
-

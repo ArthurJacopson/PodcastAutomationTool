@@ -18,7 +18,7 @@ def audio_limiter(aud_in: str, aud_out: str, frame_size: float, compression_fact
     audio_output.run()
 
 
-def audio_compressor(aud_in: str, aud_out: str, attack: float, peak: float, adjustment:float):
+def audio_compressor(aud_in: str, aud_out: str, attack: float, peak: float, adjustment: float):
     """
     Applies a Compressor to the input audio file and creates a new updated audio file.
     :param aud_in: audio file to be processed
@@ -98,7 +98,7 @@ def auto_master(aud_in: str, aud_out: str):
     :param aud_out: mastered output file name
     """
     absolute_path = os.path.abspath(aud_in)
-    p, r = get_amplitude_info(absolute_path)
+    p, _ = get_amplitude_info(absolute_path)
     dyn_range = get_dynamic_range(absolute_path)
     frame_size = 200
     compression_factor = 3

@@ -16,7 +16,10 @@ def get_transcript():
     from the front-end and passes them to the transcription logic
     The response is a json that is returned to the front end
     """
+
     data_str = request.data.decode('utf-8')
     data = json.loads(data_str)
-    response = transcribe.process_video_to_JSON(data['video_file_path'],data["temp_folder"],data["output_file_name"],data["isCompressed"])
+    response = transcribe.process_video_to_JSON(
+        data['video_file_path'], data["temp_folder"],
+        data["output_file_name"], data["isCompressed"])
     return jsonify(response)

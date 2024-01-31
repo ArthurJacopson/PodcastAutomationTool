@@ -1,5 +1,5 @@
-from flask import Blueprint, jsonify, request
 from datetime import datetime
+from flask import Blueprint, jsonify
 
 from db import db
 from api.models.project import Project
@@ -16,12 +16,12 @@ def get_single_project(project_id):
         project = Project.query.get(project_id)
         if not project:
             return jsonify({'error': 'Project not found'}), 404
-        response = jsonify(project.toJSON())
+        response = jsonify(project.to_json())
         response.headers.add('Access-Control-Allow-Origin', '*')
         return response, 200
 
-    except Exception as e:
-        error_message = f'Error retrieving projects: {str(e)}'
+    except Exception as error:
+        error_message = f'Error retrieving projects: {str(error)}'
         return jsonify({'error': error_message}), 500  
 
 
@@ -29,13 +29,13 @@ def get_single_project(project_id):
 def get_projects():
     try:
         projects = Project.query.all()
-        projects = [project.toJSON() for project in projects]
+        projects = [project.to_json() for project in projects]
         response = jsonify(projects)
         response.headers.add('Access-Control-Allow-Origin', '*')
         return response, 200
 
-    except Exception as e:
-        error_message = f'Error retrieving projects: {str(e)}'
+    except Exception as error:
+        error_message = f'Error retrieving projects: {str(error)}'
         return jsonify({'error': error_message}), 500
 
 
@@ -52,12 +52,14 @@ def create_project(project_name):
         db.session.commit()
         project = Project.query.filter_by(project_id=new_project.project_id).first()
     
-    except Exception as e:
-        error_message = f'Error connecting to the database: {str(e)}'
+    except Exception as error:
+        error_message = f'Error connecting to the database: {str(error)}'
         return jsonify({'error': error_message}), 500
 
     else:
-        result = {'message': 'Database connection successful', 'project_id': project.project_id, 'name': project.name}
+        result = {'message': 'Database connection successful', 
+                  'project_id': project.project_id, 
+                  'name': project.name}
         return jsonify(result), 200
 
 
@@ -65,7 +67,8 @@ def create_project(project_name):
 def delete_project(project_id):
     """
     Endpoint to be used when deleting a project.
-    :param project_id: the id of the project to be deleted. This is used as it is the PK in the projects table
+    :param project_id: the id of the project to be deleted. 
+                        This is used as it is the PK in the projects table
     """
     try:
         project = Project.query.get(project_id)
@@ -74,8 +77,8 @@ def delete_project(project_id):
         db.session.delete(project)
         db.session.commit()
 
-    except Exception as e:
-        error_message = f'Error connecting to the database: {str(e)}'
+    except Exception as error:
+        error_message = f'Error connecting to the database: {str(error)}'
         return jsonify({'error': error_message}), 500
 
     else:
@@ -95,10 +98,11 @@ def update_last_edited(project_id):
         project.last_edited = datetime.utcnow()
         db.session.commit()
 
-    except Exception as e:
-        error_message = f'Error connecting to the database: {str(e)}'
+    except Exception as error:
+        error_message = f'Error connecting to the database: {str(error)}'
         return jsonify({'error': error_message}), 500
 
     else:
         result = {'message': 'Last edited updated successfully'}
         return jsonify(result), 200    
+    
