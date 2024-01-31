@@ -53,30 +53,23 @@ const Transcript = () => {
 
 
     return(
-        <div>
+        <div className={styles.parent}>
             {isLoading ? 
                 <>
                     <Loading />
                 </> 
                 :
                 <div className={styles.MainContainer}>
-                    <div className={styles.timestamps}>
-                        {segment.map(({id,start,end}) => 
-                            <TimeStamp 
-                                key={id} 
-                                id={id} 
-                                start={start} 
-                                end={end} 
-                            />)}
-                    </div>
-                    <div className={styles.transcriptions}>
-                        {segment.map(({words,id}) => 
-                            <Quote 
-                                key={id} 
-                                wordArray={words} 
-                                TimestampId={id} 
-                            />)}
-                    </div>
+                    {segment.map(({ id, start, end, words }) => (
+                        <div key={id} className={styles.segmentContainer}>
+                            <div className={styles.timestamp}>
+                                <TimeStamp key={id} id={id} start={start} end={end} />
+                            </div>
+                            <div className={styles.transcription}>
+                                <Quote key={id} wordArray={words} TimestampId={id} />
+                            </div>
+                        </div>
+                    ))}
                 </div>
             }
         </div>        
