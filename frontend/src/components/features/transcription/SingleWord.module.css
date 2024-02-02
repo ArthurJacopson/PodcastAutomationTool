@@ -4,4 +4,11 @@
     cursor: pointer;
     padding-left: 0px;
     padding-right: 0px;
+    background-color: gray;
+    color: white;
+}
+
+.word button:hover{
+    background-color: #3DA3DB;
+    color: #E0E0E0;
 }

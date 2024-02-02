@@ -1,9 +1,7 @@
-import { ChangeEvent, useState, useRef } from "react";
+import { ChangeEvent, useCallback, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-import { FileInfo } from "../../../Interfaces";
 
-import  AddFile  from "./AddFile";
 import { sizeConversion } from "../../../utils";
 
 import styles from "./CreatePodcast.module.css";
@@ -12,6 +10,8 @@ import globalStyles from "../../../App.module.css";
 import axios from 'axios';
 import AWS from 'aws-sdk';
 import EditorOption from "./EditorOption";
+import PodcastSectionUploads from "./PodcastSectionUploads";
+import { FileInfo, PodcastSectionMinioManagement } from "../../../Interfaces";
 
 const CreatePodcast: React.FC = () => {
 
@@ -19,11 +19,13 @@ const CreatePodcast: React.FC = () => {
 
     const navigate = useNavigate();
 
-    const [files, setFiles] = useState<Array<FileInfo>>([]);
     const [projectName, setProjectName] = useState<string>('');
     const [editorSelection, setEditorSelection] = useState<string>("regular");
-    const inputFile: React.RefObject<HTMLInputElement> = useRef(null);
-    const bucketName = "temp";
+    const podcastSectionRef = useRef<PodcastSectionMinioManagement>(null);
+    const [uploadedFiles,setUploadedFiles] = useState(0);
+    const tempBucket = "temp";
+
+    const projectSize = useRef<number>(0);
 
     AWS.config.update({
         accessKeyId: process.env.REACT_APP_MINIO_USER_NAME,
@@ -37,57 +39,117 @@ const CreatePodcast: React.FC = () => {
         endpoint: process.env.REACT_APP_MINIO_ENDPOINT,
     });
 
-    const uploadFile = (event: ChangeEvent<HTMLInputElement>) => {
-
-        const getThumbnail = async () => {
-            if(event.target.files){
-                const key = event.target.files[0].name;
-                try{
-                    const UPLOAD_ENDPOINT = (process.env.REACT_APP_FLASK_API_DEVELOP + '/get-thumbnail');
-                    const data = {
-                        "bucket": bucketName,
-                        "key": key,
-                    };
-                    await axios.post(UPLOAD_ENDPOINT, data, {
-                        headers: {
-                            "content-type": "json",
-                        },
-                    });
-                }catch (e) {
-                    console.error(e);
-                }
-            }
-        };
-        if (event.target.files) {
-            const key = event.target.files[0].name;
-            const s3Params = {
-                Bucket: bucketName,
-                Key: event.target.files[0].name,
-                Body: event.target.files[0]
+    /**
+     * Calls Flask API to get the thumbnail for an uploaded file
+     * 
+     * @param {File} file - file to get the thumbnail from
+     * @returns {void} - no return
+     */
+    const getThumbnail = useCallback(async (uploadedFile:File) => {
+        const key = uploadedFile.name;
+        try{
+            const THUMBNAIL_ENDPOINT = (process.env.REACT_APP_FLASK_API_DEVELOP + '/get-thumbnail');
+            const data = {
+                "bucket": tempBucket,
+                "key": key,
             };
-
-            s3.upload(s3Params).promise().then((data)=>{
-                return s3.waitFor('objectExists', {Bucket: bucketName, Key: key});
-            })
-                .then(() =>{
-                    getThumbnail().then(()=>{
-                        if(event.target.files){
-    
-                            const date = new Date(event.target.files[0].lastModified);
-                            const file_metadata = {
-                                name: event.target.files[0].name,
-                                date: date.toDateString(),
-                                size: sizeConversion(event.target.files[0].size),
-                                file_type: event.target.files[0].type,
-                                thumbnail_url: (process.env.REACT_APP_MINIO_ENDPOINT + "/" + bucketName + "/" + event.target.files[0].name + "_thumbnail.jpg")
-                            };
-                            setFiles([...files, file_metadata]);
-                            if (inputFile.current)
-                                inputFile.current.value = '';
-                        }
-                    });
-                });
+            await axios.post(THUMBNAIL_ENDPOINT, data, {
+                headers: {
+                    "content-type": "json",
+                },
+            });
+        }catch (e) {
+            console.error(e);
         }
+    }, []);
+
+    /**
+     * Makes an AWS request using S3 to add a file and it's thumbnail to minio/temp
+     * Assuming that that bucket already exists
+     * 
+     * @param {ChangeEvent<HTMLInputElement>} event - event triggered by file upload
+     * @returns {FileInfo} - metadata of the file uploaded
+ o   */
+
+    const uploadFile = async(event: ChangeEvent<HTMLInputElement>) : Promise<FileInfo|null> => {
+        if (!event.target.files){
+            console.error("No file found");
+            return null;
+        }
+        const file = event.target.files[0];
+        const key = file.name;
+        
+        const s3Params = {
+            Bucket: tempBucket,
+            Key: key,
+            Body: file,
+            ACL: 'public-read'
+        };
+
+        try{
+            await s3.upload(s3Params).promise();
+            await s3.waitFor('objectExists', {Bucket: tempBucket, Key: key}).promise();
+            await getThumbnail(file);
+            await countUploadedFiles();
+        } catch (e) {
+            console.error(e);
+        }
+
+        const size_num = file.size;
+
+        const file_metadata: FileInfo = {
+            name: file.name,
+            size: sizeConversion(file.size),
+            file_type: file.type,
+            thumbnail_url: (process.env.REACT_APP_MINIO_ENDPOINT + "/" + tempBucket + "/" + file.name + "_thumbnail.jpg")
+        };
+
+        projectSize.current += size_num;
+        return file_metadata;
+    };
+
+    /**
+     * Returns an integer representing the number of total files that have been uploaded to the temp bucket
+     * Counts any file type so per single file upload you technically get 2 files (file and thumbnail)
+     */
+    const countUploadedFiles =  async () => {
+        const listParams = {
+            Bucket: tempBucket
+        };
+        const files = await s3.listObjectsV2(listParams).promise();
+        const fileCount = files.Contents ? files.Contents.length : 0;
+        setUploadedFiles(fileCount);
+    };
+
+    /**
+     * Make an AWS request to
+     *  - Make a new bucket using the projectID
+     *  - Copy everything from the /temp bucket into that new project (including thumbnails)
+     *  - Remove everything from /temp
+     *  Assuming that that /temp bucket already exists
+     * 
+     * @param {number} projectID - porjectID fetched from database
+     * @returns {void} - no return
+     */
+
+    const setupProjectBucket = async(projectID : number) => {
+        const destinationBucket = "project-" + projectID.toString();
+         
+        const createBucketParams = {
+            Bucket:destinationBucket,
+            ACL: 'public-read',
+            ObjectLockEnabledForBucket : false,
+            ObjectOwnership: "BucketOwnerEnforced"
+        };
+
+
+        try{
+            await s3.createBucket(createBucketParams).promise();
+            return destinationBucket;
+        }catch (error) {
+            console.error(error);
+        }
+
     };
 
     /**
@@ -101,13 +163,20 @@ const CreatePodcast: React.FC = () => {
                 headers: {
                     "content-type": "json",
                 },
+                body: JSON.stringify({
+                    "size" : sizeConversion(projectSize.current),
+                }),
             });
                 
             if(!response.ok) {
                 throw new Error(`Failed to create new project. Status: ${response.status.toString()}`);
             } 
             const responseData = await response.json();
-            navigate(`/editor/${editorSelection}/${responseData.project_id}`);
+            const projectBucketName = await setupProjectBucket(responseData.project_id);
+            if (podcastSectionRef.current && projectBucketName != undefined){
+                await podcastSectionRef.current.participantFiles(projectBucketName,s3,tempBucket);
+                navigate(`/editor/${editorSelection}/${responseData.project_id}`);
+            }
         } catch (e) {
             console.error('Error creating new project:', e);
         }
@@ -124,7 +193,7 @@ const CreatePodcast: React.FC = () => {
      *   - There is a project name
      */
     const startEditingButton = (
-        projectName && files[0] ? (
+        projectName && uploadedFiles > 0 ? (
             <Link to={'#'} className={globalStyles.Link}>
                 <button onClick={uploadPodcast}>Start Editing</button>
             </Link>
@@ -133,15 +202,20 @@ const CreatePodcast: React.FC = () => {
         )
     );
 
+    const projectNameComponent = (
+        <div className={styles.projectName}>
+            <p> Name of project </p>
+            <input type="text" onChange={changeProjectName}/>
+        </div>
+    );
+
 
     return (
         <div className={globalStyles.mainContent} id={styles.main}>
-            <AddFile 
-                changeProjectName={changeProjectName}
-                inputFile={inputFile}
-                uploadFile={uploadFile}
-                files={files}
-            />
+            <div id={styles.fileAdd}>
+                {projectNameComponent}
+                <PodcastSectionUploads uploadFile={uploadFile} ref={podcastSectionRef}/>
+            </div>
             <div id={styles.configurePodcast}>
                 <EditorOption
                     chosen={editorSelection}

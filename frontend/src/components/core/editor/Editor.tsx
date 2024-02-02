@@ -52,14 +52,19 @@ const Editor  =  (props: funcProp) => {
     const [isPlaying, setIsPlaying] = useState(false);
     const playerRef = useRef<ReactPlayer>(null);
 
-    const handlePlay = () => {
+    const togglePlay = () => {
         setIsPlaying(!isPlaying);
     };
 
     const handleSeek = (e : any) => {
         if (playerRef.current != null){
+            const duration  = playerRef.current.getDuration();
             const seekFromButton : number = +(e.target.value);
             const newTime = seekFromButton + playerRef.current.getCurrentTime();
+
+            if (newTime > duration && isPlaying){
+                togglePlay();
+            }
             playerRef.current.seekTo(newTime);
         }
     };
@@ -73,7 +78,7 @@ const Editor  =  (props: funcProp) => {
     const videoController = controller_type === "regular" ? (
         <div className={styles.videoControlsContainer}>
             <button onClick={handleSeek} value="-5">Back 5s</button>
-            <button onClick={handlePlay}>Play</button>
+            <button onClick={togglePlay}>Play</button>
             <button onClick={handleSeek} value="5">Forward 5s</button>
         </div>
     )

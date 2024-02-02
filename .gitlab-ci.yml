@@ -5,7 +5,7 @@ stages:
 
 build-frontend:
   stage: build
-  image: node:latest
+  image: node:lts
   artifacts:
     expire_in: 1 day
     paths:
