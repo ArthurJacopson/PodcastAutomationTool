@@ -32,4 +32,23 @@ label {
 	overflow: hidden;
 }
 
+#fileAdd {
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+	gap: 5vh;
+	margin-right: 5vh;
+}
+
+.projectName {
+	display: flex;
+	justify-content: center;
+	flex-direction: row;
+	align-items: center;
+	padding: 1vh;
+	border-radius: 1vh;
+	background-color: #e4e4e4;
+}
+
+
 

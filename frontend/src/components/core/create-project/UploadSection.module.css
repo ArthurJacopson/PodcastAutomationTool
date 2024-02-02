@@ -1,15 +1,13 @@
-#fileAdd {
-	grid-area: fileAdd;
-	margin-right: 5vh;
+.uploadBlock{
+	background-color: #bbbbbb;
+	border-radius: 2vh;
 }
-.projectName {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	padding: 1vh;
-	border-radius: 1vh;
-	background-color: #e4e4e4;
+
+.uploadBlock p{
+	font-size: medium;
 }
+
+
 .dragFiles {
 	background-color: #e4e4e4;
 	margin-top: 1vh;

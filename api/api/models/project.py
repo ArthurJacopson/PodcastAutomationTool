@@ -12,14 +12,15 @@ class Project(db.Model):
     description = db.Column(db.String(1000), nullable=True)
     created_at = db.Column(db.DateTime, nullable=False, server_default=db.func.now())
     last_edited = db.Column(db.DateTime, nullable=True, server_default=db.func.now())
-    size = 20
+    project_size = db.Column(db.String(10), nullable=False, server_default="0B")
 
     def __repr__(self):
         project_id = f"project_id={self.project_id}"
         name = f"name={self.name}"
         description = f"description={self.description}"
+        project_size = f"project_size={self.project_size}"
 
-        return f"<Project({project_id}, {name}, {description})>"
+        return f"<Project({project_id}, {name}, {description} {project_size})>"
 
     def to_json(self):
         return {
@@ -28,6 +29,6 @@ class Project(db.Model):
             "description": self.description,
             "created_at": self.created_at,
             "last_edited": self.last_edited,
-            "size": self.size
+            "size": self.project_size
         }
     

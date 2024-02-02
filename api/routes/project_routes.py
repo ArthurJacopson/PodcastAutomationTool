@@ -1,5 +1,6 @@
+import json
 from datetime import datetime
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 
 from db import db
 from api.models.project import Project
@@ -47,7 +48,9 @@ def create_project(project_name):
     :return result: if unsuccessful return error code, if successful return id of new project.
     """
     try:
-        new_project = Project(name=project_name)
+        data_str = request.data.decode('utf-8')
+        size = json.loads(data_str)['size']
+        new_project = Project(name=project_name, project_size=size)
         db.session.add(new_project)
         db.session.commit()
         project = Project.query.filter_by(project_id=new_project.project_id).first()

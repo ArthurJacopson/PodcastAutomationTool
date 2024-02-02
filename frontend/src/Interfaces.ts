@@ -46,6 +46,27 @@ export interface NavbarProps {
     title: string;
 }
 
+export interface PodcastSectionProps {
+    uploadFile: (event: React.ChangeEvent<HTMLInputElement>) => Promise<FileInfo|null>;
+}
+
+export interface PodcastSectionMinioManagement {
+    participantFiles: (projectBucketName : string,s3 : AWS.S3,tempBucket : string) => Promise<void>;
+}
+
+export interface PodcastSectionInfo {
+    id: number;
+    name: string;
+    files : File[]
+}
+
+export interface UploadSectionInfo {
+    id: number;
+    name: string;
+    uploadFile: (event: React.ChangeEvent<HTMLInputElement>) => Promise<FileInfo|null>;
+    fileState : (id : number, file : File) => void;
+}
+
 export interface DeleteConfirmationProps {
     isOpen: boolean;
     onConfirmDelete: () => void;
