@@ -8,6 +8,21 @@ import DeleteConfirmation from '../../shared/delete-confirmation/DeleteConfirmat
 
 import { useWaitAuth0Redirect } from '../../../hooks/useWaitAuthoRedirect';
 
+import AWS from 'aws-sdk';
+
+
+AWS.config.update({
+    accessKeyId: process.env.REACT_APP_MINIO_USER_NAME,
+    secretAccessKey: process.env.REACT_APP_MINIO_PASSWORD,
+    region: 'London', // Set the region accordingly
+    s3ForcePathStyle: true, // Required for Minio
+    signatureVersion: 'v4', // Use v4 signature for Minio
+});
+
+const s3 = new AWS.S3({
+    endpoint: process.env.REACT_APP_MINIO_ENDPOINT,
+});
+
 const Landing = (props: funcProp) => {
  
     props.func("Podplistic");
@@ -50,11 +65,6 @@ const Landing = (props: funcProp) => {
         setConfirmationOpen(true);
     };
 
-    const handleCancelDelete = () => {
-        setConfirmationOpen(false);
-        setProjectToDelete('');
-    };
-
 
     /**
      * Deletes a project by calling the Flask API.
@@ -72,12 +82,28 @@ const Landing = (props: funcProp) => {
                 throw new Error(response.statusText);
             }
 
+            const minio_project_id = `project-${project_id}`;
+
+            // List all objects in the bucket
+            const objects = await s3.listObjectsV2({Bucket: minio_project_id}).promise() ;
+
+            // Delete each object in the bucket
+            const contents = objects.Contents ?? [];
+            for (const object of contents){
+                await s3.deleteObject({ Bucket: minio_project_id, Key: object.Key || '' }).promise();
+            }
+
+            // Delete the bucket itself
+            await s3.deleteBucket({ Bucket: minio_project_id }).promise();
+            console.log(`Bucket '${project_id}' and its contents have been deleted.`);
+
+            setConfirmationOpen(false);
+
             // If successfully deleted from the API, remove the component from the frontend
             setProjects((currentProjects) =>
                 currentProjects.filter((project) => project.project_id !== project_id)
             );
 
-            setConfirmationOpen(false);
         } catch (error) {
             console.error('Error deleting project:', error);
         }
@@ -91,7 +117,7 @@ const Landing = (props: funcProp) => {
             }
             makeAPICallRef.current = false;
         }
-    },[isLoggedIn]);
+    },[isLoggedIn, isConfirmationOpen]);
 
 
 

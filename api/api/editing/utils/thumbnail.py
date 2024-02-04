@@ -1,19 +1,12 @@
 import subprocess
 import os
 
-import boto3
+from api.editing.utils.minioUtils import create_s3_client, set_environment_variables
 
-# Set environnment vairables
+set_environment_variables("http://127.0.0.1:9000", "minio_user", "minio_password")
 
-os.environ["MINIO_ENDPOINT"] = "http://127.0.0.1:9000"
-os.environ["ACCESS_KEY"] = "minio_user"
-os.environ["SECRET_KEY"] = "minio_password"
-
-# Creates an S3 client with MinIO configuration
-s3_client = boto3.client('s3',
-                         endpoint_url=os.environ["MINIO_ENDPOINT"],
-                         aws_access_key_id=os.environ["ACCESS_KEY"],
-                         aws_secret_access_key=os.environ["SECRET_KEY"])
+s3_client = create_s3_client(os.environ["MINIO_ENDPOINT"], 
+                             os.environ["ACCESS_KEY"], os.environ["SECRET_KEY"])
 
 
 def generate_thumbnail(bucket_name, object_key):
