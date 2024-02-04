@@ -1,10 +1,11 @@
 from flask_cors import CORS
 from flask import Flask
 
-from db import db
-
 from config import DevelopmentDatabaseConfig as Dev
-from routes import project_routes, transcript_route, thumbnail_route
+
+from routes import project_routes, transcript_route, thumbnail_route, merge_route
+
+from db import db
 
 app = Flask(__name__)
 CORS(app)
@@ -16,6 +17,8 @@ db.init_app(app)
 app.register_blueprint(project_routes.bp)
 app.register_blueprint(thumbnail_route.bp)
 app.register_blueprint(transcript_route.bp)
+app.register_blueprint(merge_route.bp)
+
 
 if __name__ == "__main__":
     app.run()
