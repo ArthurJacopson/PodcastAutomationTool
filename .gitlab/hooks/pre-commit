@@ -1,0 +1,60 @@
+#!/bin/bash
+
+# Script to run pre-commit checks on codebase
+
+# Checks whether a venv is activated, if not exits with error message
+if [ -z "${VIRTUAL_ENV}" ] || [ ! -d "${VIRTUAL_ENV}" ]; then
+    echo "No active Python virtual environment found."
+    echo "Please create and activate a virtual environment."
+    exit 1
+fi
+
+echo "Running pre-commit checks..."
+echo "------------------------------------------------"
+
+# Frontend
+echo "Stage: Frontend"
+# Lint
+echo "Stage: Lint frontend"
+cd frontend
+if ! npx eslint ./src/ --quiet > /dev/null 2>&1; then
+    echo "Frontend linting failed"
+    exit 1
+fi
+echo "Passed"
+
+# Test
+echo "Stage: Test frontend"
+CI=true npm test --quiet > /dev/null 2>&1
+if [ $? -ne 0 ]; then
+    echo "Frontend testing failed"
+    exit 1
+fi
+echo "Passed"
+
+echo "------------------------------------------------"
+
+# Backend
+echo "Stage: Backend"
+# Lint
+echo "Stage: Lint backend"
+cd ../
+if ! pylint ./api/ --rcfile .pylintrc --ignore=.env > /dev/null 2>&1; then
+    echo "Backend linting failed"
+    exit 1
+fi
+echo "Passed"
+
+# Test
+echo "Stage - Test backend"
+cd tests/
+if ! ./runtests.sh > /dev/null 2>&1; then
+    echo "Backend testing failed"
+    echo "Use the runtests.sh in tests script to see why."
+    exit 1
+fi
+echo "Passed"
+# ------------------------------------------------
+echo "Pre-commit checks complete"
+
+exit 0
