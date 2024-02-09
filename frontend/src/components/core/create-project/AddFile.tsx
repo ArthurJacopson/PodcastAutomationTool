@@ -1,6 +1,6 @@
 import { PropsWithChildren } from "react";
-import { FileInfo } from "../../../Interfaces";
-import FileComponent from "../../shared/file-comp/FileComponent";
+import { FileInfo } from "@src/Interfaces";
+import FileComponent from "@shared/file-comp/FileComponent";
 import styles from "./AddFile.module.css";
 
 const AddFile:React.FC<PropsWithChildren<any>> = (props) => {

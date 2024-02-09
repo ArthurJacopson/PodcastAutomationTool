@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { TranscriptWordInfo } from "../../../Interfaces";
+import { TranscriptWordInfo } from "@src/Interfaces";
 
 import style from "./SingleWord.module.css";
 

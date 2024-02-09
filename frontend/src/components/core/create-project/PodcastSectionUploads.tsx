@@ -1,5 +1,5 @@
 import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
-import { PodcastSectionInfo, PodcastSectionProps } from "../../../Interfaces";
+import { PodcastSectionInfo, PodcastSectionProps } from "@src/Interfaces";
 import styles from "./PodcastSectionUploads.module.css";
 import UploadSection from "./UploadSection";
 

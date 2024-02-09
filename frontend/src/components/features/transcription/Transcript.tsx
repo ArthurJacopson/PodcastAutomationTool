@@ -5,7 +5,7 @@ import axios from 'axios';
 import styles from './Transcript.module.css';
 import TimeStamp from './TimeStamp';
 import Quote from './Quote';
-import Loading from '../../shared/loading-animation/Loading';
+import Loading from '@shared/loading-animation/Loading';
 
 
 const Transcript = () => {

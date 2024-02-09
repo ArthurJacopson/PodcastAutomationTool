@@ -10,7 +10,7 @@ api/temp_output/
 
 # dependencies
 frontend/node_modules
-frontend/.package-lock.json
+frontend/package-lock.json
 frontend/.pnp
 frontend.pnp.js
 frontend/.env

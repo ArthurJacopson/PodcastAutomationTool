@@ -1,8 +1,8 @@
 import { render, screen, } from "@testing-library/react";
 import { createMemoryHistory } from 'history';
-import FileComponent from "../../../components/shared/file-comp/FileComponent";
-import { sizeConversion} from "../../../utils";
-import thumbnail from '../../../static/thumbnail1.png';
+import FileComponent from "@shared/file-comp/FileComponent";
+import { sizeConversion} from "@src/utils";
+import thumbnail from '@static/thumbnail1.png';
 
 
 test('Component is created with correct contents, as defined in sampleData', () => {
