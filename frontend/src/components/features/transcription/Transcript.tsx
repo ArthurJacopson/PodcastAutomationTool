@@ -50,15 +50,23 @@ const Transcript = () => {
         }
     },[]);
 
-
-
-    return(
-        <div className={styles.parent}>
-            {isLoading ? 
-                <>
-                    <Loading />
-                </> 
-                :
+    if (isLoading) {
+        return (
+            <div className={styles.parent}>
+                <Loading />
+            </div>
+        );
+    } else if (segment === undefined || segment.length === 0) {
+        return (
+            <div className={styles.parent}>
+                <div className={styles.MainContainer}>
+                    Could not find Transcript.
+                </div>
+            </div>
+        );
+    } else {
+        return(
+            <div className={styles.parent}>
                 <div className={styles.MainContainer}>
                     {segment.map(({ id, start, end, words }) => (
                         <div key={id} className={styles.segmentContainer}>
@@ -71,9 +79,11 @@ const Transcript = () => {
                         </div>
                     ))}
                 </div>
-            }
-        </div>        
-    );
+            </div>        
+        );
+    }
+
+
 
 
 };
