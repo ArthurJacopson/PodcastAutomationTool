@@ -17,7 +17,7 @@ build-frontend:
     - export REACT_APP_AUTH0_DOMAIN=${REACT_APP_AUTH0_DOMAIN}
     - export REACT_APP_AUTH0_CLIENT_ID=${REACT_APP_AUTH0_CLIENT_ID}
     - export REACT_APP_AUTH0_CALLBACK_URL=${REACT_APP_AUTH0_CALLBACK_URL}
-    - npm ci
+    - npm install
     - npm run build
 
 lint-frontend:

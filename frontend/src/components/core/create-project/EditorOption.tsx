@@ -1,4 +1,4 @@
-import { OptionsInfo } from "../../../Interfaces";
+import { OptionsInfo } from "@src/Interfaces";
 
 import styles from "./EditorOption.module.css";
 

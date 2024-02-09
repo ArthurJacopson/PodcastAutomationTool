@@ -1,7 +1,7 @@
 import { ChangeEvent, useRef, useState } from "react";
-import { FileInfo, UploadSectionInfo } from "../../../Interfaces";
+import { FileInfo, UploadSectionInfo } from "@src/Interfaces";
 import styles from "./UploadSection.module.css";
-import FileComponent from "../../shared/file-comp/FileComponent";
+import FileComponent from "@shared/file-comp/FileComponent";
 
 const UploadSection = ({id, name, uploadFile ,fileState}:UploadSectionInfo): JSX.Element => {
     const [files, setFiles] = useState<FileInfo[]>([]);

@@ -1,12 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
 
 import { useNavigate } from 'react-router-dom';
-import { ProjectInfo, funcProp } from '../../../Interfaces';
+import { ProjectInfo, funcProp } from '@src/Interfaces';
 import ProjectComponent from './ProjectComponent';
-import Loading from '../../shared/loading-animation/Loading';
-import DeleteConfirmation from '../../shared/delete-confirmation/DeleteConfirmation';
+import Loading from '@shared/loading-animation/Loading';
+import DeleteConfirmation from '@shared/delete-confirmation/DeleteConfirmation';
 
-import { useWaitAuth0Redirect } from '../../../hooks/useWaitAuthoRedirect';
+import { useWaitAuth0Redirect } from '@hooks/useWaitAuthoRedirect';
 
 import AWS from 'aws-sdk';
 

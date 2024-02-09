@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import Modal from 'react-modal';
 
-import { DeleteConfirmationProps } from '../../../Interfaces';
+import { DeleteConfirmationProps } from '@src/Interfaces';
 
 import styles from "./DeleteConfirmation.module.css";
 

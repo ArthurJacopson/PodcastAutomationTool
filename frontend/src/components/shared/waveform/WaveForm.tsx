@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import { useWaveSurfer } from "../../../hooks/useWaveSurfer";
+import { useWaveSurfer } from "@hooks/useWaveSurfer";
 import WaveSurfer from "wavesurfer.js";
 import styles from './WaveForm.module.css';
 

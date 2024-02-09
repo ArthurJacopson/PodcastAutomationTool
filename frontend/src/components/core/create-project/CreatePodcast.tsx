@@ -2,16 +2,17 @@ import { ChangeEvent, useCallback, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 
-import { sizeConversion } from "../../../utils";
 
 import styles from "./CreatePodcast.module.css";
-import globalStyles from "../../../App.module.css";
+import globalStyles from "@src/App.module.css";
 
 import axios from 'axios';
 import AWS from 'aws-sdk';
 import EditorOption from "./EditorOption";
 import PodcastSectionUploads from "./PodcastSectionUploads";
-import { FileInfo, PodcastSectionMinioManagement } from "../../../Interfaces";
+import { FileInfo, PodcastSectionMinioManagement } from "@src/Interfaces";
+
+import { sizeConversion } from "../../../utils";
 
 const CreatePodcast: React.FC = () => {
 

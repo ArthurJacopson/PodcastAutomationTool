@@ -1,7 +1,7 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import { createMemoryHistory } from "history";
 import { Router } from "react-router-dom";
-import Landing from "../../../components/core/landing/Landing";
+import Landing from "@core/landing/Landing";
 
 // Mock the react-modal module
 jest.mock('react-modal', () => ({

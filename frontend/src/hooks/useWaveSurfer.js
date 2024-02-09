@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 
 import WaveSurfer from "wavesurfer.js";
 
-import sampleAudio from '../static/sample.mp3';
+import sampleAudio from '@static/sample.mp3';
 
 export function useWaveSurfer(containerRef) {
     const [wavesurfer, setWavesurfer] = useState(null);

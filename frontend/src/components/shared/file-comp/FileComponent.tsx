@@ -1,10 +1,10 @@
-import styles from '../../shared/file-comp/ListComponent.module.css';
+import styles from '@shared/file-comp/ListComponent.module.css';
 
-import { FileInfo } from '../../../Interfaces';
+import { FileInfo } from '@src/Interfaces';
 
-import { cropString } from "../../../utils";
+import { cropString } from "@src/utils";
 
-import audiothumbnail from "../../../static/audiothumbnail.png";
+import audiothumbnail from "@static/audiothumbnail.png";
 
 const FileComponent = ({name, size, file_type, thumbnail_url }: FileInfo) => {
 
