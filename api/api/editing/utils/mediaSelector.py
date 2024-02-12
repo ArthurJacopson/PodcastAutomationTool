@@ -3,12 +3,7 @@ import re
 import os
 import time
 
-from api.editing.utils.minioUtils import create_s3_client, set_environment_variables
-
-set_environment_variables(
-    "http://127.0.0.1:9000",
-    "minio_user",
-    "minio_password")
+from api.editing.utils.minioUtils import create_s3_client
 
 s3_client = create_s3_client(
     os.environ["MINIO_ENDPOINT"],
@@ -42,35 +37,40 @@ def retrieve_files(bucket_name):
 
     :param bucket_name: the minio bucket the files have to be retrieved from.
     """
+    time.sleep(1) # Waits to ensure files have been uploaded to minio
     try:
         # List all objects in the bucket
         objects = s3_client.list_objects(Bucket=bucket_name)['Contents']
         i = 1
-        j = 1
         for obj in objects:
+            participant = f"participant-{i}/"
             # Get the file key (name)
             file_key = obj['Key']
+            if file_key == participant:
+                files = s3_client.list_objects_v2(
+                    Bucket=bucket_name, Prefix=participant)['Contents']
+                for file in files:
+                    if file['Key'].lower().endswith(".mp4"):
+                    # Download the file
+                        download_file_path = f"camera{i}.mp4"
+                        s3_client.download_file(
+                            bucket_name, file['Key'], download_file_path)
+                        wait_for_file(download_file_path)
+                        print(f"Downloaded: {file_key}")
 
-            # Check if the file has a .mp4 extension
-            if file_key.lower().endswith('.mp4'):
-                # Download the file
-                download_file_path = f"camera{i}.mp4"
-                s3_client.download_file(
-                    bucket_name, file_key, download_file_path)
-                wait_for_file(download_file_path)
-                print(f"Downloaded: {file_key}")
+                    if file['Key'].lower().endswith(".wav"):
+                    # Download the file
+                        download_file_path = f"mic{i}.wav"
+                        s3_client.download_file(
+                            bucket_name, file['Key'], download_file_path)
+                        wait_for_file(download_file_path)
+                        print(f"Downloaded: {file_key}")
                 i += 1
 
-            if file_key.lower().endswith('.wav'):
-                download_file_path = f"mic{j}.wav"
-                s3_client.download_file(
-                    bucket_name, file_key, download_file_path)
-                wait_for_file(download_file_path)
-                print(f"Downloaded: {file_key}")
-                j += 1
-
-    except BaseException:
-        print("Credentials not available")
+        return True
+    except BaseException as e:
+        print(f"Credentials not available: {e}")
+        return False
 
 
 def clean_files():
@@ -95,17 +95,21 @@ def upload_final_output(final_output, bucket_name):
     :param final_outout: the name of the final output file.
     :param bucket_name: the name of the bucket to be uploaded to.
     """
-    with open(final_output, 'rb') as file:
-        s3_client.put_object(
-            Bucket=bucket_name,
-            Key=(final_output),
-            Body=file,
-            ACL='public-read')
 
-    s3_client.get_waiter('object_exists').wait(
-        Bucket=bucket_name,
-        Key=(final_output)
-    )
+    try:
+        with open(final_output, 'rb') as file:
+            s3_client.put_object(
+                Bucket=bucket_name,
+                Key=f"final-product/{final_output}",
+                Body=file,
+                ACL='public-read')
+
+        s3_client.get_waiter('object_exists').wait(
+            Bucket=bucket_name,
+            Key=f"final-product/{final_output}"
+        )
+    except Exception as e:
+        print("Error:", e)
 
 
 def generate_response(final_output, bucket_name):
@@ -119,7 +123,7 @@ def generate_response(final_output, bucket_name):
         "final_output_url": (
             os.environ["MINIO_ENDPOINT"] +
             "/" +
-            bucket_name +
+            f"{bucket_name}/final-product" +
             "/" +
             (final_output))}
 
@@ -253,41 +257,52 @@ def attach_audio_to_video(video_output, audio_output, final_output):
 
 def main(bucket_name):
 
-    retrieve_files(bucket_name)
-
-    audio_file1 = 'mic1.wav'
-    audio_file2 = 'mic2.wav'
-
-    # Merge and isolate microphones
-    isolated_audio1, isolated_audio2 = merge_and_isolate_microphones(
-        audio_file1, audio_file2)
-
-    video_files = {
-        'speaker1': 'camera1.mp4',
-        'speaker2': 'camera2.mp4',
-        'wide': 'wide_shot.mp4'}
-    audio_files = {'speaker1': isolated_audio1, 'speaker2': isolated_audio2}
-    # Speaker 2's audio and video start 10 seconds after Speaker 1's
-    offsets = {'speaker2': 10}
-
-    transitions_speaker1 = analyze_audio(audio_files['speaker1'])
-    transitions_speaker2 = analyze_audio(audio_files['speaker2'])
-
-    transitions = sorted(
-        transitions_speaker1 +
-        transitions_speaker2,
-        key=lambda x: x[0])
-
-    video_output = 'processed_video.mp4'
-    audio_output = 'merged_audio.wav'
-    final_output = 'final_product.mp4'
     try:
+
+        files_retrieved = retrieve_files(bucket_name)
+        if not files_retrieved:
+            return {"Error": "Files not retrieved"}
+           
+
+        audio_file1 = 'mic1.wav'
+        audio_file2 = 'mic2.wav'
+
+        # Merge and isolate microphones
+        isolated_audio1, isolated_audio2 = merge_and_isolate_microphones(
+            audio_file1, audio_file2)
+
+        video_files = {
+            'speaker1': 'camera1.mp4',
+            'speaker2': 'camera2.mp4',
+            'wide': 'wide_shot.mp4'}
+        audio_files = {'speaker1': isolated_audio1, 'speaker2': isolated_audio2}
+        # Speaker 2's audio and video start 10 seconds after Speaker 1's
+        offsets = {'speaker2': 10}
+
+        transitions_speaker1 = analyze_audio(audio_files['speaker1'])
+        transitions_speaker2 = analyze_audio(audio_files['speaker2'])
+
+        transitions = sorted(
+            transitions_speaker1 +
+            transitions_speaker2,
+            key=lambda x: x[0])
+
+        video_output = 'processed_video.mp4'
+        audio_output = 'merged_audio.wav'
+        final_output = 'final_product.mp4'
+
         process_video_segments(video_files, transitions, video_output, offsets)
         align_and_merge_audio(audio_files, transitions, audio_output, offsets)
         attach_audio_to_video(video_output, audio_output, final_output)
+
         upload_final_output(final_output, bucket_name)
         clean_files()
-    except BaseException:
+
+    except Exception:
+        final_output = 'final_podcast.mp4'
+        os.rename('camera1.mp4', final_output)
+        upload_final_output(final_output, bucket_name)
+        os.remove(final_output)
         clean_files()
 
     return generate_response(final_output, bucket_name)

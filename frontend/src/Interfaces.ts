@@ -72,3 +72,7 @@ export interface DeleteConfirmationProps {
     onConfirmDelete: () => void;
     onCancelDelete: () => void;
 }
+
+export interface TranscriptProps {
+    videoUrl: string; 
+}

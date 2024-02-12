@@ -6,7 +6,8 @@ import styles from './Transcript.module.css';
 
 import TimeStamp from './TimeStamp';
 import Quote from './Quote';
-import Loading from '../../shared/loading-animation/Loading';
+import Loading from '@shared/loading-animation/Loading';
+import {TranscriptProps } from "@src/Interfaces";
 
 import { TranscriptWordInfo } from '../../../Interfaces';
 
@@ -41,7 +42,7 @@ export const TimeStampContext = createContext<TimeStampProvier>({
 });
 
 
-const Transcript = () => {
+const Transcript = (props : TranscriptProps) => {
 
     const [segment,setSegment] = useState([]);
     const makeAPICall = useRef(true);
@@ -56,7 +57,7 @@ const Transcript = () => {
         try{
             const UPLOAD_ENDPOINT = `http://127.0.0.1:5000/get-transcript`;
             const data = {
-                "video_file_path": "test_files/sample.mp4",
+                "video_file_path": props.videoUrl,
                 "temp_folder": "temp_output/",
                 "output_file_name":"out.mp3",
                 "isCompressed":false

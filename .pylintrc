@@ -152,6 +152,7 @@ disable=print-statement,
         invalid-name,
         trailing-whitespace,
         no-member,
+        wrong-import-position
       
 
 # Enable the message, report, category or checker with the given id(s). You can
