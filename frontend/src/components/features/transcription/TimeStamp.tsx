@@ -9,7 +9,7 @@ import { getTime }  from "@src/utils";
 const TimeStamp =  ({id,start,end} : TimeStampInfo) => {
     
     return  (
-        <div id={id as unknown as string} className={styles.component}>
+        <div id={id} className={styles.component}>
             <button>
                 {getTime(start)}
             </button>

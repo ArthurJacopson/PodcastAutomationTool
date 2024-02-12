@@ -27,7 +27,7 @@ export interface TranscriptWordInfo {
 }
 
 export interface TimeStampInfo {
-    id: number;
+    id: string;
     start: number;
     end: number;
 }

@@ -1,11 +1,44 @@
-import {useEffect, useRef, useState } from 'react';
+import {useEffect, useRef, useState, createContext, useContext, createRef, forwardRef } from 'react';
 
 import axios from 'axios';
 
 import styles from './Transcript.module.css';
+
 import TimeStamp from './TimeStamp';
 import Quote from './Quote';
-import Loading from '@shared/loading-animation/Loading';
+import Loading from '../../shared/loading-animation/Loading';
+
+import { TranscriptWordInfo } from '../../../Interfaces';
+
+import {ReactPlayerContext} from "../../core/editor/Editor";
+
+type QuoteWordTuple = [number,number];
+
+export interface TimeStampStatus{
+    index  : QuoteWordTuple
+    payload : TranscriptWordInfo
+    enabled : boolean;
+}
+
+export interface WhisperTimeStamped {
+    id : string; 
+    start : number; 
+    end : number;
+    words : TranscriptWordInfo[];
+}
+
+
+type TimeStampProvier = {
+    timestamps : TimeStampStatus[]
+    setTimeStamps : React.Dispatch<React.SetStateAction<TimeStampStatus[]>>
+    timestampIndex : number
+}
+
+export const TimeStampContext = createContext<TimeStampProvier>({
+    timestamps: [],
+    setTimeStamps: () => {},
+    timestampIndex : 0
+});
 
 
 const Transcript = () => {
@@ -13,6 +46,11 @@ const Transcript = () => {
     const [segment,setSegment] = useState([]);
     const makeAPICall = useRef(true);
     const [isLoading,setIsLoading] = useState<boolean>(true);
+    const timestampIndex = useRef<number>(0);
+
+    const [timestamps,setTimeStamps] = useState<TimeStampStatus[]>([]);
+
+    const {isPlaying,playerRef,currentTime,isUpdated} = useContext(ReactPlayerContext);
 
     const getTranscript = async () => {
         try{
@@ -39,6 +77,8 @@ const Transcript = () => {
 
     };
 
+
+
     useEffect(() => {
         if (makeAPICall.current === true){
             const segments = getTranscript();
@@ -49,6 +89,77 @@ const Transcript = () => {
             makeAPICall.current = false;
         }
     },[]);
+
+    /*
+     * Updates the index so that  
+     *  - The index i is for the timestamp ahead of the current time
+     *  - i.e. currentTime < timestamps[i].payload.start
+     *  - Where there is no other timeStampIndex j != i such that
+     *  
+     *      currentTime <= timestamps[j].payload.start <= timestamps[i].payload.start
+     *  
+     * This function will return the correct index according to the rules described above
+     */
+    const findUpdatedTimestampIndex = () => {
+        let tempIndex = timestampIndex.current;
+        let data = timestamps[tempIndex].payload;
+
+        if (data.start <= currentTime && currentTime <= data.end){ // Case 1: Current time is in current timestamp: do nothing
+            
+        } else if (data.end < currentTime && tempIndex < timestamps.length - 1) { // Case 2: Current time is after the current timestamp: need to move index up
+            while (data.end < currentTime){
+                tempIndex++;
+                if (tempIndex === timestamps.length - 1){ // In case a timestamp somehow ends after the video
+                    break;
+                }
+                data = timestamps[tempIndex].payload;
+            } 
+        } else if (tempIndex !== 0) { // Case 3: Either the currentTime is between timestamps or is in a previous timestamp!
+            data = timestamps[tempIndex - 1].payload;
+            while (data.end > currentTime) {
+                tempIndex--;
+                if (tempIndex === 0){ // In case a timestamp somehow starts/ends before the video
+                    break;
+                }
+                data = timestamps[tempIndex].payload;
+                
+            }
+        }
+        return tempIndex;
+    };
+    useEffect(() => {
+        if (timestamps.length != 0){
+            let tempIndex = findUpdatedTimestampIndex();
+            timestampIndex.current = tempIndex;
+
+            let lookAheadTime = currentTime + 0.050; // we want to look ahead a certain amount of time
+            let foundSuitableStop = false;
+            let firstSkipFound = false;
+            let firstSkipTime = -1;
+            let seekTime = lookAheadTime;
+            while (!foundSuitableStop && tempIndex <= timestamps.length - 1){
+                const data = timestamps[tempIndex].payload;
+                const enabled = timestamps[tempIndex].enabled;
+                if (data.start <= lookAheadTime && lookAheadTime <= data.end && !enabled){
+                    if (!firstSkipFound){ 
+                        firstSkipFound = true;
+                        firstSkipTime = data.start;
+                    }
+                    seekTime = data.end;
+                    lookAheadTime = seekTime + 0.050; // need to check if the following word is disabled too
+                    tempIndex++;
+                } else {
+                    foundSuitableStop = true;  
+                }
+            }
+            if (lookAheadTime != seekTime){ // i.e. there is a word(s) we want to skip
+                setTimeout(() => {
+                    playerRef.current?.seekTo(seekTime);
+                }, 1000 * (firstSkipTime - currentTime)); 
+            }
+        }
+    },[currentTime]);
+
 
     if (isLoading) {
         return (
@@ -66,26 +177,26 @@ const Transcript = () => {
         );
     } else {
         return(
-            <div className={styles.parent}>
-                <div className={styles.MainContainer}>
-                    {segment.map(({ id, start, end, words }) => (
-                        <div key={id} className={styles.segmentContainer}>
-                            <div className={styles.timestamp}>
-                                <TimeStamp key={id} id={id} start={start} end={end} />
-                            </div>
-                            <div className={styles.transcription}>
-                                <Quote key={id} wordArray={words} TimestampId={id} />
-                            </div>
+            <ReactPlayerContext.Provider value = {{playerRef,isPlaying,currentTime,isUpdated}}>
+                <TimeStampContext.Provider value={{timestamps : timestamps,setTimeStamps : setTimeStamps, timestampIndex : (timestampIndex.current)}}>
+                    <div className={styles.parent}>
+                        <div className={styles.MainContainer}>
+                            {segment.map(({ id, start, end, words }) => (
+                                <div key={id} className={styles.segmentContainer}>
+                                    <div className={styles.timestamp}>
+                                        <TimeStamp key={id} id={id} start={start} end={end} />
+                                    </div>
+                                    <div className={styles.transcription}>
+                                        <Quote key={id} wordArray={words} TimestampId={id} />
+                                    </div>
+                                </div>
+                            ))}
                         </div>
-                    ))}
-                </div>
-            </div>        
+                    </div>
+                </TimeStampContext.Provider>  
+            </ReactPlayerContext.Provider>      
         );
     }
-
-
-
-
 };
 
 
