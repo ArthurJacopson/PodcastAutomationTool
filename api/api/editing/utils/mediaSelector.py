@@ -29,7 +29,8 @@ def wait_for_file(file_path, timeout=60):
         time.sleep(1)  # Wait for 1 second
         if time.time() - start_time > timeout:
             print(
-                f"Timeout reached. The file '{file_path}' did not appear within {timeout} seconds.", file=sys.stderr)
+                f"Timeout reached. The file '{file_path}' did not appear within {timeout} seconds.", \
+                file=sys.stderr)
             return False
 
     print(f"The file '{file_path}' exists.", file=sys.stderr)
@@ -165,7 +166,7 @@ def merge_and_isolate_microphones(audio_file1, audio_file2):
 
     return isolated_output1, isolated_output2
 
-def choose_highest_sounds(audio_files, offsets):
+def choose_highest_sounds(audio_files):
     # Assume 32KHz sample rate (whatever is used in read_file_to_array
     sample_rate = 32_000
     audio_arrays = []
@@ -182,12 +183,12 @@ def choose_highest_sounds(audio_files, offsets):
     new_size = min(len(audio_array) for audio_array in audio_arrays) // sample_rate
     
     audio_array_seconds_sum = np.array([audio_array[:new_size * sample_rate] \
-            .reshape((new_size, sample_rate))
-            .sum(axis=1) for audio_array in audio_arrays])
+                              .reshape((new_size, sample_rate))
+                              .sum(axis=1) for audio_array in audio_arrays])
 
     # Need to convert this into a full numpy array
     for i in range(new_size):
-        transitions.append((i,i+1,f'speaker{np.argmax(audio_array_seconds_sum[:, i]) + 1}'))
+        transitions.append((i, i+1, f'speaker{np.argmax(audio_array_seconds_sum[:, i]) + 1}'))
     
     return transitions
     
@@ -230,7 +231,7 @@ def process_video_segments(video_files, transitions, video_output, offsets):
         filter_complex.append(
             f"[{i}:v]trim=start={start_offset}:end={end},setpts=PTS-STARTPTS[v{i}];")
  
-    if (len(transitions)):
+    if len(transitions) > 0:
         filter_complex.append(
             ''.join(
                 f"[v{i}]" for i in range(
@@ -239,7 +240,7 @@ def process_video_segments(video_files, transitions, video_output, offsets):
         filter_complex_string = ''.join(filter_complex)
     
     command = ['ffmpeg', '-y'] + inputs + ['-filter_complex',
-                                     filter_complex_string, '-map', '[outv]', video_output]
+                                           filter_complex_string, '-map', '[outv]', video_output]
     try:
         subprocess.run(command, check=True)
         print(f"Processed video segments are merged into {video_output}", file=sys.stderr)
@@ -256,7 +257,7 @@ def align_and_merge_audio(audio_files, transitions, audio_output, offsets):
         start_offset = start + offsets.get(speaker, 0)
         filter_complex.append(
             f"[{i}:a]atrim=start={start_offset}:end={end},asetpts=PTS-STARTPTS[a{i}];")
-    if (len(transitions)):
+    if len(transitions) > 0:
         filter_complex.append(
             ''.join(
                 f"[a{i}]" for i in range(
@@ -266,7 +267,7 @@ def align_and_merge_audio(audio_files, transitions, audio_output, offsets):
     filter_complex_string = ''.join(filter_complex)
 
     command = ['ffmpeg', '-y'] + inputs + ['-filter_complex',
-                                     filter_complex_string, '-map', '[outa]', audio_output]
+                                           filter_complex_string, '-map', '[outa]', audio_output]
     try:
         subprocess.run(command, check=True)
         print(f"Processed audio segments are merged into {audio_output}", file=sys.stderr)
@@ -303,15 +304,14 @@ def main(bucket_name):
         'wide': 'wide_shot.mp4'}
     
     try:
-        files_retrieved = retrieve_files(bucket_name)
-        if not files_retrieved:
+        if not retrieve_files(bucket_name):
             return {"Error": "Files not retrieved"}
         
 
         # Merge and isolate microphones
-        isolated_audio1, isolated_audio2 = merge_and_isolate_microphones(
+        isolated_audio = merge_and_isolate_microphones(
             audio_file1, audio_file2)
-        audio_files = {'speaker1': isolated_audio1, 'speaker2': isolated_audio2}
+        audio_files = {'speaker1': isolated_audio[0], 'speaker2': isolated_audio[1]}
 
 
         # Speaker 2's audio and video start 10 seconds after Speaker 1's
@@ -319,7 +319,7 @@ def main(bucket_name):
         
         transitions_speaker1 = find_silence_periods(audio_files['speaker1'], 'speaker1')
         transitions_speaker2 = find_silence_periods(audio_files['speaker2'], 'speaker2')
-        transitions_combined = choose_highest_sounds(audio_files, offsets)
+        transitions_combined = choose_highest_sounds(audio_files)
 
         transitions = sorted(
             transitions_speaker1 +
