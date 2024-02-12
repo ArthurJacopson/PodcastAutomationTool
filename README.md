@@ -19,17 +19,9 @@ Major features include:
 
 A key aim of the project is to create an application that is accessible to users of multiple skill levels. As such, many features must have an automatic mode (handled entirely by the application) **as well as** the ability for more experienced users to manually tweak their work.
 
-## Installation
-### Frontend
-After cloning the repo, move to the `frontend` directory and run `npm start`.\
-If you don't have `npm` installed, you will need to run this: `sudo apt install npm`.\
-If you haven't got all of the `npm` dependencies, run `npm install`.\
-Try `npm start` again and the website should launch in your browser.
-
-### Backend 
-Install Docker.\
-Once Docker is installed, run `docker compose up` from the project's root directory.\
-Everything should now work!
+## Installation and Build Guide
+Please ensure you have Docker Compose installed.
+Once cloning the repo, run `docker compose -f docker-compose.prod.yml up` from the root directory and visit `http://localhost:3000/`
 
 ## Project Dependencies
 
