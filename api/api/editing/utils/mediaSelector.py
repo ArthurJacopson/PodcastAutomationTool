@@ -29,7 +29,7 @@ def wait_for_file(file_path, timeout=60):
         time.sleep(1)  # Wait for 1 second
         if time.time() - start_time > timeout:
             print(
-                f"Timeout reached. The file '{file_path}' did not appear within {timeout} seconds.", \
+                f"Timeout reached. The file '{file_path}' did not appear within {timeout} seconds.",
                 file=sys.stderr)
             return False
 
@@ -184,7 +184,7 @@ def choose_highest_sounds(audio_files):
     
     audio_array_seconds_sum = np.array([audio_array[:new_size * sample_rate] \
                               .reshape((new_size, sample_rate))
-                              .sum(axis=1) for audio_array in audio_arrays])
+                                        .sum(axis=1) for audio_array in audio_arrays])
 
     # Need to convert this into a full numpy array
     for i in range(new_size):
@@ -289,7 +289,8 @@ def attach_audio_to_video(video_output, audio_output, final_output):
     try:
         subprocess.run(command, check=True)
         print(
-            f"Final output with synchronized audio and video is available at {final_output}", file=sys.stderr)
+            f"Final output with synchronized audio and video is available at {final_output}",
+            file=sys.stderr)
     except subprocess.CalledProcessError as e:
         print(f"An error occurred while attaching audio to video: {e}", file=sys.stderr)
 
