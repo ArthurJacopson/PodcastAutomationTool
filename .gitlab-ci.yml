@@ -23,7 +23,6 @@ build-frontend:
 lint-frontend:
   stage: lint
   image: node:lts
-  # image: "stgit.dcs.gla.ac.uk:5050/team-project-h/2023/sh30/cs30-main:latest"
   artifacts:
     expire_in: 1 day
     paths:
