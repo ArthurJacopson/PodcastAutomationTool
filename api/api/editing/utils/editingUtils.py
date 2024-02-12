@@ -114,12 +114,16 @@ def add_audio_to_video(video_file, audio_file, output_file):
     """
     input_video = ffmpeg.input(video_file)
     input_audio = ffmpeg.input(audio_file)
-    ffmpeg.output(
-        input_video.video,
-        input_audio.audio,
-        output_file,
-        codec='copy').run(
-            overwrite_output=True)
+    try:
+        ffmpeg.output(
+            input_video.video,
+            input_audio.audio,
+            output_file,
+            acodec='aac').run(
+                overwrite_output=True)
+    except ffmpeg.Error as e:
+        print(f"Error during ffmpeg operation: {e}")
+        raise e
 
 # Usage examples:
 # cut_video_with_smoothing('input.mp4', 10, 20, 'cut_output.mp4')

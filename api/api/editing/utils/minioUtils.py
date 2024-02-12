@@ -1,19 +1,4 @@
-import os
 import boto3
-
-def set_environment_variables(endpoint, access_key, secret_key):
-    """
-    Takes in minio setup values and creates environment variables from them.
-
-    :param endpoint: the minio endpoint url.
-    :param access_key: the access key required to create s3 client.
-    :param secret_key: the secret key required to create s3 client.
-    """
-
-    os.environ["MINIO_ENDPOINT"] = endpoint
-    os.environ["ACCESS_KEY"] = access_key
-    os.environ["SECRET_KEY"] = secret_key
-
 
 def create_s3_client(endpoint, access_key, secret_key):
     """

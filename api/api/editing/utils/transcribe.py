@@ -15,16 +15,14 @@ def get_audio_from_video(video_file: str, destination_path: str, out_file_name: 
     :param destination_path: String relative path of the temorary folder that will be created
     :param out_file_name: String of the name of the audio file that will be produced
     """
-
     if not os.path.exists(destination_path):
         os.makedirs(destination_path)
-    video_file_full = os.path.realpath(video_file)
     output_file = os.path.realpath(
         os.path.join(destination_path, out_file_name))
     if os.path.exists(output_file):
         os.remove(output_file)
     try:
-        subprocess.run(['ffmpeg', '-i', video_file_full, '-vn',
+        subprocess.run(['ffmpeg', '-i', video_file, '-vn',
                         '-acodec', 'libmp3lame', '-q:a', '2', output_file])
         print(f"Audio extracted successfully to {output_file}")
     except subprocess.CalledProcessError as e:

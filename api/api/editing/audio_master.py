@@ -1,8 +1,17 @@
 import os
+import time
 import subprocess
 import tempfile
 import ffmpeg
 
+from api.editing.utils.minioUtils import create_s3_client
+from api.editing.utils.editingUtils import separate_audio_video, add_audio_to_video
+from api.editing.utils.mediaSelector import wait_for_file, upload_final_output, generate_response
+
+s3_client = create_s3_client(
+    os.environ["MINIO_ENDPOINT"],
+    os.environ["ACCESS_KEY"],
+    os.environ["SECRET_KEY"])
 
 def audio_limiter(aud_in: str, aud_out: str, frame_size: float, compression_factor: float):
     """
@@ -104,14 +113,68 @@ def auto_master(aud_in: str, aud_out: str):
     compression_factor = 3
     attack = 200
     cut_off_freq = 20
-    gain = 2
+    gain = 10
 
     temp_file_a = "temp_a.wav"
     temp_file_b = "temp_b.wav"
-    audio_limiter(absolute_path, temp_file_a, frame_size, compression_factor)
-    audio_compressor(temp_file_a, temp_file_b, attack, p, dyn_range)
-    apply_gain(temp_file_b, temp_file_a, gain)
-    audio_highpass_filter(temp_file_a, aud_out, cut_off_freq)
+    temp_file_c = "temp_c.wav"
+
+
+    try:
+        audio_limiter(absolute_path, temp_file_a, frame_size, compression_factor)
+        audio_compressor(temp_file_a, temp_file_b, attack, p, dyn_range)
+        apply_gain(temp_file_b, temp_file_c, gain)
+        audio_highpass_filter(temp_file_a, aud_out, cut_off_freq)
+    except ffmpeg.Error as e:
+        print(f"Error during ffmpeg operation: {e}")
+        raise e
 
     os.remove(temp_file_a)
     os.remove(temp_file_b)
+    os.remove(temp_file_c)
+
+
+def main(bucket_name):
+    """
+    Retrieves the finilised podcast from minio, extracts the audio, 
+    applies audio mastering, combines new audio to video, uploads mastered podcast.
+    :param bucket_name: the minio bucket containing the required project files.
+    """
+
+    object_key = "final-product/final_podcast.mp4"
+    download_file_path = "master_temp.mp4"
+    temp_output_vid = "tempv.mp4"
+    temp_output_aud = "tempa.wav"
+    final_aud = "finala.wav"
+    final_podcast = "final_podcast_mastered.mp4"
+
+    time.sleep(2)
+
+    s3_client.download_file(
+        bucket_name, object_key, download_file_path)
+    
+    wait_for_file(download_file_path)
+
+    separate_audio_video(download_file_path, temp_output_vid, temp_output_aud)
+
+    auto_master(temp_output_aud, final_aud)
+
+    add_audio_to_video(download_file_path, final_aud, final_podcast)
+
+    upload_final_output(final_podcast, bucket_name)
+
+    response = generate_response(final_podcast, bucket_name)
+
+    try:
+        os.remove(temp_output_vid)
+        os.remove(temp_output_aud)
+        os.remove(final_aud)
+        os.remove(download_file_path)
+        os.remove(final_podcast)
+        print("Files deleted successfully.")
+    except Exception:
+        print("Error, files not deleted")
+        response = {"Error": "Files not cleaned up"}
+
+
+    return response
