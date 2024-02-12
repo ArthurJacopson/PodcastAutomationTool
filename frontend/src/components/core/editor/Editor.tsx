@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import { useEffect, useRef, useState } from "react";
+import { createContext, createRef, useEffect, useRef, useState } from "react";
 
 import { funcProp, ProjectInfo } from "@src/Interfaces";
 
@@ -12,6 +12,23 @@ import Transcript from "@features/transcription/Transcript";
 import WaveForm from "@shared/waveform/WaveForm";
 import useUpdateLastEdited from "@hooks/useUpdateLastEdited";
 import Loading from "@shared/loading-animation/Loading";
+import { OnProgressProps } from "@ehibb/react-player/base";
+
+type ReactPlayerProvider = {
+    playerRef : React.RefObject<ReactPlayer>,
+    isPlaying: boolean,
+    currentTime : number,
+    isUpdated: boolean,
+}
+
+
+
+export const ReactPlayerContext = createContext<ReactPlayerProvider>({
+    playerRef : createRef<ReactPlayer>(),
+    isPlaying : false,
+    currentTime : 0,
+    isUpdated : false,
+});
 
 const Editor  =  (props: funcProp) => {
     const { controller_type, project_id } = useParams();
@@ -24,7 +41,6 @@ const Editor  =  (props: funcProp) => {
     useUpdateLastEdited(project_id);
 
     useEffect(() => {
-
         /**
          * Fetches current project from the database by calling the Flask API
          * 
@@ -50,7 +66,9 @@ const Editor  =  (props: funcProp) => {
 
     // Video player logic
     const [isPlaying, setIsPlaying] = useState(false);
+    const [currentTime,setCurrentTime] = useState<number>(0);
     const playerRef = useRef<ReactPlayer>(null);
+    const [isUpdated, setIsUpdated] = useState(false);
 
     const togglePlay = () => {
         setIsPlaying(!isPlaying);
@@ -94,6 +112,10 @@ const Editor  =  (props: funcProp) => {
         return <Loading />;
     }
 
+    const handleOnProgress = (e: OnProgressProps) =>  {
+        setCurrentTime(parseFloat((e.playedSeconds).toFixed(2)));
+    };
+
     return (
         <div className={styles.mainContainer}>
             <div id={styles.video}>
@@ -106,12 +128,16 @@ const Editor  =  (props: funcProp) => {
                     controls={false}
                     playing={isPlaying}
                     onSeek={(e) => console.log("onSeek",e)}
+                    onProgress={(e) => handleOnProgress(e)}
+                    progressInterval={1}
                 />
                 {videoController}
             </div>
             <div id={styles.transcript}>
                 <h1>Transcript</h1>
-                <Transcript/>
+                <ReactPlayerContext.Provider value={{playerRef,isPlaying,currentTime, isUpdated}}>
+                    <Transcript/>
+                </ReactPlayerContext.Provider>
             </div>
         </div>
     );

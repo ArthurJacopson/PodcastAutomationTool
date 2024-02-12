@@ -24,6 +24,7 @@ const CreatePodcast: React.FC = () => {
     const [editorSelection, setEditorSelection] = useState<string>("regular");
     const podcastSectionRef = useRef<PodcastSectionMinioManagement>(null);
     const [uploadedFiles,setUploadedFiles] = useState(0);
+    const [fileIsUploading,setFileIsUploading] = useState<boolean>(false);
     const tempBucket = "temp";
 
     const projectSize = useRef<number>(0);
@@ -88,10 +89,12 @@ const CreatePodcast: React.FC = () => {
         };
 
         try{
+            setFileIsUploading(true);
             await s3.upload(s3Params).promise();
             await s3.waitFor('objectExists', {Bucket: tempBucket, Key: key}).promise();
             await getThumbnail(file);
-            await countUploadedFiles();
+            setUploadedFiles((prev) => prev + 1);
+            setFileIsUploading(false);
         } catch (e) {
             console.error(e);
         }
@@ -107,19 +110,6 @@ const CreatePodcast: React.FC = () => {
 
         projectSize.current += size_num;
         return file_metadata;
-    };
-
-    /**
-     * Returns an integer representing the number of total files that have been uploaded to the temp bucket
-     * Counts any file type so per single file upload you technically get 2 files (file and thumbnail)
-     */
-    const countUploadedFiles =  async () => {
-        const listParams = {
-            Bucket: tempBucket
-        };
-        const files = await s3.listObjectsV2(listParams).promise();
-        const fileCount = files.Contents ? files.Contents.length : 0;
-        setUploadedFiles(fileCount);
     };
 
     /**
@@ -194,7 +184,7 @@ const CreatePodcast: React.FC = () => {
      *   - There is a project name
      */
     const startEditingButton = (
-        projectName && uploadedFiles > 0 ? (
+        projectName && uploadedFiles > 0 && (!fileIsUploading) ? (
             <Link to={'#'} className={globalStyles.Link}>
                 <button onClick={uploadPodcast}>Start Editing</button>
             </Link>

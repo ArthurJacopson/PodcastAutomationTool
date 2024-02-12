@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
+import { forwardRef, useImperativeHandle, useState } from "react";
 import { PodcastSectionInfo, PodcastSectionProps } from "@src/Interfaces";
 import styles from "./PodcastSectionUploads.module.css";
 import UploadSection from "./UploadSection";
@@ -83,30 +83,36 @@ const PodcastSectionUploads = forwardRef(({ uploadFile } : PodcastSectionProps,r
             for (const index in section.files){
                 const intIndex = parseInt(index);
                 const file = section.files[intIndex];
+                if (file.type.startsWith("video")){
+
+                    const thumbnailName = file.name + "_thumbnail.jpg";
+                    const copyThumbnail = {
+                        CopySource: `${tempBucket}/${thumbnailName}`,
+                        Bucket: `${projectBucketName}/${newPrefix}`,
+                        Key:`${thumbnailName}`
+                    };
+                    const deleteThumbnail = {
+                        Bucket: tempBucket,
+                        Key: `${thumbnailName}`
+                    };
+
+                    await s3.copyObject(copyThumbnail).promise();
+                    await s3.deleteObject(deleteThumbnail).promise();
+
+                }
+
                 const copyFileParams = {
                     CopySource: `${tempBucket}/${file.name}`,
                     Bucket: `${projectBucketName}/${newPrefix}`,
                     Key:`${file.name}`
-                };
-                const thumbnailName = file.name + "_thumbnail.jpg";
-                const copyThumbnail = {
-                    CopySource: `${tempBucket}/${thumbnailName}`,
-                    Bucket: `${projectBucketName}/${newPrefix}`,
-                    Key:`${thumbnailName}`
                 };
 
                 const deleteFile = {
                     Bucket: tempBucket,
                     Key: `${file.name}`
                 };
-                const deleteThumbnail = {
-                    Bucket: tempBucket,
-                    Key: `${thumbnailName}`
-                };
                 await s3.copyObject(copyFileParams).promise();
-                await s3.copyObject(copyThumbnail).promise();
                 await s3.deleteObject(deleteFile).promise();
-                await s3.deleteObject(deleteThumbnail).promise();
             }
         });
 
