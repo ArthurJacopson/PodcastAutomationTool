@@ -74,6 +74,7 @@ def get_amplitude_info(aud_in: str):
     temp_file = tempfile.NamedTemporaryFile(delete=False)
     command = [
         'ffmpeg',
+        '-y',
         '-i', aud_in,
         '-af', 'astats=metadata=1:reset=1',
         '-f', 'null', temp_file.name

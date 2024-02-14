@@ -6,17 +6,26 @@ import styles from './WaveForm.module.css';
 const WaveForm = (props: any) => {
     const waveformContainerRef = useRef(null);
     const [isPlaying, setIsPlaying] = useState(false);
-    const wavesurfer = useWaveSurfer(waveformContainerRef) as unknown as WaveSurfer;
+    const wavesurfer = useWaveSurfer(waveformContainerRef, props.videoUrl) as unknown as WaveSurfer;
 
     const onClickPlay = useCallback(() => {
         wavesurfer.playPause();
     }, [wavesurfer]);
+	
+    useEffect(() => {
+        if (props.didVideoSeek && wavesurfer){
+            wavesurfer.seekTo(props.currentTime / wavesurfer.getDuration());
+            props.setDidVideoSeek(false);
+        }
+        return;
+    }, [wavesurfer, props.didVideoSeek, props.currentTime, props.setDidVideoSeek]);
 
     useEffect(() => {
         if (wavesurfer) {
             const functions = [
                 wavesurfer.on('play', () => {
                     setIsPlaying(true);
+                    wavesurfer.setMuted(true);
                     props.setPlaying(true);
                 }),
                 wavesurfer.on('pause', () => {
@@ -36,7 +45,7 @@ const WaveForm = (props: any) => {
                 functions.forEach((unsub) => unsub());
             };
         }
-    }, [wavesurfer, props, props.setVideoTime, props.setIsPlaying,]);
+    }, [wavesurfer, props, props.setVideoTime, props.setIsPlaying, props.didVideoSeek]);
 
     return (
         <div id={styles.waveformContainer} ref={waveformContainerRef}>
