@@ -16,6 +16,7 @@ import { OnProgressProps } from "@ehibb/react-player/base";
 
 type ReactPlayerProvider = {
     playerRef : React.RefObject<ReactPlayer>,
+    handleSeekTranscript: (newTime: number) => void,
     isPlaying: boolean,
     currentTime : number,
     isUpdated: boolean,
@@ -25,6 +26,7 @@ type ReactPlayerProvider = {
 
 export const ReactPlayerContext = createContext<ReactPlayerProvider>({
     playerRef : createRef<ReactPlayer>(),
+    handleSeekTranscript: () => {},
     isPlaying : false,
     currentTime : 0,
     isUpdated : false,
@@ -139,7 +141,7 @@ const Editor  =  (props: funcProp) => {
         setIsPlaying(!isPlaying);
     };
 
-    const handleSeek = (e : any) => {
+    const handleSeekButton = (e : any) => {
         if (playerRef.current != null){
             const duration  = playerRef.current.getDuration();
             const seekFromButton : number = +(e.target.value);
@@ -151,25 +153,51 @@ const Editor  =  (props: funcProp) => {
             playerRef.current.seekTo(newTime);
         }
     };
+	
+    /*
+	 * Updates the time on the video according to the transcript
+	 * This will also update the time on the waveform, if it is being used
+	 *
+	 * @params {number} newTime, which the react player reference will seek to
+	 * @returns {void}
+	 */
+	
+    const handleSeekTranscript = (newTime: number) => {
+        if (playerRef.current){
+            playerRef.current.seekTo(newTime);
+            setCurrentTime(newTime);
+            setDidVideoSeek(true);
+        }
+    };
+
+
+    //  Extra logic for waveform
+    const [didVideoSeek, setDidVideoSeek] = useState(false);
 
     const handleSeekWaveform = (newTime: number) => {
         if (playerRef.current) {
             playerRef.current.seekTo(newTime);
         }
     };
-
     const videoController = controller_type === "regular" ? (
         <div className={styles.videoControlsContainer}>
-            <button onClick={handleSeek} value="-5">Back 5s</button>
+            <button onClick={handleSeekButton} value="-5">Back 5s</button>
             <button onClick={togglePlay}>Play</button>
-            <button onClick={handleSeek} value="5">Forward 5s</button>
+            <button onClick={handleSeekButton} value="5">Forward 5s</button>
         </div>
     )
         : (
             <div className={styles.waveFormWrapper}>
                 <div className={styles.comp}>
                 Timeline
-                    <WaveForm setVideoTime={handleSeekWaveform} setPlaying={setIsPlaying} />
+                    <WaveForm
+                        setVideoTime={handleSeekWaveform} 
+                        videoUrl={videoUrl} 
+                        setPlaying={setIsPlaying}
+                        didVideoSeek={didVideoSeek}
+                        setDidVideoSeek={setDidVideoSeek}
+                        currentTime={currentTime}
+                    />
                 </div>
             </div>
         );
@@ -202,7 +230,7 @@ const Editor  =  (props: funcProp) => {
             </div>
             <div id={styles.transcript}>
                 <h1>Transcript</h1>
-                <ReactPlayerContext.Provider value={{playerRef,isPlaying,currentTime, isUpdated}}>
+                <ReactPlayerContext.Provider value={{playerRef,handleSeekTranscript,isPlaying,currentTime, isUpdated}}>
                     <Transcript videoUrl={videoUrl}/>
                 </ReactPlayerContext.Provider>
             </div>

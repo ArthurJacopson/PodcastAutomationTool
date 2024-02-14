@@ -19,7 +19,7 @@ const SingleWord = ({id,start,end,text} : TranscriptWordInfo) => {
 
     const parentQuoteID  = useContext(QuoteContext);
 
-    const {playerRef} = useContext(ReactPlayerContext);
+    const {playerRef, handleSeekTranscript} = useContext(ReactPlayerContext);
 
     const updateOnce = useRef<boolean>(true);
 
@@ -73,8 +73,7 @@ const SingleWord = ({id,start,end,text} : TranscriptWordInfo) => {
 
     const handleSeek = () => {
         if (playerRef.current != null){
-            const player = playerRef.current;
-            player.seekTo(start);
+            handleSeekTranscript(start);
             setMenuVisibility(!menuVisibility);
         }
     };

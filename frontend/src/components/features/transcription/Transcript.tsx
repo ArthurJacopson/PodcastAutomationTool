@@ -51,7 +51,7 @@ const Transcript = (props : TranscriptProps) => {
 
     const [timestamps,setTimeStamps] = useState<TimeStampStatus[]>([]);
 
-    const {isPlaying,playerRef,currentTime,isUpdated} = useContext(ReactPlayerContext);
+    const {isPlaying,playerRef,handleSeekTranscript,currentTime,isUpdated} = useContext(ReactPlayerContext);
 
     const getTranscript = async () => {
         try{
@@ -155,7 +155,7 @@ const Transcript = (props : TranscriptProps) => {
             }
             if (lookAheadTime != seekTime){ // i.e. there is a word(s) we want to skip
                 setTimeout(() => {
-                    playerRef.current?.seekTo(seekTime);
+                    handleSeekTranscript(seekTime);
                 }, 1000 * (firstSkipTime - currentTime)); 
             }
         }
@@ -178,7 +178,7 @@ const Transcript = (props : TranscriptProps) => {
         );
     } else {
         return(
-            <ReactPlayerContext.Provider value = {{playerRef,isPlaying,currentTime,isUpdated}}>
+            <ReactPlayerContext.Provider value = {{playerRef,handleSeekTranscript,isPlaying,currentTime,isUpdated}}>
                 <TimeStampContext.Provider value={{timestamps : timestamps,setTimeStamps : setTimeStamps, timestampIndex : (timestampIndex.current)}}>
                     <div className={styles.parent}>
                         <div className={styles.MainContainer}>
