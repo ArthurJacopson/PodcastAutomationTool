@@ -14,6 +14,8 @@ import useUpdateLastEdited from "@hooks/useUpdateLastEdited";
 import Loading from "@shared/loading-animation/Loading";
 import { OnProgressProps } from "@ehibb/react-player/base";
 
+import AWS from 'aws-sdk';
+
 type ReactPlayerProvider = {
     playerRef : React.RefObject<ReactPlayer>,
     handleSeekTranscript: (newTime: number) => void,
@@ -32,7 +34,6 @@ export const ReactPlayerContext = createContext<ReactPlayerProvider>({
     isUpdated : false,
 });
 
-import AWS from 'aws-sdk';
 
 const Editor  =  (props: funcProp) => {
 
@@ -109,7 +110,6 @@ const Editor  =  (props: funcProp) => {
                         await new Promise(resolve => setTimeout(resolve, interval));
                     }
                     // Timeout reached, object doesn't exist
-                    console.error;
                     return false;
                 };
 
