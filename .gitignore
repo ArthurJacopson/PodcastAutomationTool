@@ -2,6 +2,8 @@
 .docker-volumes/
 .secrets/
 minio
+*/*.egg-info*
+
 # Ignore directory containing example podcast files
 example-files/
 __pycache__/

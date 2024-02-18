@@ -4,14 +4,15 @@ import subprocess
 import tempfile
 import ffmpeg
 
-from api.editing.utils.minioUtils import create_s3_client
-from api.editing.utils.editingUtils import separate_audio_video, add_audio_to_video
-from api.editing.utils.mediaSelector import wait_for_file, upload_final_output, generate_response
+from api.utils.minioUtils import create_s3_client
+from api.utils.editingUtils import separate_audio_video, add_audio_to_video
+from api.utils.mediaSelector import wait_for_file, upload_final_output, generate_response
 
 s3_client = create_s3_client(
     os.environ["MINIO_ENDPOINT"],
     os.environ["ACCESS_KEY"],
     os.environ["SECRET_KEY"])
+
 
 def audio_limiter(aud_in: str, aud_out: str, frame_size: float, compression_factor: float):
     """
@@ -120,9 +121,9 @@ def auto_master(aud_in: str, aud_out: str):
     temp_file_b = "temp_b.wav"
     temp_file_c = "temp_c.wav"
 
-
     try:
-        audio_limiter(absolute_path, temp_file_a, frame_size, compression_factor)
+        audio_limiter(absolute_path, temp_file_a,
+                      frame_size, compression_factor)
         audio_compressor(temp_file_a, temp_file_b, attack, p, dyn_range)
         apply_gain(temp_file_b, temp_file_c, gain)
         audio_highpass_filter(temp_file_a, aud_out, cut_off_freq)
@@ -153,7 +154,7 @@ def main(bucket_name):
 
     s3_client.download_file(
         bucket_name, object_key, download_file_path)
-    
+
     wait_for_file(download_file_path)
 
     separate_audio_video(download_file_path, temp_output_vid, temp_output_aud)
@@ -176,6 +177,5 @@ def main(bucket_name):
     except Exception:
         print("Error, files not deleted")
         response = {"Error": "Files not cleaned up"}
-
 
     return response

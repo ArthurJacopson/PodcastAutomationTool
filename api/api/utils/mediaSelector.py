@@ -7,8 +7,8 @@ import sys
 
 import numpy as np
 
-from api.editing.utils.trim import read_file_to_array
-from api.editing.utils.minioUtils import create_s3_client
+from api.utils.trim import read_file_to_array
+from api.utils.minioUtils import create_s3_client
 
 s3_client = create_s3_client(
     os.environ["MINIO_ENDPOINT"],
@@ -43,7 +43,7 @@ def retrieve_files(bucket_name):
 
     :param bucket_name: the minio bucket the files have to be retrieved from.
     """
-    time.sleep(10) # Waits to ensure files have been uploaded to minio
+    time.sleep(10)  # Waits to ensure files have been uploaded to minio
     try:
         # List all objects in the bucket
         objects = s3_client.list_objects(Bucket=bucket_name)['Contents']
@@ -58,7 +58,7 @@ def retrieve_files(bucket_name):
                 for file in files:
                     print("file file key = " + file['Key'], file=sys.stderr)
                     if file['Key'].lower().endswith(".mp4"):
-                    # Download the file
+                        # Download the file
                         download_file_path = f"camera{i}.mp4"
                         s3_client.download_file(
                             bucket_name, file['Key'], download_file_path)
@@ -66,7 +66,7 @@ def retrieve_files(bucket_name):
                         print(f"Downloaded: {file['Key']}", file=sys.stderr)
 
                     if file['Key'].lower().endswith(".wav"):
-                    # Download the file
+                        # Download the file
                         download_file_path = f"mic{i}.wav"
                         s3_client.download_file(
                             bucket_name, file['Key'], download_file_path)
@@ -92,7 +92,6 @@ def clean_files():
         print("Files deleted successfully.", file=sys.stderr)
     except Exception:
         print("Error, files not deleted", file=sys.stderr)
-        
 
 
 def upload_final_output(final_output, bucket_name):
@@ -166,32 +165,36 @@ def merge_and_isolate_microphones(audio_file1, audio_file2):
 
     return isolated_output1, isolated_output2
 
+
 def choose_highest_sounds(audio_files):
     # Assume 32KHz sample rate (whatever is used in read_file_to_array
     sample_rate = 32_000
     audio_arrays = []
     transitions = []
-    
+
     for audio_file in audio_files.values():
         audio_array = read_file_to_array(audio_file)
         audio_arrays.append(audio_array)
-    
+
     # Take the sum of the volume at every sample in a second
     # This takes a 1D array representing an audio file from size N to size N/sample_rate
     # Have to trim off some of the end of some of the arrays as a result - sorry!
-    
-    new_size = min(len(audio_array) for audio_array in audio_arrays) // sample_rate
-    
-    audio_array_seconds_sum = np.array([audio_array[:new_size * sample_rate] \
-                              .reshape((new_size, sample_rate))
+
+    new_size = min(len(audio_array)
+                   for audio_array in audio_arrays) // sample_rate
+
+    audio_array_seconds_sum = np.array([audio_array[:new_size * sample_rate]
+                                        .reshape((new_size, sample_rate))
                                         .sum(axis=1) for audio_array in audio_arrays])
 
     # Need to convert this into a full numpy array
     for i in range(new_size):
-        transitions.append((i, i+1, f'speaker{np.argmax(audio_array_seconds_sum[:, i]) + 1}'))
-    
+        transitions.append(
+            (i, i+1, f'speaker{np.argmax(audio_array_seconds_sum[:, i]) + 1}'))
+
     return transitions
-    
+
+
 def find_silence_periods(audio_file, speaker_name):
     command = [
         'ffmpeg',
@@ -230,7 +233,7 @@ def process_video_segments(video_files, transitions, video_output, offsets):
         start_offset = start + offsets.get(speaker, 0)
         filter_complex.append(
             f"[{i}:v]trim=start={start_offset}:end={end},setpts=PTS-STARTPTS[v{i}];")
- 
+
     if len(transitions) > 0:
         filter_complex.append(
             ''.join(
@@ -238,14 +241,16 @@ def process_video_segments(video_files, transitions, video_output, offsets):
                     len(transitions))) +
             f"concat=n={len(transitions)}:v=1:a=0[outv]")
         filter_complex_string = ''.join(filter_complex)
-    
+
     command = ['ffmpeg', '-y'] + inputs + ['-filter_complex',
                                            filter_complex_string, '-map', '[outv]', video_output]
     try:
         subprocess.run(command, check=True)
-        print(f"Processed video segments are merged into {video_output}", file=sys.stderr)
+        print(
+            f"Processed video segments are merged into {video_output}", file=sys.stderr)
     except subprocess.CalledProcessError as e:
-        print(f"An error occurred while processing video segments: {e}", file=sys.stderr)
+        print(
+            f"An error occurred while processing video segments: {e}", file=sys.stderr)
 
 
 def align_and_merge_audio(audio_files, transitions, audio_output, offsets):
@@ -263,16 +268,18 @@ def align_and_merge_audio(audio_files, transitions, audio_output, offsets):
                 f"[a{i}]" for i in range(
                     len(transitions))) +
             f"concat=n={len(transitions)}:v=0:a=1[outa]")
-            
+
     filter_complex_string = ''.join(filter_complex)
 
     command = ['ffmpeg', '-y'] + inputs + ['-filter_complex',
                                            filter_complex_string, '-map', '[outa]', audio_output]
     try:
         subprocess.run(command, check=True)
-        print(f"Processed audio segments are merged into {audio_output}", file=sys.stderr)
+        print(
+            f"Processed audio segments are merged into {audio_output}", file=sys.stderr)
     except subprocess.CalledProcessError as e:
-        print(f"An error occurred while processing audio segments: {e}", file=sys.stderr)
+        print(
+            f"An error occurred while processing audio segments: {e}", file=sys.stderr)
 
 
 def attach_audio_to_video(video_output, audio_output, final_output):
@@ -292,7 +299,8 @@ def attach_audio_to_video(video_output, audio_output, final_output):
             f"Final output with synchronized audio and video is available at {final_output}",
             file=sys.stderr)
     except subprocess.CalledProcessError as e:
-        print(f"An error occurred while attaching audio to video: {e}", file=sys.stderr)
+        print(
+            f"An error occurred while attaching audio to video: {e}", file=sys.stderr)
 
 
 def main(bucket_name):
@@ -303,23 +311,24 @@ def main(bucket_name):
         'speaker1': 'camera1.mp4',
         'speaker2': 'camera2.mp4',
         'wide': 'wide_shot.mp4'}
-    
+
     try:
         if not retrieve_files(bucket_name):
             return {"Error": "Files not retrieved"}
-        
 
         # Merge and isolate microphones
         isolated_audio = merge_and_isolate_microphones(
             audio_file1, audio_file2)
-        audio_files = {'speaker1': isolated_audio[0], 'speaker2': isolated_audio[1]}
-
+        audio_files = {
+            'speaker1': isolated_audio[0], 'speaker2': isolated_audio[1]}
 
         # Speaker 2's audio and video start 10 seconds after Speaker 1's
         offsets = {'speaker2': 0}
-        
-        transitions_speaker1 = find_silence_periods(audio_files['speaker1'], 'speaker1')
-        transitions_speaker2 = find_silence_periods(audio_files['speaker2'], 'speaker2')
+
+        transitions_speaker1 = find_silence_periods(
+            audio_files['speaker1'], 'speaker1')
+        transitions_speaker2 = find_silence_periods(
+            audio_files['speaker2'], 'speaker2')
         transitions_combined = choose_highest_sounds(audio_files)
 
         transitions = sorted(

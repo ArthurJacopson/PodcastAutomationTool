@@ -1,15 +1,9 @@
-import os
+from routes import (project_routes, transcript_route,
+                    thumbnail_route, merge_route, audio_master_route)
 from flask_cors import CORS
 from flask import Flask
 from config import DevelopmentDatabaseConfig as Dev
-from db import db
-
-os.environ["MINIO_ENDPOINT"] = "http://127.0.0.1:9000"
-os.environ["ACCESS_KEY"] = "minio_user"
-os.environ["SECRET_KEY"] = "minio_password"
-
-from routes import (project_routes, transcript_route,
-                    thumbnail_route, merge_route, audio_master_route)
+from api.db import db
 
 app = Flask(__name__)
 CORS(app)
