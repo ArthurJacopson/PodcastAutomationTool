@@ -75,6 +75,7 @@ test-backend:
     - cd api/
     - pip3 install --upgrade pip
     - pip3 install -r requirements.txt
+    - python3 setup.py install 
   script:
     - cd ../tests/
     - ./runtests.sh

@@ -50,6 +50,7 @@ const Landing = (props: funcProp) => {
         try {
             const response = await fetch(process.env.REACT_APP_FLASK_API_DEVELOP + '/projects');
             if(!response.ok) {
+                console.log(response);
                 throw new Error(`Failed to fetch projects. Status: ${response.status.toString()}`);
             }
             const projects = await response.json(); 

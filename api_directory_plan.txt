@@ -1,0 +1,41 @@
+├─ api
+    ├─ setup.py
+    ├─ requirements.txt
+    ├─ Dockerfile
+    ├─ .env
+    ├─ api
+    |   ├─ __init__.py
+    |   ├─ app.py
+    |   ├─ config.py
+    |   ├─ db.py
+    |   ├─ routes
+    |   |   ├─ __init__.py   
+    |   |   ├─ project_routes.py    
+    |   |   ├─ transcript_routes.py    
+    |   |   └─ other routes
+    |   ├─ models
+    |   |   ├─ __init__.py   
+    |   |   ├─ project.py    
+    |   |   └─ other models
+    |   └─ util
+    |   |   ├─ __init__.py   
+    |   |   ├─ audio_master.py   
+    |   |   ├─ editing_utils.py    
+    |   |   ├─ mediaSelector.py    
+    |   |   ├─ minioUtils.py     
+    |   |   ├─ plot.py     
+    |   |   ├─ thumbnail.py     
+    |   |   ├─ transcribe.py     
+    |   |   ├─ trim.py     
+    |   |   ├─ video.py     
+    |   |   └─ other utilities
+    ├─ tests
+    |   ├─ __init__.py
+    |   ├─ unit
+    |   |   ├─ __init__.py   
+    |   |   ├─ test_models.py    
+    |   |   └─ other unit tests
+    |   └─ acceptance
+    |       ├─ __init__.py     
+    |       └─ other acceptance tests
+    └─ test_files

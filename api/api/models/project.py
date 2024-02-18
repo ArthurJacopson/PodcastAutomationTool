@@ -1,4 +1,5 @@
-from db import db
+from api.db import db
+
 
 class Project(db.Model):
     """
@@ -10,9 +11,12 @@ class Project(db.Model):
     project_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(1000), nullable=True)
-    created_at = db.Column(db.DateTime, nullable=False, server_default=db.func.now())
-    last_edited = db.Column(db.DateTime, nullable=True, server_default=db.func.now())
-    project_size = db.Column(db.String(10), nullable=False, server_default="0B")
+    created_at = db.Column(db.DateTime, nullable=False,
+                           server_default=db.func.now())
+    last_edited = db.Column(db.DateTime, nullable=True,
+                            server_default=db.func.now())
+    project_size = db.Column(
+        db.String(10), nullable=False, server_default="0B")
 
     def __repr__(self):
         project_id = f"project_id={self.project_id}"
@@ -31,4 +35,3 @@ class Project(db.Model):
             "last_edited": self.last_edited,
             "size": self.project_size
         }
-    

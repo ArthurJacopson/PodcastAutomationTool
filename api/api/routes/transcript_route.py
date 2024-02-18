@@ -1,6 +1,6 @@
 import json
 from flask import Blueprint, jsonify, request
-from api.editing.utils import transcribe
+from api.utils import transcribe
 
 bp = Blueprint('transcript_route', __name__)
 

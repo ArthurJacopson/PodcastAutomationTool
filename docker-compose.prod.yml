@@ -44,7 +44,11 @@ services:
     container_name: api
     network_mode: "host"
     restart: always
-    command: python3 app.py
+    command: python3 api/app.py
+    environment:
+      MINIO_ENDPOINT: http://127.0.0.1:9000
+      ACCESS_KEY: minio_user
+      SECRET_KEY: minio_password
     volumes:
       - ./api:/app
     working_dir: /app
