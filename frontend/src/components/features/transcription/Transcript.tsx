@@ -13,6 +13,8 @@ import { TranscriptWordInfo } from '../../../Interfaces';
 
 import {ReactPlayerContext} from "../../core/editor/Editor";
 
+import AWS from 'aws-sdk';
+
 type QuoteWordTuple = [number,number];
 
 export interface TimeStampStatus{
@@ -41,8 +43,19 @@ export const TimeStampContext = createContext<TimeStampProvier>({
     timestampIndex : 0
 });
 
-
 const Transcript = (props : TranscriptProps) => {
+
+    AWS.config.update({
+        accessKeyId: process.env.REACT_APP_MINIO_USER_NAME,
+        secretAccessKey: process.env.REACT_APP_MINIO_PASSWORD,
+        region: 'London', // Set the region accordingly
+        s3ForcePathStyle: true, // Required for Minio
+        signatureVersion: 'v4', // Use v4 signature for Minio
+    });
+
+    const s3 = new AWS.S3({
+        endpoint: process.env.REACT_APP_MINIO_ENDPOINT,
+    });
 
     const [segment,setSegment] = useState([]);
     const makeAPICall = useRef(true);
@@ -52,6 +65,27 @@ const Transcript = (props : TranscriptProps) => {
     const [timestamps,setTimeStamps] = useState<TimeStampStatus[]>([]);
 
     const {isPlaying,playerRef,handleSeekTranscript,currentTime,isUpdated} = useContext(ReactPlayerContext);
+
+    const bucketName = `project-${props.projectID}`;
+    const key = 'final-product/transcript.json'; 
+      
+    const uploadJsonToMinio = (jsonData: any) => {
+
+        const params = {
+            Bucket: bucketName,
+            Key: key,
+            Body: JSON.stringify(jsonData),
+            ContentType: 'application/json',
+        };
+    
+        s3.upload(params, (err: any, data: any) => {
+            if (err) {
+                console.error('Error uploading file:', err);
+            } else {
+                console.log('File uploaded successfully:', data.Location);
+            }
+        });
+    };
 
     const getTranscript = async () => {
         try{
@@ -78,17 +112,35 @@ const Transcript = (props : TranscriptProps) => {
 
     };
 
-
-
     useEffect(() => {
-        if (makeAPICall.current === true){
-            const segments = getTranscript();
-            segments.then((value) => {
-                setSegment(value);
-                setIsLoading(false);
+        if (makeAPICall.current== true){
+            const getParams = {
+                Bucket: bucketName,
+                Key: key,
+            };
+
+            s3.getObject(getParams, (err, data) => {
+                if (err) {
+                    console.error('Error retrieving JSON file from MinIO: Generating transcript instead.');
+                    if (makeAPICall.current === true){
+                        const segments = getTranscript();
+                        segments.then((value) => {
+                            setSegment(value);
+                            setIsLoading(false);
+                            uploadJsonToMinio(value);
+                        });
+                        makeAPICall.current = false;
+                    }
+                } else {
+                    const jsonData = data?.Body ? JSON.parse(data.Body.toString()) : null;
+                    console.log('Retrieved JSON data:', jsonData);
+                    setSegment(jsonData);
+                    setIsLoading(false);
+                    makeAPICall.current = false;
+                }
             });
-            makeAPICall.current = false;
         }
+
     },[]);
 
     /*
