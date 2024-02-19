@@ -231,7 +231,7 @@ const Editor  =  (props: funcProp) => {
             <div id={styles.transcript}>
                 <h1>Transcript</h1>
                 <ReactPlayerContext.Provider value={{playerRef,handleSeekTranscript,isPlaying,currentTime, isUpdated}}>
-                    <Transcript videoUrl={videoUrl}/>
+                    <Transcript videoUrl={videoUrl} projectID={project_id}/>
                 </ReactPlayerContext.Provider>
             </div>
         </div>
