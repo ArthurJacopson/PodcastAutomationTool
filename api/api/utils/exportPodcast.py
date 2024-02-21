@@ -103,7 +103,16 @@ def createFinalPodcast(bucket):
         - Upload this to s3 bucket
         - Cleaning up
     """
+    output_video_path = "final_podcast_trim.mp4"
+    output_audio_path = "final_podcast_trim.mp3"
+    output_file_path = "final_podcast_export.mp4"
+
+    podcast_file_path = getPodcast(bucket)
+    if not podcast_file_path:
+        clean_files()
+        raise FileNotFoundError("Could not find podcast in s3 bucket")
     timestamp_file_path = getTimestamps(bucket)
+
     if not timestamp_file_path: # since empty strings are falsey
         clean_files()
         raise Exception("Could not find timestamp from s3 bucket")
@@ -112,17 +121,12 @@ def createFinalPodcast(bucket):
     if not trim_sections:
         clean_files()
         print("No sections to trim", file=sys.stderr)
+        os.rename(podcast_file_path, output_file_path)
+        upload_to_s3(s3_client, output_file_path, bucket)
         return
     kept_sections = trim_to_keep(trim_sections)
 
-    podcast_file_path = getPodcast(bucket)
-    if not podcast_file_path:
-        clean_files()
-        raise FileNotFoundError("Could not find podcast in s3 bucket")
     
-    output_video_path = "final_podcast_trim.mp4"
-    output_audio_path = "final_podcast_trim.mp3"
-    output_file_path = "final_podcast_export.mp4"
     
     separate_audio_video(podcast_file_path, "i.mp4", "i.mp3")
     
