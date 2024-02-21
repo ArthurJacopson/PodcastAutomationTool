@@ -7,8 +7,8 @@ import sys
 
 import numpy as np
 
-from api.utils.trim import read_file_to_array
-from api.utils.minioUtils import create_s3_client
+from utils.trim import read_file_to_array
+from utils.minioUtils import create_s3_client, upload_to_s3
 
 s3_client = create_s3_client(
     os.environ["MINIO_ENDPOINT"],
@@ -92,31 +92,6 @@ def clean_files():
         print("Files deleted successfully.", file=sys.stderr)
     except Exception:
         print("Error, files not deleted", file=sys.stderr)
-
-
-def upload_final_output(final_output, bucket_name):
-    """
-    Uploads the final output file to the specified bucket
-
-    :param final_outout: the name of the final output file.
-    :param bucket_name: the name of the bucket to be uploaded to.
-    """
-
-    try:
-        with open(final_output, 'rb') as file:
-            s3_client.put_object(
-                Bucket=bucket_name,
-                Key=f"final-product/{final_output}",
-                Body=file,
-                ACL='public-read')
-
-        s3_client.get_waiter('object_exists').wait(
-            Bucket=bucket_name,
-            Key=f"final-product/{final_output}"
-        )
-    except Exception as e:
-        print("Error:", e)
-
 
 def generate_response(final_output, bucket_name):
     """
@@ -231,8 +206,12 @@ def process_video_segments(video_files, transitions, video_output, offsets):
         inputs += ['-i', video_files[speaker]]
         # Adjust start time by offset
         start_offset = start + offsets.get(speaker, 0)
-        filter_complex.append(
-            f"[{i}:v]trim=start={start_offset}:end={end},setpts=PTS-STARTPTS[v{i}];")
+        if end is None:
+            filter_complex.append(
+                f"[{i}:v]trim=start={start_offset},setpts=PTS-STARTPTS[v{i}];")
+        else:
+            filter_complex.append(
+                f"[{i}:v]trim=start={start_offset}:end={end},setpts=PTS-STARTPTS[v{i}];")
 
     if len(transitions) > 0:
         filter_complex.append(
@@ -240,7 +219,7 @@ def process_video_segments(video_files, transitions, video_output, offsets):
                 f"[v{i}]" for i in range(
                     len(transitions))) +
             f"concat=n={len(transitions)}:v=1:a=0[outv]")
-        filter_complex_string = ''.join(filter_complex)
+    filter_complex_string = ''.join(filter_complex)
 
     command = ['ffmpeg', '-y'] + inputs + ['-filter_complex',
                                            filter_complex_string, '-map', '[outv]', video_output]
@@ -260,8 +239,12 @@ def align_and_merge_audio(audio_files, transitions, audio_output, offsets):
         inputs += ['-i', audio_files[speaker]]
         # Adjust start time by offset
         start_offset = start + offsets.get(speaker, 0)
-        filter_complex.append(
-            f"[{i}:a]atrim=start={start_offset}:end={end},asetpts=PTS-STARTPTS[a{i}];")
+        if end is None:
+            filter_complex.append(
+                f"[{i}:a]atrim=start={start_offset},asetpts=PTS-STARTPTS[a{i}];")
+        else:
+            filter_complex.append(
+                f"[{i}:a]atrim=start={start_offset}:end={end},asetpts=PTS-STARTPTS[a{i}];")
     if len(transitions) > 0:
         filter_complex.append(
             ''.join(
@@ -346,14 +329,14 @@ def main(bucket_name):
         align_and_merge_audio(audio_files, transitions, audio_output, offsets)
         attach_audio_to_video(video_output, audio_output, final_output)
 
-        upload_final_output(final_output, bucket_name)
+        upload_to_s3(bucket_name, final_output, bucket_name)
         clean_files()
 
     except Exception as e:
         print(e, file=sys.stderr)
         final_output = 'final_podcast.mp4'
         os.rename('camera1.mp4', final_output)
-        upload_final_output(final_output, bucket_name)
+        upload_to_s3(s3_client, final_output, bucket_name)
         os.remove(final_output)
         clean_files()
 

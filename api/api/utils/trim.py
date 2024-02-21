@@ -1,7 +1,7 @@
 import sys
 import numpy as np
-import audiosegment
 from scipy.io.wavfile import write
+import audiosegment
 
 np.set_printoptions(threshold=sys.maxsize)
 
@@ -24,3 +24,4 @@ def trim(array, threshold):
     boolean = np.where(np.absolute(array) < threshold, False, True)
     array = array[boolean]
     return array
+    

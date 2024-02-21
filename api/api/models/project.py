@@ -1,4 +1,4 @@
-from api.db import db
+from db import db
 
 
 class Project(db.Model):

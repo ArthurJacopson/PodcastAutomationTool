@@ -2,7 +2,7 @@ import { removeNavBarFuncProp } from "@src/Interfaces";
 
 import styles from './Login.module.css';
 
-import podplistic from '@static/podplistic.png';
+import logo from '@static/logo.png';
 
 import { useAuth0 } from "@auth0/auth0-react";
 
@@ -30,7 +30,7 @@ const Login = (props : removeNavBarFuncProp) => {
             </div>
             <div id={styles.login}>
                 <div className={styles.logoArea}>
-                    <img className={styles.logo} alt="Logo" src={podplistic} />
+                    <img className={styles.logo} alt="Logo" src={logo} />
                 </div>
                 <div className={styles.CredentialsArea}>
                     <p className={styles.SignInLabel}>Sign Up to get started.</p>

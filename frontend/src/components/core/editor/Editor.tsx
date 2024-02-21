@@ -14,7 +14,9 @@ import useUpdateLastEdited from "@hooks/useUpdateLastEdited";
 import Loading from "@shared/loading-animation/Loading";
 import { OnProgressProps } from "@ehibb/react-player/base";
 
-import AWS from 'aws-sdk';
+import AWS, { AWSError } from 'aws-sdk';
+import { BlobMetadata } from "aws-sdk/clients/codecommit";
+import { GetObjectOutput } from "aws-sdk/clients/s3";
 
 type ReactPlayerProvider = {
     playerRef : React.RefObject<ReactPlayer>,
@@ -59,7 +61,7 @@ const Editor  =  (props: funcProp) => {
     // Whenever this component is re-rendered (i.e. an edit was made) call this hook
     useUpdateLastEdited(project_id);
 
-    
+
 
     useEffect(() => {
         /**
@@ -130,6 +132,54 @@ const Editor  =  (props: funcProp) => {
             fetchVideoUrl();
         }
     }, [project_id]);
+
+    /**
+     * API call to create final version of video, where deleted words are properly removed
+     * Once this call has successfully returned retrieve the raw video data from minio and download* it
+     *
+     * @returns {void} - Nothing returned, but browser downloads video
+     * @throws {Error} - throws error if there is an error with either the API call or minio call
+     *
+     */
+    const exportPodcast = async () => {
+
+        try{
+            const response = await fetch(process.env.REACT_APP_FLASK_API_DEVELOP
+                + `/export-podcast/${project_id}`);
+            if (!response.ok) {
+                throw new Error(response.status.toString());
+            }
+
+            const params = {
+                Bucket: `project-${project_id}`,
+                Key: `final-product/final_podcast_export.mp4`,
+            };
+
+            // This uses a callback to download the video once it is retrieved
+            s3.getObject(params, (err:AWSError, data:GetObjectOutput) => {
+                if(err){
+                    throw new Error(err.statusCode?.toString());
+                } else {
+                    const buffer: Buffer = data.Body as Buffer;
+                    const blob = new Blob([buffer], {type: data.ContentType});
+                    
+                    // Need to create a link so that we can "click" it to actually download the content - just having the data is not enough
+
+                    const blobUrl = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = blobUrl;
+                    link.download = params.Key;
+                    link.click();
+
+                }
+            });
+
+
+        } catch (e) {
+            console.error('Error trying to export podcast:', e);
+        }
+
+    };
 
     // Video player logic
     const [isPlaying, setIsPlaying] = useState(false);
@@ -227,6 +277,8 @@ const Editor  =  (props: funcProp) => {
                     />
                 )}
                 {videoController}
+                <button onClick={exportPodcast}> Export Podcast </button>
+                
             </div>
             <div id={styles.transcript}>
                 <h1>Transcript</h1>

@@ -5,7 +5,7 @@ import styles from './Navbar.module.css';
 import ProfileView from '@features/log-in/ProfileView';
 
 
-import podplistic from '@static/podplistic.png';
+import logo from '@static/logo.png';
 import profile from '@static/account.png';
 import { useState } from 'react';
 
@@ -23,7 +23,7 @@ const Navbar: React.FC<{ title: string }> = ({ title } : NavbarProps ) => {
 
     return (
         <div className={styles.navContainer}>
-            <img className={styles.navLogo} alt="Logo" src={podplistic} onClick={handleClick} />
+            <img className={styles.navLogo} alt="Logo" src={logo} onClick={handleClick} />
             <h1 className={styles.TitleText}>{title}</h1>
             <img className={styles.navBackgroundAccount} alt="Account" src={profile} onClick={handleProfileClick}/>
             {showPorfile && <div className={styles.ProfileViewContainer}><ProfileView /></div>}

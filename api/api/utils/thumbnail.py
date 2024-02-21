@@ -1,7 +1,7 @@
 import subprocess
 import os
 
-from api.utils.minioUtils import create_s3_client
+from utils.minioUtils import create_s3_client
 
 s3_client = create_s3_client(os.environ["MINIO_ENDPOINT"],
                              os.environ["ACCESS_KEY"], os.environ["SECRET_KEY"])

@@ -4,9 +4,9 @@ import subprocess
 import tempfile
 import ffmpeg
 
-from api.utils.minioUtils import create_s3_client
-from api.utils.editingUtils import separate_audio_video, add_audio_to_video
-from api.utils.mediaSelector import wait_for_file, upload_final_output, generate_response
+from utils.minioUtils import create_s3_client, upload_to_s3
+from utils.editingUtils import separate_audio_video, add_audio_to_video
+from utils.mediaSelector import wait_for_file, generate_response
 
 s3_client = create_s3_client(
     os.environ["MINIO_ENDPOINT"],
@@ -163,7 +163,7 @@ def main(bucket_name):
 
     add_audio_to_video(download_file_path, final_aud, final_podcast)
 
-    upload_final_output(final_podcast, bucket_name)
+    upload_to_s3(s3_client, final_podcast, bucket_name)
 
     response = generate_response(final_podcast, bucket_name)
 

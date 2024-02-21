@@ -1,4 +1,4 @@
-from api.models.project import Project
+from models.project import Project
 
 
 def test_new_project():
