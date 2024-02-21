@@ -20,8 +20,10 @@ Major features include:
 A key aim of the project is to create an application that is accessible to users of multiple skill levels. As such, many features must have an automatic mode (handled entirely by the application) **as well as** the ability for more experienced users to manually tweak their work.
 
 ## Installation and Build Guide
-Please ensure you have Docker Compose installed.
-Once cloning the repo, run `docker compose -f docker-compose.prod.yml up` from the root directory and visit `http://localhost:3000/`
+1. Please ensure you have [Docker Compose installed](https://docs.docker.com/compose/install/).
+2. (Optional) After cloning the repo, go to `.env` and change the credentials.
+3. Run `docker compose -f docker-compose.prod.yml up` from the project's root directory.
+4. Visit `http://localhost:3000/`
 
 ## Project Dependencies
 

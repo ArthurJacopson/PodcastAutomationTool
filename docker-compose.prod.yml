@@ -10,13 +10,13 @@ services:
     ports: 
       - "3000:3000"
     environment:
-      - REACT_APP_AUTH0_DOMAIN=podplistic.uk.auth0.com
-      - REACT_APP_AUTH0_CLIENT_ID=SH3oAMqdGhDWTnEG50XnQ3RDiHXVpuIX
+      - REACT_APP_AUTH0_DOMAIN=${CS30_AUTH0_DOMAIN}
+      - REACT_APP_AUTH0_CLIENT_ID=${CS30_AUTH0_CLIENT_ID}
       - REACT_APP_AUTH0_CALLBACK_URL=http://localhost:3000/
       - REACT_APP_DEVELOPMENT=true
       - REACT_APP_FLASK_API_DEVELOP=http://127.0.0.1:5000
-      - REACT_APP_MINIO_USER_NAME=minio_user
-      - REACT_APP_MINIO_PASSWORD=minio_password
+      - REACT_APP_MINIO_USER_NAME=${CS30_MINIO_ROOT_USER}
+      - REACT_APP_MINIO_PASSWORD=${CS30_MINIO_ROOT_PASSWORD}
       - REACT_APP_MINIO_ENDPOINT=http://127.0.0.1:9000
     depends_on:
       - api
@@ -30,9 +30,9 @@ services:
     ports: 
       - "5432:5432"
     environment:
-      POSTGRES_DB: mydatabase
-      POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: ${CS30_DB_NAME}
+      POSTGRES_USER: ${CS30_DB_USER}
+      POSTGRES_PASSWORD: ${CS30_DB_PASSWORD}
     volumes: 
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
       - db:/var/lib/postgresql/data
@@ -47,8 +47,8 @@ services:
     command: python3 api/app.py
     environment:
       MINIO_ENDPOINT: http://127.0.0.1:9000
-      ACCESS_KEY: minio_user
-      SECRET_KEY: minio_password
+      ACCESS_KEY: ${CS30_MINIO_ROOT_USER}
+      SECRET_KEY: ${CS30_MINIO_ROOT_PASSWORD}
     volumes:
       - ./api:/app
     working_dir: /app
@@ -66,8 +66,8 @@ services:
       - "9000:9000"
       - "9001:9001"
     environment:
-      MINIO_ROOT_USER: 'minio_user'
-      MINIO_ROOT_PASSWORD: 'minio_password'
+      MINIO_ROOT_USER: ${CS30_MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${CS30_MINIO_ROOT_PASSWORD}
       MINIO_ADDRESS: ':9000'
       MINIO_CONSOLE_ADDRESS: ':9001'
     restart: always
@@ -79,7 +79,7 @@ services:
       - minio
     entrypoint: >
       /bin/sh -c "
-      mc config host add --api s3v4 mymio http://minio:9000 minio_user minio_password;
+      mc config host add --api s3v4 mymio http://minio:9000 ${CS30_MINIO_ROOT_USER} ${CS30_MINIO_ROOT_PASSWORD};
       mc mb mymio/temp/;
       mc anonymous set public mymio/temp;
       "
