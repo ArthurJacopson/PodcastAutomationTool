@@ -3,9 +3,11 @@ from datetime import datetime
 from flask import Blueprint, jsonify, request
 
 from db import db
-from api.models.project import Project
+from models.project import Project
+from utils.exportPodcast import createFinalPodcast
 
 bp = Blueprint('project_routes', __name__)
+
 
 @bp.route('/project/<project_id>', methods=['GET'])
 def get_single_project(project_id):
@@ -23,7 +25,7 @@ def get_single_project(project_id):
 
     except Exception as error:
         error_message = f'Error retrieving projects: {str(error)}'
-        return jsonify({'error': error_message}), 500  
+        return jsonify({'error': error_message}), 500
 
 
 @bp.route('/projects', methods=['GET'])
@@ -53,15 +55,16 @@ def create_project(project_name):
         new_project = Project(name=project_name, project_size=size)
         db.session.add(new_project)
         db.session.commit()
-        project = Project.query.filter_by(project_id=new_project.project_id).first()
-    
+        project = Project.query.filter_by(
+            project_id=new_project.project_id).first()
+
     except Exception as error:
         error_message = f'Error connecting to the database: {str(error)}'
         return jsonify({'error': error_message}), 500
 
     else:
-        result = {'message': 'Database connection successful', 
-                  'project_id': project.project_id, 
+        result = {'message': 'Database connection successful',
+                  'project_id': project.project_id,
                   'name': project.name}
         return jsonify(result), 200
 
@@ -86,8 +89,9 @@ def delete_project(project_id):
 
     else:
         result = {'message': 'Project deleted successfully'}
-        return jsonify(result), 200    
+        return jsonify(result), 200
 
+ 
 @bp.route('/update/<project_id>', methods=['GET'])
 def update_last_edited(project_id):
     """
@@ -107,5 +111,15 @@ def update_last_edited(project_id):
 
     else:
         result = {'message': 'Last edited updated successfully'}
-        return jsonify(result), 200    
-    
+        return jsonify(result), 200
+
+@bp.route('/export-podcast/<project_id>', methods=['GET'])
+def export_podcast(project_id):
+    bucket = f"project-{project_id}"
+    try:
+        createFinalPodcast(bucket)
+    except Exception as e:
+        return jsonify({'error': e}), 500
+    else:
+        result = {'message': 'Removed sections were removed'}
+        return jsonify(result), 200

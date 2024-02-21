@@ -23,7 +23,7 @@ const Quote = ({wordArray,TimestampId} : QuoteProps) => {
 
     const {timestamps,setTimeStamps,timestampIndex} = useContext(TimeStampContext);
 
-    const {isPlaying,handleSeekTranscript,playerRef,currentTime,isUpdated} = useContext(ReactPlayerContext);
+    const {isPlaying,handleSeekTranscript,playerRef,currentTime} = useContext(ReactPlayerContext);
 
     const words = wordArray.map(({text,start,end} : TranscriptWordInfo,index:number) =>
         <SingleWord 
@@ -35,7 +35,7 @@ const Quote = ({wordArray,TimestampId} : QuoteProps) => {
         />);
 
     return (
-        <ReactPlayerContext.Provider value={{playerRef,handleSeekTranscript,isPlaying,currentTime,isUpdated}}>
+        <ReactPlayerContext.Provider value={{playerRef,handleSeekTranscript,isPlaying,currentTime}}>
             <TimeStampContext.Provider value={{timestamps : timestamps,setTimeStamps : setTimeStamps, timestampIndex : timestampIndex}}> 
                 <QuoteContext.Provider value={numericID}> 
                     <div id={TimestampId} className={styles.quoteContainer}> 

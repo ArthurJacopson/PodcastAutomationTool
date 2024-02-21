@@ -1,6 +1,6 @@
 import json
 from flask import Blueprint, request, jsonify
-from api.editing.utils import mediaSelector
+from utils import mediaSelector
 
 bp = Blueprint('merge_route', __name__)
 

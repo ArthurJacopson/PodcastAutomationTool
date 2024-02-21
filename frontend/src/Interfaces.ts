@@ -75,4 +75,5 @@ export interface DeleteConfirmationProps {
 
 export interface TranscriptProps {
     videoUrl: string; 
+    projectID: string | undefined;
 }

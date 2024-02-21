@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate,useLocation } from 'react-router-dom';
 import { ProjectInfo, funcProp } from '@src/Interfaces';
 import ProjectComponent from './ProjectComponent';
 import Loading from '@shared/loading-animation/Loading';
@@ -9,6 +9,7 @@ import DeleteConfirmation from '@shared/delete-confirmation/DeleteConfirmation';
 import { useWaitAuth0Redirect } from '@hooks/useWaitAuthoRedirect';
 
 import AWS from 'aws-sdk';
+import useUpdateLastEdited from '@src/hooks/useUpdateLastEdited';
 
 
 AWS.config.update({
@@ -25,9 +26,20 @@ const s3 = new AWS.S3({
 
 const Landing = (props: funcProp) => {
  
-    props.func("Podplistic");
+    props.func("Team Project");
 
     const isLoggedIn =  useWaitAuth0Redirect('login');
+
+    const location = useLocation();
+    const {state} = location;
+    let projectID;
+
+    if (state === null){
+        projectID = "0";
+    } else {
+        projectID = state.projectid;
+    }
+    useUpdateLastEdited(projectID);
     
     const [projects, setProjects] = useState<ProjectInfo[]>([]);
     const [isConfirmationOpen, setConfirmationOpen] = useState(false);
@@ -50,6 +62,7 @@ const Landing = (props: funcProp) => {
         try {
             const response = await fetch(process.env.REACT_APP_FLASK_API_DEVELOP + '/projects');
             if(!response.ok) {
+                console.log(response);
                 throw new Error(`Failed to fetch projects. Status: ${response.status.toString()}`);
             }
             const projects = await response.json(); 
@@ -115,6 +128,7 @@ const Landing = (props: funcProp) => {
             if(isLoggedIn){
                 fetchProjects();
             }
+
             makeAPICallRef.current = false;
         }
     },[isLoggedIn, isConfirmationOpen]);

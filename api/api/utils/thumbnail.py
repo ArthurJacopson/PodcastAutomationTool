@@ -1,9 +1,9 @@
 import subprocess
 import os
 
-from api.editing.utils.minioUtils import create_s3_client
+from utils.minioUtils import create_s3_client
 
-s3_client = create_s3_client(os.environ["MINIO_ENDPOINT"], 
+s3_client = create_s3_client(os.environ["MINIO_ENDPOINT"],
                              os.environ["ACCESS_KEY"], os.environ["SECRET_KEY"])
 
 
@@ -31,7 +31,7 @@ def generate_thumbnail(bucket_name, object_key):
         '-vframes', '1',
         output_file
     ]
-    subprocess.run(command)
+    subprocess.run(command, stderr=subprocess.STDOUT, stdout=subprocess.DEVNULL)
 
     with open(output_file, 'rb') as file:
         s3_client.put_object(Bucket=bucket_name, Key=(

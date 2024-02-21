@@ -1,7 +1,11 @@
+.env
 .env/
 .docker-volumes/
 .secrets/
 minio
+*/*.egg-info*
+.vscode
+
 # Ignore directory containing example podcast files
 example-files/
 __pycache__/

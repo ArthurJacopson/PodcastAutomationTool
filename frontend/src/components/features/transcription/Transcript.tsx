@@ -1,4 +1,4 @@
-import {useEffect, useRef, useState, createContext, useContext, createRef, forwardRef } from 'react';
+import {useEffect, useRef, useState, createContext, useContext } from 'react';
 
 import axios from 'axios';
 
@@ -12,6 +12,9 @@ import {TranscriptProps } from "@src/Interfaces";
 import { TranscriptWordInfo } from '../../../Interfaces';
 
 import {ReactPlayerContext} from "../../core/editor/Editor";
+
+import AWS from 'aws-sdk';
+import { argv0 } from 'process';
 
 type QuoteWordTuple = [number,number];
 
@@ -41,17 +44,49 @@ export const TimeStampContext = createContext<TimeStampProvier>({
     timestampIndex : 0
 });
 
-
 const Transcript = (props : TranscriptProps) => {
 
-    const [segment,setSegment] = useState([]);
+    AWS.config.update({
+        accessKeyId: process.env.REACT_APP_MINIO_USER_NAME,
+        secretAccessKey: process.env.REACT_APP_MINIO_PASSWORD,
+        region: 'London', // Set the region accordingly
+        s3ForcePathStyle: true, // Required for Minio
+        signatureVersion: 'v4', // Use v4 signature for Minio
+    });
+
+    const s3 = new AWS.S3({
+        endpoint: process.env.REACT_APP_MINIO_ENDPOINT,
+    });
+
+    const [segment,setSegment] = useState<WhisperTimeStamped[]>([]);
     const makeAPICall = useRef(true);
     const [isLoading,setIsLoading] = useState<boolean>(true);
     const timestampIndex = useRef<number>(0);
 
     const [timestamps,setTimeStamps] = useState<TimeStampStatus[]>([]);
 
-    const {isPlaying,playerRef,handleSeekTranscript,currentTime,isUpdated} = useContext(ReactPlayerContext);
+    const {isPlaying,playerRef,handleSeekTranscript,currentTime} = useContext(ReactPlayerContext);
+
+    const bucketName = `project-${props.projectID}`;
+    const key = 'final-product/transcript.json'; 
+      
+    const uploadJsonToMinio = (jsonData: any) => {
+
+        const params = {
+            Bucket: bucketName,
+            Key: key,
+            Body: JSON.stringify(jsonData),
+            ContentType: 'application/json',
+        };
+    
+        s3.upload(params, (err: any, data: any) => {
+            if (err) {
+                console.error('Error uploading file:', err);
+            } else {
+                console.log('File uploaded successfully:', data.Location);
+            }
+        });
+    };
 
     const getTranscript = async () => {
         try{
@@ -60,7 +95,7 @@ const Transcript = (props : TranscriptProps) => {
                 "video_file_path": props.videoUrl,
                 "temp_folder": "temp_output/",
                 "output_file_name":"out.mp3",
-                "isCompressed":false
+                "isCompressed":true
             };
             const response = await axios.post(UPLOAD_ENDPOINT, data, {
                 headers: {
@@ -78,18 +113,62 @@ const Transcript = (props : TranscriptProps) => {
 
     };
 
+    useEffect(() => {
+        if (makeAPICall.current== true){
+            const getParams = {
+                Bucket: bucketName,
+                Key: key,
+            };
 
+            s3.getObject(getParams, (err, data) => {
+                if (err) {
+                    console.error('Error retrieving JSON file from MinIO: Generating transcript instead.');
+                    if (makeAPICall.current === true){
+                        const segments = getTranscript();
+                        segments.then((value) => {
+                            setSegment(value);
+                            setIsLoading(false);
+                            uploadJsonToMinio(value);
+                        });
+                        makeAPICall.current = false;
+                    }
+                } else {
+                    const jsonData = data?.Body ? JSON.parse(data.Body.toString()) : null;
+                    console.log('Retrieved JSON data:', jsonData);
+                    setSegment(jsonData);
+                    setIsLoading(false);
+                    makeAPICall.current = false;
+                }
+            });
+        }
+
+    },[]);
 
     useEffect(() => {
-        if (makeAPICall.current === true){
-            const segments = getTranscript();
-            segments.then((value) => {
-                setSegment(value);
-                setIsLoading(false);
-            });
-            makeAPICall.current = false;
+        let segmentLength = 0;
+        for (const seg of segment){
+            segmentLength += seg.words.length;
         }
-    },[]);
+        if (segmentLength === timestamps.length){ // only update timestamps once they contain every word
+            // TODO: make this not suck!
+            const params = {
+                Bucket: bucketName,
+                Key: 'final-product/timestamps.json',
+                Body: JSON.stringify(timestamps),
+                ContentType: 'application/json'
+            };
+
+            s3.upload(params, (err: any, data:any) => {
+                if (err) {
+                    console.error('Error uploading timestamp:', err);
+                } else {
+                    console.log('File uploaded successfully:', data.Location);
+                }
+
+            });
+
+        }
+    }, [timestamps]);
 
     /*
      * Updates the index so that  
@@ -178,7 +257,7 @@ const Transcript = (props : TranscriptProps) => {
         );
     } else {
         return(
-            <ReactPlayerContext.Provider value = {{playerRef,handleSeekTranscript,isPlaying,currentTime,isUpdated}}>
+            <ReactPlayerContext.Provider value = {{playerRef,handleSeekTranscript,isPlaying,currentTime}}>
                 <TimeStampContext.Provider value={{timestamps : timestamps,setTimeStamps : setTimeStamps, timestampIndex : (timestampIndex.current)}}>
                     <div className={styles.parent}>
                         <div className={styles.MainContainer}>

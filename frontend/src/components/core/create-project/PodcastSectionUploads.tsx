@@ -71,7 +71,7 @@ const PodcastSectionUploads = forwardRef(({ uploadFile } : PodcastSectionProps,r
      * @param {string} tempBucket - The temp bucket where all the files are when the are uploaded before a project is made (e.g. temp)
      */
     const minioParticipantFileManagement = async(projectBucketName : string,s3 : AWS.S3, tempBucket : string) => {
-        sectionsInfo.forEach(async (section) => {
+        await Promise.all(sectionsInfo.map(async (section) => {
             const formattedPrefix = section.name.toLocaleLowerCase().replace(" ", "-") + "/";
             const participantDirectoryParams = {
                 Bucket: projectBucketName,
@@ -114,7 +114,7 @@ const PodcastSectionUploads = forwardRef(({ uploadFile } : PodcastSectionProps,r
                 await s3.copyObject(copyFileParams).promise();
                 await s3.deleteObject(deleteFile).promise();
             }
-        });
+        }));
 
     };
 

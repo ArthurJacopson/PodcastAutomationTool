@@ -67,51 +67,6 @@ const CreatePodcast: React.FC = () => {
 
 
     /**
-     * Calls Flask API to merge files into final podcast for given project.
-     * 
-     * @param {String} projectID - project to have files merged
-     * @returns {void} - no return
-     */
-    const mergePodcast = useCallback(async (projectID:string) => {
-        try{
-            const MERGE_ENDPOIONT = (process.env.REACT_APP_FLASK_API_DEVELOP + '/merge-files');
-            const data = {
-                "bucket": projectID,
-            };
-            await axios.post(MERGE_ENDPOIONT, data, {
-                headers: {
-                    "content-type": "json",
-                },
-            });
-        }catch (e) {
-            console.error(e);
-        }
-    }, []);
-
-    /**
-     * Calls Flask API to master audio of finalised podcast.
-     * 
-     * @param {String} projectID - project to have files merged
-     * @returns {void} - no return
-     */
-    const audioMaster = useCallback(async (projectID:string) => {
-        try{
-            const MASTER_ENDPOIONT = (process.env.REACT_APP_FLASK_API_DEVELOP + '/audio-master');
-            const data = {
-                "bucket": projectID,
-            };
-            await axios.post(MASTER_ENDPOIONT, data, {
-                headers: {
-                    "content-type": "json",
-                },
-            });
-        }catch (e) {
-            console.error(e);
-        }
-    }, []);
-
-
-    /**
      * Makes an AWS request using S3 to add a file and it's thumbnail to minio/temp
      * Assuming that that bucket already exists
      * 
@@ -211,12 +166,7 @@ const CreatePodcast: React.FC = () => {
             const responseData = await response.json();
             const projectBucketName = await setupProjectBucket(responseData.project_id);
             if (podcastSectionRef.current && projectBucketName != undefined){
-                await podcastSectionRef.current.participantFiles(projectBucketName,s3,tempBucket).then(async ()=>{
-                    await mergePodcast(projectBucketName).then(()=>{
-                        audioMaster(projectBucketName);
-                    });
-                });
-   
+                await podcastSectionRef.current.participantFiles(projectBucketName,s3,tempBucket);
                 navigate(`/editor/${editorSelection}/${responseData.project_id}`);
             }
         } catch (e) {

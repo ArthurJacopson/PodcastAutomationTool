@@ -19,7 +19,7 @@ def cut_video_with_smoothing(
     input_stream = ffmpeg.input(input_file, ss=start_time, to=end_time)
     video = input_stream.video
     audio = (
-        input_stream.audio .filter(
+        input_stream.audio.filter(
             'afade',
             type='in',
             start_time=0,
@@ -30,7 +30,7 @@ def cut_video_with_smoothing(
                 start_time -
                 fade_duration,
                 duration=fade_duration))
-    ffmpeg.output(video, audio, output_file).run(overwrite_output=True)
+    ffmpeg.output(video, audio, output_file).run(overwrite_output=True, quiet=True)
 
 
 def render_video(
@@ -50,8 +50,7 @@ def render_video(
         output_file,
         vcodec=codec_video,
         acodec=codec_audio).run(
-            overwrite_output=True)
-
+            overwrite_output=True, quiet=True)
 
 def separate_audio_video(input_file, output_video_file, output_audio_file):
     """
@@ -64,11 +63,11 @@ def separate_audio_video(input_file, output_video_file, output_audio_file):
     ffmpeg.input(input_file).output(
         output_video_file,
         an=None).run(
-            overwrite_output=True)
+            overwrite_output=True, quiet=True)
     ffmpeg.input(input_file).output(
         output_audio_file,
         vn=None).run(
-            overwrite_output=True)
+            overwrite_output=True, quiet=True)
 
 
 def create_thumbnail(input_file, time_frame, output_file):
@@ -84,7 +83,7 @@ def create_thumbnail(input_file, time_frame, output_file):
         .input(input_file, ss=time_frame)
         .filter('scale', 320, -1)
         .output(output_file, vframes=1)
-        .run(overwrite_output=True)
+        .run(overwrite_output=True, quiet=True)
     )
 
 
@@ -101,7 +100,7 @@ def silence_part_of_video(input_file, start_time, end_time, output_file):
     video = input_stream.video
     audio = input_stream.audio.filter(
         'volume', f"enable=between(t,{start_time},{end_time})", volume=0)
-    ffmpeg.output(video, audio, output_file).run(overwrite_output=True)
+    ffmpeg.output(video, audio, output_file).run(overwrite_output=True, quiet=True)
 
 
 def add_audio_to_video(video_file, audio_file, output_file):
@@ -120,7 +119,7 @@ def add_audio_to_video(video_file, audio_file, output_file):
             input_audio.audio,
             output_file,
             acodec='aac').run(
-                overwrite_output=True)
+                overwrite_output=True, quiet=True)
     except ffmpeg.Error as e:
         print(f"Error during ffmpeg operation: {e}")
         raise e

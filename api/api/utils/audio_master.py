@@ -1,17 +1,21 @@
 import os
-import time
+import sys
 import subprocess
 import tempfile
 import ffmpeg
 
-from api.editing.utils.minioUtils import create_s3_client
-from api.editing.utils.editingUtils import separate_audio_video, add_audio_to_video
-from api.editing.utils.mediaSelector import wait_for_file, upload_final_output, generate_response
+from utils.minioUtils import create_s3_client, upload_to_s3
+from utils.editingUtils import separate_audio_video, add_audio_to_video
+from utils.mediaSelector import (
+    wait_for_file,  
+    generate_response,
+    clear_up_api_folder)
 
 s3_client = create_s3_client(
     os.environ["MINIO_ENDPOINT"],
     os.environ["ACCESS_KEY"],
     os.environ["SECRET_KEY"])
+
 
 def audio_limiter(aud_in: str, aud_out: str, frame_size: float, compression_factor: float):
     """
@@ -24,7 +28,7 @@ def audio_limiter(aud_in: str, aud_out: str, frame_size: float, compression_fact
     audio_input = ffmpeg.input(aud_in)
     filter_graph = f'dynaudnorm=f={frame_size}:g={compression_factor}'
     audio_output = audio_input.output(aud_out, af=filter_graph)
-    audio_output.run()
+    audio_output.run(quiet=True)
 
 
 def audio_compressor(aud_in: str, aud_out: str, attack: float, peak: float, adjustment: float):
@@ -39,7 +43,7 @@ def audio_compressor(aud_in: str, aud_out: str, attack: float, peak: float, adju
     audio_input = ffmpeg.input(aud_in)
     filter_graph = f'compand=attacks={attack}:points={peak}/{peak + adjustment}:0/10'
     audio_output = audio_input.output(aud_out, af=filter_graph)
-    audio_output.run()
+    audio_output.run(quiet=True)
 
 
 def audio_highpass_filter(aud_in: str, aud_out: str, cutoff_frequency: float):
@@ -52,7 +56,7 @@ def audio_highpass_filter(aud_in: str, aud_out: str, cutoff_frequency: float):
     audio_input = ffmpeg.input(aud_in)
     filter_graph = f'highpass=f={cutoff_frequency}'
     audio_output = audio_input.output(aud_out, af=filter_graph)
-    audio_output.run()
+    audio_output.run(quiet=True)
 
 
 def apply_gain(aud_in: str, aud_out: str, gain_db: float):
@@ -63,7 +67,7 @@ def apply_gain(aud_in: str, aud_out: str, gain_db: float):
     :param gain_db: gain in db that will be applied to audio  
     """
     filter_graph = f'[0:a]volume={gain_db}dB[audio]'
-    ffmpeg.input(aud_in).output(aud_out, af=filter_graph).run()
+    ffmpeg.input(aud_in).output(aud_out, af=filter_graph).run(quiet=True)
 
 
 def get_amplitude_info(aud_in: str):
@@ -120,9 +124,9 @@ def auto_master(aud_in: str, aud_out: str):
     temp_file_b = "temp_b.wav"
     temp_file_c = "temp_c.wav"
 
-
     try:
-        audio_limiter(absolute_path, temp_file_a, frame_size, compression_factor)
+        audio_limiter(absolute_path, temp_file_a,
+                      frame_size, compression_factor)
         audio_compressor(temp_file_a, temp_file_b, attack, p, dyn_range)
         apply_gain(temp_file_b, temp_file_c, gain)
         audio_highpass_filter(temp_file_a, aud_out, cut_off_freq)
@@ -141,6 +145,7 @@ def main(bucket_name):
     applies audio mastering, combines new audio to video, uploads mastered podcast.
     :param bucket_name: the minio bucket containing the required project files.
     """
+    clear_up_api_folder()
 
     object_key = "final-product/final_podcast.mp4"
     download_file_path = "master_temp.mp4"
@@ -149,11 +154,9 @@ def main(bucket_name):
     final_aud = "finala.wav"
     final_podcast = "final_podcast_mastered.mp4"
 
-    time.sleep(2)
-
     s3_client.download_file(
         bucket_name, object_key, download_file_path)
-    
+
     wait_for_file(download_file_path)
 
     separate_audio_video(download_file_path, temp_output_vid, temp_output_aud)
@@ -162,7 +165,7 @@ def main(bucket_name):
 
     add_audio_to_video(download_file_path, final_aud, final_podcast)
 
-    upload_final_output(final_podcast, bucket_name)
+    upload_to_s3(s3_client, final_podcast, bucket_name)
 
     response = generate_response(final_podcast, bucket_name)
 
@@ -174,8 +177,7 @@ def main(bucket_name):
         os.remove(final_podcast)
         print("Files deleted successfully.")
     except Exception:
-        print("Error, files not deleted")
+        print("Error, files not deleted", file=sys.stderr)
         response = {"Error": "Files not cleaned up"}
-
 
     return response

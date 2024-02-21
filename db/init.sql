@@ -6,6 +6,3 @@ CREATE TABLE projects (
     last_edited  TIMESTAMP,
     project_size VARCHAR(10) DEFAULT '0B'
 );
-
-INSERT INTO projects (name, description) VALUES ('Project 1', 'Description 1');
-INSERT INTO projects (name, description) VALUES ('Project 2', 'Description 2');

@@ -1,6 +1,6 @@
 import json
 from flask import Blueprint, request, jsonify
-from api.editing import audio_master
+from utils import audio_master
 
 bp = Blueprint('audio_master_route', __name__)
 
