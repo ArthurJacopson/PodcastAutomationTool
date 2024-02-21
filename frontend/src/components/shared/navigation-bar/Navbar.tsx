@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate,useLocation } from 'react-router-dom';
 
 import styles from './Navbar.module.css';
 
@@ -13,10 +13,14 @@ import { NavbarProps } from "@src/Interfaces";
 
 const Navbar: React.FC<{ title: string }> = ({ title } : NavbarProps ) => {
     const navigate = useNavigate();
-    const handleClick = () => navigate('/');
+    const handleClick = () => navigate('/', { state: { "projectid": projectID }});
 
     const [showPorfile,setShowProfile] = useState(false);
 
+    const location = useLocation();
+
+    const brokenDownURL = location.pathname.split('/');
+    const projectID = brokenDownURL.pop();
     const handleProfileClick = () => {
         setShowProfile((prevshowProfile) => !prevshowProfile);
     };

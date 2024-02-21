@@ -43,7 +43,6 @@ def retrieve_files(bucket_name):
 
     :param bucket_name: the minio bucket the files have to be retrieved from.
     """
-    time.sleep(10)  # Waits to ensure files have been uploaded to minio
     try:
         # List all objects in the bucket
         objects = s3_client.list_objects(Bucket=bucket_name)['Contents']
@@ -120,7 +119,7 @@ def merge_and_isolate_microphones(audio_file1, audio_file2):
         '-map', '[aout]',
         merged_output
     ]
-    subprocess.run(command_merge, check=True)
+    subprocess.run(command_merge, check=True, stderr=subprocess.STDOUT, stdout=subprocess.DEVNULL)
     print(f"Merged audio streams into {merged_output}", file=sys.stderr)
 
     # Step 2: Apply Audio Panning to Isolate Each Microphone
@@ -134,7 +133,7 @@ def merge_and_isolate_microphones(audio_file1, audio_file2):
         '-map', '[left]', isolated_output1,
         '-map', '[right]', isolated_output2
     ]
-    subprocess.run(command_isolate, check=True)
+    subprocess.run(command_isolate, check=True, stderr=subprocess.STDOUT, stdout=subprocess.DEVNULL)
     print(
         f"Isolated audio streams into {isolated_output1} and {isolated_output2}", file=sys.stderr)
 
@@ -182,7 +181,7 @@ def find_silence_periods(audio_file, speaker_name):
         '-f', 'null',
         '-'
     ]
-    result = subprocess.run(command, stderr=subprocess.PIPE, text=True)
+    result = subprocess.run(command, text=True, stderr=subprocess.STDOUT, stdout=subprocess.DEVNULL)
     output = result.stderr
     print(output, file=sys.stderr)
 
@@ -224,9 +223,8 @@ def process_video_segments(video_files, transitions, video_output, offsets):
     command = ['ffmpeg', '-y'] + inputs + ['-filter_complex',
                                            filter_complex_string, '-map', '[outv]', video_output]
     try:
-        subprocess.run(command, check=True)
-        print(
-            f"Processed video segments are merged into {video_output}", file=sys.stderr)
+        subprocess.run(command, check=True, stderr=subprocess.STDOUT, stdout=subprocess.DEVNULL)
+        print(f"Processed video segments are merged into {video_output}", file=sys.stderr)
     except subprocess.CalledProcessError as e:
         print(
             f"An error occurred while processing video segments: {e}", file=sys.stderr)
@@ -257,9 +255,8 @@ def align_and_merge_audio(audio_files, transitions, audio_output, offsets):
     command = ['ffmpeg', '-y'] + inputs + ['-filter_complex',
                                            filter_complex_string, '-map', '[outa]', audio_output]
     try:
-        subprocess.run(command, check=True)
-        print(
-            f"Processed audio segments are merged into {audio_output}", file=sys.stderr)
+        subprocess.run(command, check=True, stderr=subprocess.STDOUT, stdout=subprocess.DEVNULL)
+        print(f"Processed audio segments are merged into {audio_output}", file=sys.stderr)
     except subprocess.CalledProcessError as e:
         print(
             f"An error occurred while processing audio segments: {e}", file=sys.stderr)
@@ -277,13 +274,35 @@ def attach_audio_to_video(video_output, audio_output, final_output):
         final_output
     ]
     try:
-        subprocess.run(command, check=True)
+        subprocess.run(command, check=True, stderr=subprocess.STDOUT, stdout=subprocess.DEVNULL)
         print(
             f"Final output with synchronized audio and video is available at {final_output}",
             file=sys.stderr)
     except subprocess.CalledProcessError as e:
         print(
             f"An error occurred while attaching audio to video: {e}", file=sys.stderr)
+
+
+def clear_up_api_folder():
+    """
+    Method that clears the main api fodler with any leftover files
+    from a previous processing session that has been interrupted
+    It removes audio and video files liested in both extension arrays
+    """
+    files = os.listdir(os.curdir)
+    video_extensions = ['.mp4', '.avi', '.mkv', '.mov', '.wmv', '.flv']
+    audio_extensions = ['.mp3', '.wav', '.ogg', '.aac', '.flac', '.wma']
+    
+    for file_name in files:
+        file_path = os.path.join(os.curdir, file_name)
+
+        if any(file_name.lower().endswith(ext) for ext in video_extensions) \
+                or any(file_name.lower().endswith(ext) for ext in audio_extensions):
+            try:
+                os.remove(file_path)
+                print(f"Deleted file: {file_path}", file=sys.stderr)
+            except OSError as e:
+                print(f"Error deleting file: {file_path} - {e}", file=sys.stderr)
 
 
 def main(bucket_name):
@@ -294,7 +313,8 @@ def main(bucket_name):
         'speaker1': 'camera1.mp4',
         'speaker2': 'camera2.mp4',
         'wide': 'wide_shot.mp4'}
-
+    
+    clear_up_api_folder()
     try:
         if not retrieve_files(bucket_name):
             return {"Error": "Files not retrieved"}

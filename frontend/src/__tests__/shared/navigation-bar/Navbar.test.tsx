@@ -21,7 +21,7 @@ test('if the navbar loads correctly and routes to the correct places', () => {
     expect(screen.getByRole('heading')).toHaveTextContent('test title');
 
     userEvent.click(screen.getByAltText("Logo"));
-
-    expect(mockNavigate).toHaveBeenCalledWith('/');
+    
+    expect(mockNavigate).toHaveBeenCalledWith("/", {"state": {"projectid": ""}});
 
 });
