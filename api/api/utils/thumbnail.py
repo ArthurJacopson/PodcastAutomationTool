@@ -31,7 +31,7 @@ def generate_thumbnail(bucket_name, object_key):
         '-vframes', '1',
         output_file
     ]
-    subprocess.run(command)
+    subprocess.run(command, stderr=subprocess.STDOUT, stdout=subprocess.DEVNULL)
 
     with open(output_file, 'rb') as file:
         s3_client.put_object(Bucket=bucket_name, Key=(

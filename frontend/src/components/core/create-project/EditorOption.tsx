@@ -7,7 +7,7 @@ const EditorOption:React.FC<OptionsInfo> = ({chosen, optionType, handleChange} :
     return (
         <div className={styles.options} id={isChosen ? styles.selectedOptions : ``}>
             <label>
-                <input type="checkbox" checked={isChosen} onClick={handleChange}/> {optionType} Editing
+                <input type="checkbox" checked={isChosen} onChange={handleChange}/> {optionType} Editing
             </label>
         </div>
     );

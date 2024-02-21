@@ -1,6 +1,8 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 const useUpdateLastEdited = (project_id: string | undefined) => {
+
+    const callOnce = useRef<boolean>(true);
 
     const API_ENDPOINT = process.env.REACT_APP_FLASK_API_DEVELOP;
 
@@ -16,10 +18,13 @@ const useUpdateLastEdited = (project_id: string | undefined) => {
     };
 
     useEffect(() => {
-        if (project_id) {
-            updateLastEdited();
+        if (callOnce.current){
+            if (project_id) {
+                updateLastEdited();
+            }
+            callOnce.current = false;
         }
-    });
+    },[]);
 }; 
 
 export default useUpdateLastEdited;

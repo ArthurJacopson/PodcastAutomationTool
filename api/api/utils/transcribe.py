@@ -23,7 +23,8 @@ def get_audio_from_video(video_file: str, destination_path: str, out_file_name: 
         os.remove(output_file)
     try:
         subprocess.run(['ffmpeg', '-i', video_file, '-vn',
-                        '-acodec', 'libmp3lame', '-q:a', '2', output_file])
+                        '-acodec', 'libmp3lame', '-q:a', '2', output_file],
+                       stderr=subprocess.STDOUT, stdout=subprocess.DEVNULL)
         print(f"Audio extracted successfully to {output_file}")
     except subprocess.CalledProcessError as e:
         print(f"Error: {e}")
@@ -52,7 +53,7 @@ def get_json_transcript(audiofile: str) -> str:
     """
     audiofile = os.path.realpath(audiofile)
     audio = whisper.load_audio(audiofile)
-    model = whisper.load_model("tiny", device="cpu")
+    model = whisper.load_model("base.en", device="cpu")
     res = whisper.transcribe(model, audio, language='en', task='transcribe')
     return json.dumps(res)
 

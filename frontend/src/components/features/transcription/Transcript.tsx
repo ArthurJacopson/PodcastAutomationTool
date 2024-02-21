@@ -1,4 +1,4 @@
-import {useEffect, useRef, useState, createContext, useContext, createRef, forwardRef } from 'react';
+import {useEffect, useRef, useState, createContext, useContext } from 'react';
 
 import axios from 'axios';
 
@@ -65,7 +65,7 @@ const Transcript = (props : TranscriptProps) => {
 
     const [timestamps,setTimeStamps] = useState<TimeStampStatus[]>([]);
 
-    const {isPlaying,playerRef,handleSeekTranscript,currentTime,isUpdated} = useContext(ReactPlayerContext);
+    const {isPlaying,playerRef,handleSeekTranscript,currentTime} = useContext(ReactPlayerContext);
 
     const bucketName = `project-${props.projectID}`;
     const key = 'final-product/transcript.json'; 
@@ -95,7 +95,7 @@ const Transcript = (props : TranscriptProps) => {
                 "video_file_path": props.videoUrl,
                 "temp_folder": "temp_output/",
                 "output_file_name":"out.mp3",
-                "isCompressed":false
+                "isCompressed":true
             };
             const response = await axios.post(UPLOAD_ENDPOINT, data, {
                 headers: {
@@ -257,7 +257,7 @@ const Transcript = (props : TranscriptProps) => {
         );
     } else {
         return(
-            <ReactPlayerContext.Provider value = {{playerRef,handleSeekTranscript,isPlaying,currentTime,isUpdated}}>
+            <ReactPlayerContext.Provider value = {{playerRef,handleSeekTranscript,isPlaying,currentTime}}>
                 <TimeStampContext.Provider value={{timestamps : timestamps,setTimeStamps : setTimeStamps, timestampIndex : (timestampIndex.current)}}>
                     <div className={styles.parent}>
                         <div className={styles.MainContainer}>

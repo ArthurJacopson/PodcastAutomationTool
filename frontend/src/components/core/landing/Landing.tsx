@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate,useLocation } from 'react-router-dom';
 import { ProjectInfo, funcProp } from '@src/Interfaces';
 import ProjectComponent from './ProjectComponent';
 import Loading from '@shared/loading-animation/Loading';
@@ -9,6 +9,7 @@ import DeleteConfirmation from '@shared/delete-confirmation/DeleteConfirmation';
 import { useWaitAuth0Redirect } from '@hooks/useWaitAuthoRedirect';
 
 import AWS from 'aws-sdk';
+import useUpdateLastEdited from '@src/hooks/useUpdateLastEdited';
 
 
 AWS.config.update({
@@ -28,6 +29,17 @@ const Landing = (props: funcProp) => {
     props.func("Team Project");
 
     const isLoggedIn =  useWaitAuth0Redirect('login');
+
+    const location = useLocation();
+    const {state} = location;
+    let projectID;
+
+    if (state === null){
+        projectID = "0";
+    } else {
+        projectID = state.projectid;
+    }
+    useUpdateLastEdited(projectID);
     
     const [projects, setProjects] = useState<ProjectInfo[]>([]);
     const [isConfirmationOpen, setConfirmationOpen] = useState(false);
@@ -116,6 +128,7 @@ const Landing = (props: funcProp) => {
             if(isLoggedIn){
                 fetchProjects();
             }
+
             makeAPICallRef.current = false;
         }
     },[isLoggedIn, isConfirmationOpen]);

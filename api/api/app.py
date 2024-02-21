@@ -1,9 +1,14 @@
 from flask_cors import CORS
 from flask import Flask
-from routes import (project_routes, transcript_route,
-                    thumbnail_route, merge_route, audio_master_route)
 from config import DevelopmentDatabaseConfig as Dev
 from db import db
+
+from routes import (
+    project_routes, 
+    transcript_route, 
+    thumbnail_route, 
+    merge_route, 
+    audio_master_route)
 
 app = Flask(__name__)
 CORS(app)
