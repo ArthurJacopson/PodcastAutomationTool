@@ -3,6 +3,7 @@
 .secrets/
 minio
 */*.egg-info*
+.vscode
 
 # Ignore directory containing example podcast files
 example-files/
