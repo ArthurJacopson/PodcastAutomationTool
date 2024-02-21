@@ -1,7 +1,7 @@
-from routes import (project_routes, transcript_route,
-                    thumbnail_route, merge_route, audio_master_route)
 from flask_cors import CORS
 from flask import Flask
+from routes import (project_routes, transcript_route,
+                    thumbnail_route, merge_route, audio_master_route)
 from config import DevelopmentDatabaseConfig as Dev
 from api.db import db
 
