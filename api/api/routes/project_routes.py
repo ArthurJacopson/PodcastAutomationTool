@@ -2,8 +2,9 @@ import json
 from datetime import datetime
 from flask import Blueprint, jsonify, request
 
-from api.db import db
-from api.models.project import Project
+from db import db
+from models.project import Project
+from utils.exportPodcast import createFinalPodcast
 
 bp = Blueprint('project_routes', __name__)
 
@@ -90,7 +91,7 @@ def delete_project(project_id):
         result = {'message': 'Project deleted successfully'}
         return jsonify(result), 200
 
-
+ 
 @bp.route('/update/<project_id>', methods=['GET'])
 def update_last_edited(project_id):
     """
@@ -110,4 +111,15 @@ def update_last_edited(project_id):
 
     else:
         result = {'message': 'Last edited updated successfully'}
+        return jsonify(result), 200
+
+@bp.route('/export-podcast/<project_id>', methods=['GET'])
+def export_podcast(project_id):
+    bucket = f"project-{project_id}"
+    try:
+        createFinalPodcast(bucket)
+    except Exception as e:
+        return jsonify({'error': e}), 500
+    else:
+        result = {'message': 'Removed sections were removed'}
         return jsonify(result), 200

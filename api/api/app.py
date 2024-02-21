@@ -3,7 +3,7 @@ from flask import Flask
 from routes import (project_routes, transcript_route,
                     thumbnail_route, merge_route, audio_master_route)
 from config import DevelopmentDatabaseConfig as Dev
-from api.db import db
+from db import db
 
 app = Flask(__name__)
 CORS(app)

@@ -25,7 +25,7 @@ const s3 = new AWS.S3({
 
 const Landing = (props: funcProp) => {
  
-    props.func("Podplistic");
+    props.func("Team Project");
 
     const isLoggedIn =  useWaitAuth0Redirect('login');
     

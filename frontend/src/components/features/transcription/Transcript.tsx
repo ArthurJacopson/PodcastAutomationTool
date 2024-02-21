@@ -14,6 +14,7 @@ import { TranscriptWordInfo } from '../../../Interfaces';
 import {ReactPlayerContext} from "../../core/editor/Editor";
 
 import AWS from 'aws-sdk';
+import { argv0 } from 'process';
 
 type QuoteWordTuple = [number,number];
 
@@ -57,7 +58,7 @@ const Transcript = (props : TranscriptProps) => {
         endpoint: process.env.REACT_APP_MINIO_ENDPOINT,
     });
 
-    const [segment,setSegment] = useState([]);
+    const [segment,setSegment] = useState<WhisperTimeStamped[]>([]);
     const makeAPICall = useRef(true);
     const [isLoading,setIsLoading] = useState<boolean>(true);
     const timestampIndex = useRef<number>(0);
@@ -142,6 +143,32 @@ const Transcript = (props : TranscriptProps) => {
         }
 
     },[]);
+
+    useEffect(() => {
+        let segmentLength = 0;
+        for (const seg of segment){
+            segmentLength += seg.words.length;
+        }
+        if (segmentLength === timestamps.length){ // only update timestamps once they contain every word
+            // TODO: make this not suck!
+            const params = {
+                Bucket: bucketName,
+                Key: 'final-product/timestamps.json',
+                Body: JSON.stringify(timestamps),
+                ContentType: 'application/json'
+            };
+
+            s3.upload(params, (err: any, data:any) => {
+                if (err) {
+                    console.error('Error uploading timestamp:', err);
+                } else {
+                    console.log('File uploaded successfully:', data.Location);
+                }
+
+            });
+
+        }
+    }, [timestamps]);
 
     /*
      * Updates the index so that  

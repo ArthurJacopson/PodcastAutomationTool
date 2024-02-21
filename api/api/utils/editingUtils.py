@@ -19,7 +19,7 @@ def cut_video_with_smoothing(
     input_stream = ffmpeg.input(input_file, ss=start_time, to=end_time)
     video = input_stream.video
     audio = (
-        input_stream.audio .filter(
+        input_stream.audio.filter(
             'afade',
             type='in',
             start_time=0,
@@ -51,7 +51,6 @@ def render_video(
         vcodec=codec_video,
         acodec=codec_audio).run(
             overwrite_output=True)
-
 
 def separate_audio_video(input_file, output_video_file, output_audio_file):
     """
