@@ -172,6 +172,7 @@ const Landing = (props: funcProp) => {
                     isOpen={isConfirmationOpen}
                     onCancelDelete={() => setConfirmationOpen(false)}
                     onConfirmDelete={() => handleConfirmDelete(projectToDelete)}
+                    deletelocation='project'
                 />
             </div>
         );

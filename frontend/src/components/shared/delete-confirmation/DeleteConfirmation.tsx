@@ -4,6 +4,7 @@ import Modal from 'react-modal';
 import { DeleteConfirmationProps } from '@src/Interfaces';
 
 import styles from "./DeleteConfirmation.module.css";
+import { PresignedPost } from 'aws-sdk/clients/s3';
 
 Modal.setAppElement('#root');
 
@@ -11,6 +12,7 @@ const DeleteConfirmation: React.FC<DeleteConfirmationProps> = ({
     isOpen, 
     onConfirmDelete, 
     onCancelDelete,
+    deletelocation
 }) => {
 
     if (!isOpen) {
@@ -25,7 +27,7 @@ const DeleteConfirmation: React.FC<DeleteConfirmationProps> = ({
             overlayClassName={styles.modalOverlay}
         >
             <div>
-                <p>Are you sure you want to delete this project?</p>
+                <p>Are you sure you want to delete this {deletelocation}?</p>
                 <div className={styles.confirmationButtons}>
                     <button onClick={onCancelDelete}>Cancel</button>
                     <button onClick={onConfirmDelete}>Confirm</button>

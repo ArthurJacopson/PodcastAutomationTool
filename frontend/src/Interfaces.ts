@@ -3,6 +3,7 @@ export interface FileInfo {
     size: string;
     file_type: string;
     thumbnail_url: string;
+    onDelete: (slug: string) => void;
 }
 
 export interface ProjectInfo {
@@ -71,6 +72,7 @@ export interface DeleteConfirmationProps {
     isOpen: boolean;
     onConfirmDelete: () => void;
     onCancelDelete: () => void;
+    deletelocation: string;
 }
 
 export interface TranscriptProps {

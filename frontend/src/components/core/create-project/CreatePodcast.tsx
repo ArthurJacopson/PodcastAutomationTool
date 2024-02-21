@@ -106,7 +106,8 @@ const CreatePodcast: React.FC = () => {
             name: file.name,
             size: sizeConversion(file.size),
             file_type: file.type,
-            thumbnail_url: (process.env.REACT_APP_MINIO_ENDPOINT + "/" + tempBucket + "/" + file.name + "_thumbnail.jpg")
+            thumbnail_url: (process.env.REACT_APP_MINIO_ENDPOINT + "/" + tempBucket + "/" + file.name + "_thumbnail.jpg"),
+            onDelete: ()=>{}
         };
 
         projectSize.current += size_num;
