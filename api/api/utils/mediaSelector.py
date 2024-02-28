@@ -141,7 +141,7 @@ def merge_and_isolate_microphones(audio_file1, audio_file2):
 
 
 def choose_highest_sounds(audio_files):
-    # Assume 38KHz sample rate (whatever is used in read_file_to_array
+    # Assume 8KHz sample rate (whatever is used in read_file_to_array
     sample_rate = 8_000
     audio_arrays = []
     transitions = []
