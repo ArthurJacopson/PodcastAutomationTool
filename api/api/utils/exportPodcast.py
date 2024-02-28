@@ -12,8 +12,6 @@ s3_client = create_s3_client(
     os.environ["ACCESS_KEY"],
     os.environ["SECRET_KEY"])
 
-
-
 def timestamps_to_trim_sections(timestamp_file_path):
     """
     Takes timestamp file and finds trim sections
@@ -24,7 +22,6 @@ def timestamps_to_trim_sections(timestamp_file_path):
         timestamps = json.load(f)
     trim_sections = []
     for timestamp in timestamps:
-        print(timestamp["enabled"], file=sys.stderr)
         if not timestamp["enabled"]:
             payload = timestamp["payload"]
             trim_section = (payload["start"], payload["end"], 0) # need 0 for reasons
@@ -119,10 +116,10 @@ def createFinalPodcast(bucket):
 
     trim_sections = timestamps_to_trim_sections(timestamp_file_path)
     if not trim_sections:
-        clean_files()
         print("No sections to trim", file=sys.stderr)
         os.rename(podcast_file_path, output_file_path)
         upload_to_s3(s3_client, output_file_path, bucket)
+        clean_files()
         return
     kept_sections = trim_to_keep(trim_sections)
 
