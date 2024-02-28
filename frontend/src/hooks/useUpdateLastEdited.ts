@@ -7,6 +7,13 @@ const useUpdateLastEdited = (project_id: string | undefined) => {
     const API_ENDPOINT = process.env.REACT_APP_FLASK_API_DEVELOP;
 
     const updateLastEdited = async () => {
+        if (project_id === undefined){
+            project_id = "0";
+        }
+        const integer = parseInt(project_id);
+        if (isNaN(integer) || integer <= 0){
+            return;
+        }
         try {
             const response = await fetch(`${API_ENDPOINT}/update/${project_id}`);
             if(!response.ok) {

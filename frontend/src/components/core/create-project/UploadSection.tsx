@@ -4,6 +4,7 @@ import styles from "./UploadSection.module.css";
 import FileComponent from "@shared/file-comp/FileComponent";
 import DeleteConfirmation from '@shared/delete-confirmation/DeleteConfirmation';
 import AWS from 'aws-sdk';
+import Loading from "@src/components/shared/loading-animation/Loading";
 
 AWS.config.update({
     accessKeyId: process.env.REACT_APP_MINIO_USER_NAME,
@@ -22,6 +23,7 @@ const UploadSection = ({id, name, uploadFile ,fileState}:UploadSectionInfo): JSX
     const inputFile = useRef<HTMLInputElement>(null);
     const [isConfirmationOpen, setConfirmationOpen] = useState(false);
     const [projectToDelete, setProjectToDelete] = useState<string>('');
+    const [fileIsUploading,setFileIsUploading] = useState<boolean>(false);
 
     const handleDelete = (name : string) => {
         setProjectToDelete(name);
@@ -51,7 +53,9 @@ const UploadSection = ({id, name, uploadFile ,fileState}:UploadSectionInfo): JSX
             console.error("No files found");
             return;
         }
+        setFileIsUploading(true);
         const fileMetadata = await uploadFile(event);
+        setFileIsUploading(false);
         fileState(id,event.target.files[0]);
         if (fileMetadata !== null){
             setFiles([...files, fileMetadata]);
@@ -86,6 +90,7 @@ const UploadSection = ({id, name, uploadFile ,fileState}:UploadSectionInfo): JSX
                             onDelete={() => handleDelete(props.name)}/>
                     );
                 })}
+                <>{fileIsUploading ? <Loading message="Uploading File"/> : null}</>
                 <DeleteConfirmation
                     isOpen={isConfirmationOpen}
                     onCancelDelete={() => setConfirmationOpen(false)}

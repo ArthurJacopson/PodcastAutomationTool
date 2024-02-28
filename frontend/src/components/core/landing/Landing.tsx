@@ -142,7 +142,7 @@ const Landing = (props: funcProp) => {
 
     if (isLoading){
         return (
-            <Loading />
+            <Loading message='Loading Projects'/>
         );
     } else if (projects.length === 0) {
         return (

@@ -2,8 +2,11 @@ import { useEffect, useState } from "react";
 import styles from "./Loading.module.css";
 
 
-const Loading : React.FC = () => {
+type LoadingProps = {
+    message: string;
+};
 
+const Loading = ({message} : LoadingProps) => {
 
     const [dotsCount, setDotsCount] = useState<number>(0);
 
@@ -23,7 +26,7 @@ const Loading : React.FC = () => {
         <div className={styles.LoadingScreen}>
             <div className={styles.LoadingSpinner} />
             <p>Loading{renderDots()}</p>
-            <p className={styles.LoadingHint}>Do not refresh your browser window</p>
+            <p className={styles.LoadingHint}>{message}</p>
         </div>
     );
 };
