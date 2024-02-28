@@ -26,7 +26,6 @@ const SingleWord = ({id,start,end,text} : TranscriptWordInfo) => {
     const updateTimeStampStatus = (newPayload: TranscriptWordInfo, newEnabled: boolean) => {
         setTimeStamps(prevStatusList => {
             const indexToUpdateIndex = prevStatusList.findIndex(status => status.index[0] === parentQuoteID && status.index[1] === id);
-
             if (indexToUpdateIndex !== -1) {
                 return prevStatusList.map((status, index) => {
                     if (index === indexToUpdateIndex) {
@@ -52,14 +51,17 @@ const SingleWord = ({id,start,end,text} : TranscriptWordInfo) => {
         );
     };
 
-
+    
     useEffect(() => {
-        if (updateOnce.current){
+        if (timestamps.length !== 0 && !updateOnce.current){
+            const selfIndex = timestamps.findIndex(item => item.index[0] === parentQuoteID && item.index[1] === id);
+            const self = timestamps[selfIndex];
+            setIsCrossedOut(!self.enabled);
+        } else if (updateOnce.current) {
             updateTimeStampStatus({id,start,end,text},!isCrossedOut);
             updateOnce.current = false;
         }
-    },[isCrossedOut]);
-
+    },[timestamps,isCrossedOut]);
 
     useEffect(() => {
         const currentWord = timestamps[timestampIndex];
@@ -80,8 +82,14 @@ const SingleWord = ({id,start,end,text} : TranscriptWordInfo) => {
 
     const handleRemove = () => {
         updateOnce.current = true;
-        setIsCrossedOut(!isCrossedOut);
-        setMenuVisibility(!menuVisibility);
+        setIsCrossedOut(true);
+        setMenuVisibility(false);
+    };
+
+    const handleUndo = () => {
+        updateOnce.current = true;
+        setIsCrossedOut(false);
+        setMenuVisibility(false);
     };
 
     const handleWordClick = () => {
@@ -94,7 +102,7 @@ const SingleWord = ({id,start,end,text} : TranscriptWordInfo) => {
             <button className={styles.seekButton} onClick={handleSeek}>Seek</button>
             <>
                 {isCrossedOut ? ( 
-                    <button className={styles.removeButton} onClick={handleRemove}>Undo</button>
+                    <button className={styles.removeButton} onClick={handleUndo}>Undo</button>
                 ) : (
                     <button className={styles.removeButton} onClick={handleRemove}>Remove</button>
                 )}

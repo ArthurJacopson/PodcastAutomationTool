@@ -50,7 +50,7 @@
     justify-content: center;
     column-gap: 10vh;
 }
-.videoControlsContainer button{
+.videoControlsContainer button, .exportButton{
     background-color: gray;
     border-radius: 20px;
     border: 1px black solid;

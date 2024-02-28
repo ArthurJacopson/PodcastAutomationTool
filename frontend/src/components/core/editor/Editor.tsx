@@ -53,6 +53,7 @@ const Editor  =  (props: funcProp) => {
     const [projectInfo, setProjectInfo] = useState<ProjectInfo>();
     const [videoUrl, setVideoUrl] = useState<string | null>(null);
     const callOnce = useRef<boolean>(true);
+    const [buttonText,setButtonText] = useState("Play");
 
     props.func(`Editing ${projectInfo?.name || 'Unnamed Project'}`);
 
@@ -223,6 +224,11 @@ const Editor  =  (props: funcProp) => {
     const playerRef = useRef<ReactPlayer>(null);
 
     const togglePlay = () => {
+        if (isPlaying){
+            setButtonText("Play");
+        } else {
+            setButtonText("Pause");
+        }
         setIsPlaying(!isPlaying);
     };
 
@@ -267,7 +273,7 @@ const Editor  =  (props: funcProp) => {
     const videoController = controller_type === "regular" ? (
         <div className={styles.videoControlsContainer}>
             <button onClick={handleSeekButton} value="-5">Back 5s</button>
-            <button onClick={togglePlay}>Play</button>
+            <button onClick={togglePlay}>{buttonText}</button>
             <button onClick={handleSeekButton} value="5">Forward 5s</button>
         </div>
     )
@@ -291,7 +297,7 @@ const Editor  =  (props: funcProp) => {
         setCurrentTime(parseFloat((e.playedSeconds).toFixed(2)));
     };    
     if (!projectInfo || !videoUrl) {
-        return <Loading />;
+        return <Loading message="Audio Synchronization  of files"/>;
     } else {
         return (
             <div className={styles.mainContainer}>
@@ -311,7 +317,7 @@ const Editor  =  (props: funcProp) => {
                         />
                     )}
                     {videoController}
-                    <button onClick={exportPodcast}> Export Podcast </button>
+                    <button onClick={exportPodcast} className={styles.exportButton}> Export Podcast </button>
                 </div>
                 <div id={styles.transcript}>
                     <h1>Transcript</h1>

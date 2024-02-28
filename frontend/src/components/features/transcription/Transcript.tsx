@@ -13,8 +13,8 @@ import { TranscriptWordInfo } from '../../../Interfaces';
 
 import {ReactPlayerContext} from "../../core/editor/Editor";
 
-import AWS from 'aws-sdk';
-import { argv0 } from 'process';
+import AWS, { AWSError } from 'aws-sdk';
+import { GetObjectOutput, ManagedUpload } from 'aws-sdk/clients/s3';
 
 type QuoteWordTuple = [number,number];
 
@@ -82,8 +82,6 @@ const Transcript = (props : TranscriptProps) => {
         s3.upload(params, (err: any, data: any) => {
             if (err) {
                 console.error('Error uploading file:', err);
-            } else {
-                console.log('File uploaded successfully:', data.Location);
             }
         });
     };
@@ -113,44 +111,52 @@ const Transcript = (props : TranscriptProps) => {
 
     };
 
-    useEffect(() => {
-        if (makeAPICall.current== true){
-            const getParams = {
-                Bucket: bucketName,
-                Key: key,
-            };
+    const fetchTranscript = async () => {
+        const getParams = {
+            Bucket: bucketName,
+            Key: key,
+        };
 
-            s3.getObject(getParams, (err, data) => {
-                if (err) {
-                    console.error('Error retrieving JSON file from MinIO: Generating transcript instead.');
-                    if (makeAPICall.current === true){
-                        const segments = getTranscript();
-                        segments.then((value) => {
-                            setSegment(value);
-                            setIsLoading(false);
-                            uploadJsonToMinio(value);
-                        });
-                        makeAPICall.current = false;
-                    }
-                } else {
-                    const jsonData = data?.Body ? JSON.parse(data.Body.toString()) : null;
-                    console.log('Retrieved JSON data:', jsonData);
-                    setSegment(jsonData);
-                    setIsLoading(false);
-                    makeAPICall.current = false;
-                }
+        const getTimestampsParams = {
+            Bucket: bucketName,
+            Key: 'final-product/timestamps.json',
+        };
+
+        try {
+            const data = await s3.getObject(getParams).promise();
+            const jsonData = data?.Body ? JSON.parse(data.Body.toString()) : null;
+            setSegment(jsonData);
+            setIsLoading(false);
+        } catch (err) {
+            console.error('Error retrieving JSON file from MinIO: Generating transcript instead.');
+            const segments = getTranscript();
+            await segments.then((value) => {
+                setSegment(value);
+                setIsLoading(false);
+                uploadJsonToMinio(value);
             });
         }
 
-    },[]);
+        try {
+            const data  = await s3.getObject(getTimestampsParams).promise();
+            const timestampsJson = data?.Body ? JSON.parse(data.Body.toString()) : [];
+            setTimeStamps(prev=>timestampsJson);
+        } catch (err) {
+            console.error("TimeStamps do not exist yet");
+
+        }
+    };
 
     useEffect(() => {
+        if (makeAPICall.current == true){
+            fetchTranscript();
+            makeAPICall.current = false;
+        }
         let segmentLength = 0;
         for (const seg of segment){
             segmentLength += seg.words.length;
         }
-        if (segmentLength === timestamps.length){ // only update timestamps once they contain every word
-            // TODO: make this not suck!
+        if (segmentLength === timestamps.length && timestamps.length !== 0){ // only update timestamps once they contain every word
             const params = {
                 Bucket: bucketName,
                 Key: 'final-product/timestamps.json',
@@ -158,17 +164,14 @@ const Transcript = (props : TranscriptProps) => {
                 ContentType: 'application/json'
             };
 
-            s3.upload(params, (err: any, data:any) => {
+            s3.upload(params, (err: Error, data: ManagedUpload.SendData) => {
                 if (err) {
                     console.error('Error uploading timestamp:', err);
-                } else {
-                    console.log('File uploaded successfully:', data.Location);
                 }
-
             });
 
         }
-    }, [timestamps]);
+    },[timestamps]);
 
     /*
      * Updates the index so that  
@@ -244,7 +247,7 @@ const Transcript = (props : TranscriptProps) => {
     if (isLoading) {
         return (
             <div className={styles.parent}>
-                <Loading />
+                <Loading message='Generating Transcript'/>
             </div>
         );
     } else if (segment === undefined || segment.length === 0) {
