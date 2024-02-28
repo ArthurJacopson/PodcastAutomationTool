@@ -51,4 +51,4 @@ def upload_to_s3(s3_client, final_output, bucket_name):
             Key=f"final-product/{final_output}"
         )
     except Exception as e:
-        print("Error:", e)
+        print("Error:", e, file=sys.stderr)

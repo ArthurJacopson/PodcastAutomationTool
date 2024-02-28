@@ -47,15 +47,31 @@ def retrieve_files(bucket_name):
         # List all objects in the bucket
         objects = s3_client.list_objects(Bucket=bucket_name)['Contents']
         i = 1
+        general_prefix = "general/"
         for obj in objects:
-            participant = f"participant-{i}/"
+            participant_prefix = f"participant-{i}/"
             # Get the file key (name)
             file_key = obj['Key']
-            if file_key.startswith(participant):
+            if file_key.startswith(general_prefix):
                 files = s3_client.list_objects_v2(
-                    Bucket=bucket_name, Prefix=participant)['Contents']
+                    Bucket=bucket_name, Prefix=general_prefix)['Contents']
                 for file in files:
-                    print("file file key = " + file['Key'], file=sys.stderr)
+                    if file['Key'].lower().endswith(".mp4"):
+                        download_file_path = "wide_shot.mp4"
+                        s3_client.download_file(
+                            bucket_name, file['Key'], download_file_path)
+                        wait_for_file(download_file_path)
+                        print(f"Downloaded: {file['Key']}", file=sys.stderr)
+                    if file['Key'].lower().endswith(".wav"):
+                        download_file_path = "wide_shot.wav"
+                        s3_client.download_file(
+                            bucket_name, file['Key'], download_file_path)
+                        wait_for_file(download_file_path)
+                        print(f"Downloaded: {file['Key']}", file=sys.stderr)
+            if file_key.startswith(participant_prefix):
+                files = s3_client.list_objects_v2(
+                    Bucket=bucket_name, Prefix=participant_prefix)['Contents']
+                for file in files:
                     if file['Key'].lower().endswith(".mp4"):
                         # Download the file
                         download_file_path = f"camera{i}.mp4"
@@ -77,20 +93,6 @@ def retrieve_files(bucket_name):
     except BaseException as e:
         print(f"Credentials not available: {e}", file=sys.stderr)
         return False
-
-
-def clean_files():
-    """
-    Upon completion or an error will remove any intermediate files that have been created.
-    """
-    try:
-        os.remove("camera1.mp4")
-        os.remove("camera2.mp4")
-        os.remove("mic1.wav")
-        os.remove("mic2.wav")
-        print("Files deleted successfully.", file=sys.stderr)
-    except Exception:
-        print("Error, files not deleted", file=sys.stderr)
 
 def generate_response(final_output, bucket_name):
     """
@@ -141,30 +143,37 @@ def merge_and_isolate_microphones(audio_file1, audio_file2):
 
 
 def choose_highest_sounds(audio_files):
-    # Assume 8KHz sample rate (whatever is used in read_file_to_array
+    # Assume 8KHz sample rate (whatever is used in read_file_to_array)
     sample_rate = 8_000
     audio_arrays = []
     transitions = []
 
     for audio_file in audio_files.values():
-        audio_array = read_file_to_array(audio_file)
-        audio_arrays.append(audio_array)
-
+        audio_array = read_file_to_array(audio_file, sample_rate)
+        # add 1 in case an audio file is silent
+        audio_arrays.append(np.abs(audio_array) / np.max(audio_array) + 1)
+    
     # Take the sum of the volume at every sample in a second
     # This takes a 1D array representing an audio file from size N to size N/sample_rate
     # Have to trim off some of the end of some of the arrays as a result - sorry!
+    # We also don't care about what this is for the wide shot, so take first two
 
     new_size = min(len(audio_array)
                    for audio_array in audio_arrays) // sample_rate
-
-    audio_array_seconds_sum = np.array([audio_array[:new_size * sample_rate]
-                                        .reshape((new_size, sample_rate))
-                                        .sum(axis=1) for audio_array in audio_arrays])
-
-    # Need to convert this into a full numpy array
+    audio_array_average_volume_seconds = np.array([audio_array[:new_size * sample_rate]
+                                                   .reshape((new_size, sample_rate))
+                                                   .sum(axis=1) / sample_rate 
+                                                   for audio_array in audio_arrays[:2]])
+    threshold_average = 0.02
     for i in range(new_size):
-        transitions.append(
-            (i, i+1, f'speaker{np.argmax(audio_array_seconds_sum[:, i]) + 1}'))
+        # use wide shot if neither audio surpasses an average value
+        # of 2% volume over the second
+        if np.max(audio_array_average_volume_seconds[:, i]) < threshold_average:
+            transitions.append(
+                (i, i+1, "wide"))
+        else:
+            transitions.append(
+                (i, i+1, f'speaker{np.argmax(audio_array_average_volume_seconds[:, i]) + 1}'))
 
     return transitions
 
@@ -183,7 +192,6 @@ def find_silence_periods(audio_file, speaker_name):
     ]
     result = subprocess.run(command, text=True, stderr=subprocess.STDOUT, stdout=subprocess.DEVNULL)
     output = result.stderr
-    print(output, file=sys.stderr)
 
     # Parse the output to find silence periods
     pattern = r'silence_(start|end): (\d+\.\d+)'
@@ -194,7 +202,6 @@ def find_silence_periods(audio_file, speaker_name):
     for i in range(0, len(matches), 2):
         start, end = float(matches[i][1]), float(matches[i + 1][1])
         transitions.append((start, end, speaker_name))
-    print(len(transitions), file=sys.stderr)
     return transitions
 
 
@@ -307,8 +314,10 @@ def clear_up_api_folder():
 
 def main(bucket_name):
 
-    audio_file1 = 'mic1.wav'
-    audio_file2 = 'mic2.wav'
+    audio_files = {
+        'speaker1': 'mic1.wav', 
+        'speaker2': 'mic2.wav',
+        'wide': 'wide_shot.wav'}
     video_files = {
         'speaker1': 'camera1.mp4',
         'speaker2': 'camera2.mp4',
@@ -319,28 +328,10 @@ def main(bucket_name):
         if not retrieve_files(bucket_name):
             return {"Error": "Files not retrieved"}
 
-        # Merge and isolate microphones
-        isolated_audio = merge_and_isolate_microphones(
-            audio_file1, audio_file2)
-        audio_files = {
-            'speaker1': isolated_audio[0], 'speaker2': isolated_audio[1]}
+        offsets = {}
+        
+        transitions = choose_highest_sounds(audio_files)
 
-        # Speaker 2's audio and video start 10 seconds after Speaker 1's
-        offsets = {'speaker2': 0}
-
-        transitions_speaker1 = find_silence_periods(
-            audio_files['speaker1'], 'speaker1')
-        transitions_speaker2 = find_silence_periods(
-            audio_files['speaker2'], 'speaker2')
-        transitions_combined = choose_highest_sounds(audio_files)
-
-        transitions = sorted(
-            transitions_speaker1 +
-            transitions_speaker2 +
-            transitions_combined,
-            key=lambda x: x[0])
-
-        print(transitions, file=sys.stderr)
         video_output = 'processed_video.mp4'
         audio_output = 'merged_audio.wav'
         final_output = 'final_podcast.mp4'
@@ -349,8 +340,7 @@ def main(bucket_name):
         align_and_merge_audio(audio_files, transitions, audio_output, offsets)
         attach_audio_to_video(video_output, audio_output, final_output)
 
-        upload_to_s3(bucket_name, final_output, bucket_name)
-        clean_files()
+        upload_to_s3(s3_client, final_output, bucket_name)
 
     except Exception as e:
         print(e, file=sys.stderr)
@@ -358,6 +348,7 @@ def main(bucket_name):
         os.rename('camera1.mp4', final_output)
         upload_to_s3(s3_client, final_output, bucket_name)
         os.remove(final_output)
-        clean_files()
+        clear_up_api_folder()
+
 
     return generate_response(final_output, bucket_name)
