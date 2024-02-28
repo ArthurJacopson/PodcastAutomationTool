@@ -6,8 +6,8 @@ import audiosegment
 np.set_printoptions(threshold=sys.maxsize)
 
 
-def read_file_to_array(filename):
-    audio = audiosegment.from_file(filename).resample(sample_rate_Hz=32000,
+def read_file_to_array(filename, sample_rate_Hz=32_000):
+    audio = audiosegment.from_file(filename).resample(sample_rate_Hz=sample_rate_Hz,
                                                       sample_width=2,
                                                       channels=1)
     array = audio.to_numpy_array()
