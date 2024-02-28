@@ -18,7 +18,7 @@ def timestamps_to_trim_sections(timestamp_file_path):
     :param timestamp_file_path: the path to the file containing timestamps
     :return trim_sections a list of tuples containing trim sections
     """
-    with open(timestamp_file_path) as f:
+    with open(timestamp_file_path, 'rb') as f:
         timestamps = json.load(f)
     trim_sections = []
     for timestamp in timestamps:

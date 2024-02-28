@@ -2,9 +2,9 @@ import json
 from datetime import datetime
 from flask import Blueprint, jsonify, request
 
-from db import db
-from models.project import Project
 from utils.exportPodcast import createFinalPodcast
+from models.project import Project
+from db import db
 
 bp = Blueprint('project_routes', __name__)
 
