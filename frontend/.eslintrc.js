@@ -42,7 +42,7 @@ module.exports = {
         "@stylistic/js/brace-style": ["error"],
         "@stylistic/js/spaced-comment": ["error"],
         "@stylistic/js/comma-style": ["error"],
-        "@typescript-eslint/no-explicit-any": ["warn"],
+        "@typescript-eslint/no-explicit-any": ["error"],
         "spellcheck/spell-checker": [1,  {"skipWords": [
             "str",
             "sluggified",
@@ -57,19 +57,33 @@ module.exports = {
          ]}],
         "react/react-in-jsx-scope": "off",
         "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx", ".ts", ".tsx",] }],
-        "no-unused-vars": ["warn", { "varsIgnorePattern": "slug|created_at" }],
-        "@typescript-eslint/no-unused-vars": ["warn", { "varsIgnorePattern": "slug|created_at" }],
+        "@typescript-eslint/no-unused-vars": ["error", { "varsIgnorePattern": "^(slug|created_at|data)$" }],
         "no-duplicate-imports": ["error"],
         "camelcase": ["warn"],
         "semi": [
             "error",
             "always"
         ], 
-        "no-undef": ["warn"],
+        "no-undef": ["error"],
+        "comma-dangle": ["error", "always-multiline"]
     },
     "settings": {
         "react": {
           "version": "detect"
         }
+    },
+    "globals": {
+        "process": "readonly",
+        "React": "readonly",
+        "AWS": "readonly",
+        "jest": "readonly",
+        "expect": "readonly",
+        "test": "readonly",
+        "afterAll": "readonly",
+        "beforeEach": "readonly",
+        "global": "readonly",
+        "JSX": "readonly",
+        "describe": "readonly",
+        "Buffer": "readonly",
     },
 }

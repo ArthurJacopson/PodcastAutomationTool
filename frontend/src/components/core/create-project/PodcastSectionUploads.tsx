@@ -9,8 +9,8 @@ const PodcastSectionUploads = forwardRef(({ uploadFile } : PodcastSectionProps,r
         {
             id: 0,
             name: "General",
-            files : []
-        }
+            files : [],
+        },
     ]);
 
 
@@ -25,8 +25,8 @@ const PodcastSectionUploads = forwardRef(({ uploadFile } : PodcastSectionProps,r
     const uploadSectionFiles = (id : number, file : File) => {
         setSectionsInfo(prevState =>
             prevState.map(mapping => 
-                mapping.id === id ? {... mapping, files: [...mapping.files,file]} :mapping
-            )
+                mapping.id === id ? {... mapping, files: [...mapping.files,file]} :mapping,
+            ),
         );
     };
     /**
@@ -38,7 +38,7 @@ const PodcastSectionUploads = forwardRef(({ uploadFile } : PodcastSectionProps,r
     useImperativeHandle(ref,() => ({
         participantFiles : async (projectBucketName : string ,s3 : AWS.S3,tempBucket : string) => {
             await minioParticipantFileManagement(projectBucketName,s3,tempBucket);
-        }
+        },
     }),[sectionsInfo]);
 
 
@@ -76,7 +76,7 @@ const PodcastSectionUploads = forwardRef(({ uploadFile } : PodcastSectionProps,r
             const participantDirectoryParams = {
                 Bucket: projectBucketName,
                 Key: `${formattedPrefix}`,
-                Body: `${section.id}`
+                Body: `${section.id}`,
             };
             await s3.upload(participantDirectoryParams).promise();
             const newPrefix = formattedPrefix.slice(0,-1);
@@ -89,11 +89,11 @@ const PodcastSectionUploads = forwardRef(({ uploadFile } : PodcastSectionProps,r
                     const copyThumbnail = {
                         CopySource: `${tempBucket}/${thumbnailName}`,
                         Bucket: `${projectBucketName}/${newPrefix}`,
-                        Key:`${thumbnailName}`
+                        Key:`${thumbnailName}`,
                     };
                     const deleteThumbnail = {
                         Bucket: tempBucket,
-                        Key: `${thumbnailName}`
+                        Key: `${thumbnailName}`,
                     };
 
                     await s3.copyObject(copyThumbnail).promise();
@@ -104,12 +104,12 @@ const PodcastSectionUploads = forwardRef(({ uploadFile } : PodcastSectionProps,r
                 const copyFileParams = {
                     CopySource: `${tempBucket}/${file.name}`,
                     Bucket: `${projectBucketName}/${newPrefix}`,
-                    Key:`${file.name}`
+                    Key:`${file.name}`,
                 };
 
                 const deleteFile = {
                     Bucket: tempBucket,
-                    Key: `${file.name}`
+                    Key: `${file.name}`,
                 };
                 await s3.copyObject(copyFileParams).promise();
                 await s3.deleteObject(deleteFile).promise();

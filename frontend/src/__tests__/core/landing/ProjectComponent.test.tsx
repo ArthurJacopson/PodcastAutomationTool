@@ -15,7 +15,7 @@ test('correct stuff is shown in component', () => {
         name: "Project A",
         created_at: new Date(Date.now()).toString(),
         last_edited: new Date(Date.now()).toString(),
-        size: 15000
+        size: 15000,
     };
     const history = createMemoryHistory();
     history.push = jest.fn();
@@ -31,7 +31,7 @@ test('correct stuff is shown in component', () => {
                 size={sizeConversion(sampleData.size)}
                 onDelete={onDeleteMock}
             />
-        </Router>
+        </Router>,
     );
 
     expect(screen.getByText('Project A')).toBeInTheDocument();
@@ -51,7 +51,7 @@ test('correct stuff is shown in component', () => {
             relative: undefined,
             replace: false,
             state: undefined,
-        }
+        },
     );
 
 });

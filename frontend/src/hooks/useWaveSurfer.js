@@ -18,7 +18,7 @@ export function useWaveSurfer(containerRef, videoUrl) {
                 normalise: true,
                 height: 80,
                 container: containerRef.current,
-                fillParent:true
+                fillParent:true,
             });
 
             setWavesurfer(wavesurfer);

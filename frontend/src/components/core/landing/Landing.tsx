@@ -114,7 +114,7 @@ const Landing = (props: funcProp) => {
 
             // If successfully deleted from the API, remove the component from the frontend
             setProjects((currentProjects) =>
-                currentProjects.filter((project) => project.project_id !== project_id)
+                currentProjects.filter((project) => project.project_id !== project_id),
             );
 
         } catch (error) {

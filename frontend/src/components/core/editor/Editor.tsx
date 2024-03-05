@@ -24,8 +24,6 @@ type ReactPlayerProvider = {
     currentTime : number,
 }
 
-
-
 export const ReactPlayerContext = createContext<ReactPlayerProvider>({
     playerRef : createRef<ReactPlayer>(),
     handleSeekTranscript: () => {},
@@ -90,7 +88,7 @@ const Editor  =  (props: funcProp) => {
                 Key: 'final-product/final_podcast_mastered.mp4',
             };
 
-            s3.headObject(params, async function (err,data) {
+            s3.headObject(params, async function (err) {
                 if (err){
                     mergePodcast(`project-${project_id}`);
                 } else {
@@ -232,10 +230,10 @@ const Editor  =  (props: funcProp) => {
         setIsPlaying(!isPlaying);
     };
 
-    const handleSeekButton = (e : any) => {
+    const handleSeekButton = (e: React.SyntheticEvent<EventTarget>) => {
         if (playerRef.current != null){
             const duration  = playerRef.current.getDuration();
-            const seekFromButton : number = +(e.target.value);
+            const seekFromButton : number = +((e.target as HTMLButtonElement).value);
             const newTime = seekFromButton + playerRef.current.getCurrentTime();
 
             if (newTime > duration && isPlaying){

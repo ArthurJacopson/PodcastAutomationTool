@@ -32,7 +32,7 @@ const SingleWord = ({id,start,end,text} : TranscriptWordInfo) => {
                         return {
                             ...status,
                             payload: newPayload,
-                            enabled: newEnabled
+                            enabled: newEnabled,
                         };
                     }
                     return status;
@@ -43,11 +43,11 @@ const SingleWord = ({id,start,end,text} : TranscriptWordInfo) => {
                     {
                         index: [parentQuoteID,id],
                         payload: newPayload,
-                        enabled: newEnabled
-                    }
+                        enabled: newEnabled,
+                    },
                 ];
             }
-        }   
+        },   
         );
     };
 

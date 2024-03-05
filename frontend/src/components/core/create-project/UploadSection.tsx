@@ -43,7 +43,7 @@ const UploadSection = ({id, name, uploadFile ,fileState}:UploadSectionInfo): JSX
             console.error('Error deleting project:', error);
         }
         setFiles((files) =>
-            files.filter((file) => file.name !== name)
+            files.filter((file) => file.name !== name),
         );
         
     };
