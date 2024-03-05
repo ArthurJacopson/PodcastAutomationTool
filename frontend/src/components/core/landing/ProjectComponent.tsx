@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 
 import styles from '@shared/file-comp/ListComponent.module.css';
 import globalStyles from '@src/App.module.css';
@@ -25,7 +25,7 @@ const s3 = new AWS.S3({
 
 
 
-const ProjectComponent = ({ project_id, slug, name, created_at, last_edited, size, onDelete }: ProjectInfo) => {
+const ProjectComponent = ({ project_id, slug, name, last_edited, size, onDelete }: ProjectInfo) => {
     const [imageUrl, setImageUrl] = useState(null || String);
 
     /**

@@ -4,7 +4,6 @@ import Modal from 'react-modal';
 import { DeleteConfirmationProps } from '@src/Interfaces';
 
 import styles from "./DeleteConfirmation.module.css";
-import { PresignedPost } from 'aws-sdk/clients/s3';
 
 Modal.setAppElement('#root');
 
@@ -12,7 +11,7 @@ const DeleteConfirmation: React.FC<DeleteConfirmationProps> = ({
     isOpen, 
     onConfirmDelete, 
     onCancelDelete,
-    deletelocation
+    deletelocation,
 }) => {
 
     if (!isOpen) {

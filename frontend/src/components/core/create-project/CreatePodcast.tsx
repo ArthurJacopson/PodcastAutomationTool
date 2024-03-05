@@ -86,7 +86,7 @@ const CreatePodcast: React.FC = () => {
             Bucket: tempBucket,
             Key: key,
             Body: file,
-            ACL: 'public-read'
+            ACL: 'public-read',
         };
 
         try{
@@ -107,7 +107,7 @@ const CreatePodcast: React.FC = () => {
             size: sizeConversion(file.size),
             file_type: file.type,
             thumbnail_url: (process.env.REACT_APP_MINIO_ENDPOINT + "/" + tempBucket + "/" + file.name + "_thumbnail.jpg"),
-            onDelete: ()=>{}
+            onDelete: ()=>{},
         };
 
         projectSize.current += size_num;
@@ -132,7 +132,7 @@ const CreatePodcast: React.FC = () => {
             Bucket:destinationBucket,
             ACL: 'public-read',
             ObjectLockEnabledForBucket : false,
-            ObjectOwnership: "BucketOwnerEnforced"
+            ObjectOwnership: "BucketOwnerEnforced",
         };
 
 

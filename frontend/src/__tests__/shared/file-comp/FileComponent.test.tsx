@@ -1,4 +1,4 @@
-import { render, screen, } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { createMemoryHistory } from 'history';
 import FileComponent from "@shared/file-comp/FileComponent";
 import { sizeConversion} from "@src/utils";
@@ -11,7 +11,7 @@ test('Component is created with correct contents, as defined in sampleData', () 
         name: "Project A",
         size: sizeConversion(15000),
         file_type: "project",
-        thumbnail: thumbnail
+        thumbnail: thumbnail,
         
     };
     const history = createMemoryHistory();
@@ -23,7 +23,7 @@ test('Component is created with correct contents, as defined in sampleData', () 
             size={sampleData.size}
             file_type={sampleData.file_type}
             thumbnail_url={sampleData.thumbnail}
-        />
+        />,
     );
 
     expect(screen.getByText('Project A')).toBeInTheDocument();

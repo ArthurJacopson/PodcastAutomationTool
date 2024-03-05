@@ -53,7 +53,7 @@ describe('fetchProjects', () => {
         render(
             <Router location={history.location} navigator={history}>
                 <Landing func={jest.fn()} />
-            </Router>
+            </Router>,
         );
 
         expect((await screen.findByText('Create Podcast'))).toBeVisible();
@@ -68,7 +68,7 @@ describe('fetchProjects', () => {
                 preventScrollReset: undefined,
             },
             undefined,
-            {}
+            {},
         );
     });
 });

@@ -13,10 +13,12 @@ import { TranscriptWordInfo } from '../../../Interfaces';
 
 import {ReactPlayerContext} from "../../core/editor/Editor";
 
-import AWS, { AWSError } from 'aws-sdk';
-import { GetObjectOutput, ManagedUpload } from 'aws-sdk/clients/s3';
+import AWS from 'aws-sdk';
 
 type QuoteWordTuple = [number,number];
+
+export interface AWSError{
+}
 
 export interface TimeStampStatus{
     index  : QuoteWordTuple
@@ -41,7 +43,7 @@ type TimeStampProvier = {
 export const TimeStampContext = createContext<TimeStampProvier>({
     timestamps: [],
     setTimeStamps: () => {},
-    timestampIndex : 0
+    timestampIndex : 0,
 });
 
 const Transcript = (props : TranscriptProps) => {
@@ -70,16 +72,16 @@ const Transcript = (props : TranscriptProps) => {
     const bucketName = `project-${props.projectID}`;
     const key = 'final-product/transcript.json'; 
       
-    const uploadJsonToMinio = (jsonData: any) => {
+    const uploadTranscript = (transcriptJSON: WhisperTimeStamped[]) => {
 
         const params = {
             Bucket: bucketName,
             Key: key,
-            Body: JSON.stringify(jsonData),
+            Body: JSON.stringify(transcriptJSON),
             ContentType: 'application/json',
         };
     
-        s3.upload(params, (err: any, data: any) => {
+        s3.upload(params, (err: AWSError) => {
             if (err) {
                 console.error('Error uploading file:', err);
             }
@@ -93,7 +95,7 @@ const Transcript = (props : TranscriptProps) => {
                 "video_file_path": props.videoUrl,
                 "temp_folder": "temp_output/",
                 "output_file_name":"out.mp3",
-                "isCompressed":true
+                "isCompressed":true,
             };
             const response = await axios.post(UPLOAD_ENDPOINT, data, {
                 headers: {
@@ -133,14 +135,14 @@ const Transcript = (props : TranscriptProps) => {
             await segments.then((value) => {
                 setSegment(value);
                 setIsLoading(false);
-                uploadJsonToMinio(value);
+                uploadTranscript(value);
             });
         }
 
         try {
             const data  = await s3.getObject(getTimestampsParams).promise();
             const timestampsJson = data?.Body ? JSON.parse(data.Body.toString()) : [];
-            setTimeStamps(prev=>timestampsJson);
+            setTimeStamps(timestampsJson);
         } catch (err) {
             console.error("TimeStamps do not exist yet");
 
@@ -161,10 +163,10 @@ const Transcript = (props : TranscriptProps) => {
                 Bucket: bucketName,
                 Key: 'final-product/timestamps.json',
                 Body: JSON.stringify(timestamps),
-                ContentType: 'application/json'
+                ContentType: 'application/json',
             };
 
-            s3.upload(params, (err: Error, data: ManagedUpload.SendData) => {
+            s3.upload(params, (err: AWSError) => {
                 if (err) {
                     console.error('Error uploading timestamp:', err);
                 }

@@ -3,7 +3,16 @@ import { useWaveSurfer } from "@hooks/useWaveSurfer";
 import WaveSurfer from "wavesurfer.js";
 import styles from './WaveForm.module.css';
 
-const WaveForm = (props: any) => {
+export interface WaveFormProps {
+    videoUrl: string|null;
+    didVideoSeek: boolean;
+    currentTime: number;
+    setDidVideoSeek: (seekBool: boolean) => void;
+    setPlaying: (playingBool: boolean) => void;
+    setVideoTime: (videoTime: number) => void;
+}
+
+const WaveForm = (props: WaveFormProps) => {
     const waveformContainerRef = useRef(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const wavesurfer = useWaveSurfer(waveformContainerRef, props.videoUrl) as unknown as WaveSurfer;
@@ -38,14 +47,14 @@ const WaveForm = (props: any) => {
                 wavesurfer.on('finish', () => {
                     setIsPlaying(false);
                     props.setPlaying(false);
-                })
+                }),
             ];
 
             return () => {
                 functions.forEach((unsub) => unsub());
             };
         }
-    }, [wavesurfer, props, props.setVideoTime, props.setIsPlaying, props.didVideoSeek]);
+    }, [wavesurfer, props, props.setVideoTime, props.setPlaying, props.didVideoSeek]);
 
     return (
         <div id={styles.waveformContainer} ref={waveformContainerRef}>
