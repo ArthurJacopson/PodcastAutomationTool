@@ -18,7 +18,7 @@ import Login from '@features/log-in/Login';
 
 function App() {
 
-    const [navbarTitle, setNavbarTitle] = useState("Team Project");
+    const [navbarTitle, setNavbarTitle] = useState("Podplistic");
 
     const updateNavbarTitle = (data: string) => {
         setNavbarTitle(data);
