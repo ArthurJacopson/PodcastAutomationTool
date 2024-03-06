@@ -48,15 +48,23 @@ const Editor  =  (props: funcProp) => {
 
     const { controller_type, project_id } = useParams();
 
-    const [projectInfo, setProjectInfo] = useState<ProjectInfo>();
-    const [videoUrl, setVideoUrl] = useState<string | null>(null);
+    // Initialise component states
     const callOnce = useRef<boolean>(true);
+
+    const [projectInfo, setProjectInfo] = useState<ProjectInfo>();
+
+    const [videoUrl, setVideoUrl] = useState<string | null>(null);
     const [buttonText,setButtonText] = useState("Play");
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [currentTime,setCurrentTime] = useState<number>(0);
+    const playerRef = useRef<ReactPlayer>(null);
+    const [didVideoSeek, setDidVideoSeek] = useState(false);
 
     props.func(`Editing ${projectInfo?.name || 'Unnamed Project'}`);
 
     // Whenever this component is re-rendered (i.e. an edit was made) call this hook
     useUpdateLastEdited(project_id);
+
 
     /**
      * Fetches current project from the database by calling the Flask API
@@ -75,6 +83,8 @@ const Editor  =  (props: funcProp) => {
             console.error('Error fetching project:', e);
         }
     };
+
+
     /**
      * Fetches final podcast url from the minio storage by using the AWS SDK.
      * 
@@ -129,6 +139,7 @@ const Editor  =  (props: funcProp) => {
         }
     }, []);
     
+
     /**
          * Calls Flask API to master audio of finalised podcast.
          * 
@@ -159,7 +170,6 @@ const Editor  =  (props: funcProp) => {
     }, []);
     
 
-
     useEffect(() => {
         if (callOnce.current){
             fetchVideoUrl(); // Get video if it has already been processed
@@ -168,9 +178,10 @@ const Editor  =  (props: funcProp) => {
         }
     }, []);
 
+
     /**
      * API call to create final version of video, where deleted words are properly removed
-     * Once this call has successfully returned retrieve the raw video data from minio and download* it
+     * Once this call has successfully returned retrieve the raw video data from minio and download it
      *
      * @returns {void} - Nothing returned, but browser downloads video
      * @throws {Error} - throws error if there is an error with either the API call or minio call
@@ -179,12 +190,14 @@ const Editor  =  (props: funcProp) => {
     const exportPodcast = async () => {
 
         try{
+            // Calling API to export the podcast
             const response = await fetch(process.env.REACT_APP_FLASK_API_DEVELOP
                 + `/export-podcast/${project_id}`);
             if (!response.ok) {
                 throw new Error(response.status.toString());
             }
 
+            // Initialise location of project within MinIO
             const params = {
                 Bucket: `project-${project_id}`,
                 Key: `final-product/final_podcast_export.mp4`,
@@ -198,28 +211,20 @@ const Editor  =  (props: funcProp) => {
                     const buffer: Buffer = data.Body as Buffer;
                     const blob = new Blob([buffer], {type: data.ContentType});
                     
-                    // Need to create a link so that we can "click" it to actually download the content - just having the data is not enough
-
+                    // Create a link that the function can "click" to actually download the content 
+                    // Just having the data is not enough
                     const blobUrl = URL.createObjectURL(blob);
                     const link = document.createElement('a');
                     link.href = blobUrl;
                     link.download = params.Key;
                     link.click();
-
                 }
             });
-
-
         } catch (e) {
             console.error('Error trying to export podcast:', e);
         }
-
     };
 
-    // Video player logic
-    const [isPlaying, setIsPlaying] = useState(false);
-    const [currentTime,setCurrentTime] = useState<number>(0);
-    const playerRef = useRef<ReactPlayer>(null);
 
     const togglePlay = () => {
         if (isPlaying){
@@ -230,6 +235,13 @@ const Editor  =  (props: funcProp) => {
         setIsPlaying(!isPlaying);
     };
 
+    // Event handlers:
+
+    /**
+     * When a seek button (+5 / -5 seconds button) is pressed, actually move the video to this position
+     * 
+     * @param e - button click event
+     */
     const handleSeekButton = (e: React.SyntheticEvent<EventTarget>) => {
         if (playerRef.current != null){
             const duration  = playerRef.current.getDuration();
@@ -243,14 +255,13 @@ const Editor  =  (props: funcProp) => {
         }
     };
 	
-    /*
-	 * Updates the time on the video according to the transcript
+
+    /**
+	 * Updates the time on the video when a transcript seek button is pressed
 	 * This will also update the time on the waveform, if it is being used
 	 *
-	 * @params {number} newTime, which the react player reference will seek to
-	 * @returns {void}
+	 * @param newTime, which the react player reference will seek to
 	 */
-	
     const handleSeekTranscript = (newTime: number) => {
         if (playerRef.current){
             playerRef.current.seekTo(newTime);
@@ -260,14 +271,18 @@ const Editor  =  (props: funcProp) => {
     };
 
 
-    //  Extra logic for waveform
-    const [didVideoSeek, setDidVideoSeek] = useState(false);
-
     const handleSeekWaveform = (newTime: number) => {
         if (playerRef.current) {
             playerRef.current.seekTo(newTime);
         }
     };
+
+    const handleOnProgress = (e: OnProgressProps) =>  {
+        setCurrentTime(parseFloat((e.playedSeconds).toFixed(2)));
+    };   
+
+
+    // JSX:
     const videoController = controller_type === "regular" ? (
         <div className={styles.videoControlsContainer}>
             <button onClick={handleSeekButton} value="-5">Back 5s</button>
@@ -290,10 +305,9 @@ const Editor  =  (props: funcProp) => {
                 </div>
             </div>
         );
+    
 
-    const handleOnProgress = (e: OnProgressProps) =>  {
-        setCurrentTime(parseFloat((e.playedSeconds).toFixed(2)));
-    };    
+    // Choose whether to render a loading message or the editor page
     if (!projectInfo || !videoUrl) {
         return <Loading message="Audio Synchronization  of files"/>;
     } else {
