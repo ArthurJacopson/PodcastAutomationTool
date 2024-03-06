@@ -12,6 +12,7 @@ audiosegment==0.23.0
 ffmpeg==1.4
 ffmpeg-python==0.2.0
 librosa==0.10.1         # Used to produce waveform grapphs
+scipy==1.12.0           # Reads a file to an array
 
 # Machine learning
 whisper-timestamped==1.14.2
@@ -29,5 +30,5 @@ wrapt==1.11.2
 flask_sqlalchemy==3.1.1
 psycopg2==2.9.9
 
-
+# MinIO Connection
 boto3==1.34.20
