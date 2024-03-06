@@ -50,7 +50,6 @@ module.exports = {
             "minio",
             "goto",
             "frontend",
-            "podplistic",
             "dom",
             "wavesurfer",
             "i",
