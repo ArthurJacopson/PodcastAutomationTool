@@ -14,34 +14,39 @@ Major features include:
 
 A key aim of the project is to create an application that is accessible to users of multiple skill levels. As such, many features must have an automatic mode (handled entirely by the application) **as well as** the ability for more experienced users to manually tweak their work.
 
-## 
-
-
 ## User Guide
 
-- Installation and Build:
+### Installation and Build:
 1. Please ensure you have [Docker Compose installed](https://docs.docker.com/compose/install/).
 2. (Optional) After cloning the repo, go to `.env` and change the credentials.
 3. Run `docker compose -f docker-compose.prod.yml up` from the project's root directory.
 4. Visit `http://localhost:3000/`
 
-- What happens when I am on the landing page ?
-1. The moment you press create podcast it will take you to the project creation page.
-2. On this page you have to give a name to your project, select the editing type(Regular Editing is recommended).
-3. To start uploading videos you need to press "Add Participant" and depending on who is the speaker(Participant 1 would be the Speaker 1 while General is for the wide shot) you are expected to upload video files.
-4. Now you can layback and relax while our application runs its magic and creates your podcast for you.
+### What happens when I am on the landing page?
+1. Press the `Create Podcast` button to be taken to the podcast creation page.
+2. Before you can press `Start Editing`, you must:
+    - a. Name your project.
+    - b. Select either `Waveform` or `Regular` editing.
+    - c. Upload podcast content.
 
-- The spesific video types:
-1. Ensure that your clips start approcmately around the sametime to ensure that the output would be more stable.
-2. The videos you will upload must have three angles: Speaker 1, Speaker 2 and a wideshot. Please note that wideshot is not mandatory.
-3. After you have uploaded the videos if you have a seperate microphone recording the conversation please attach them based on the speaker. Such as Speaker 1 would have Speaker1.mp4 Speaker1.mp3.
-4. Ensure that there is not a massive offset between the audio and video tracks.
+### Uploading podcast content
+To ensure that the editor works best, please read the following guidelines for uploading podcast content:
+- **General** - Upload a wide-shot here. This does not need audio.
+- **Participant 1** - Upload separate audio (.wav) and video (.mp4) for the first speaker. Please ensure that these start and end at the same time.
+- **Participant 2** - Upload separate audio (.wav) and video (.mp4) for the second speaker. Please ensure that these start and end at the same time.
 
-- General usage of the transcript based editing:
-1. After the transcript and the video is generated you will have two different windows. One will allow you to view the video while the otherone will contain the transcript, you will be able to edit the transcript to your liking to ensure that unwanted parts are not within the video.
-2. In order to edit the video, you will click on the word and it will pop up with options to select from. One being seek which will skip to that bit directly and the other option being delete.
-3. After all seems fine press export and just wait for the magic to happen.
+#### Other notes:
+- If the system fails to sync Participants 1 and 2, it will just use Participant 1. Therefore, make this the dominant speaker. 
+- Additionally, if you wish to create a 1-person podcast, upload an mp4 file to Participant 1 (this must include audio).
+- To give the system the best chance of working, try to pre-sync speakers. This doesn't need to be perfect, but they should start and end at roughly the same time.
+- Ensure that the aspect ratio of both videos is the same.
 
+### Transcript based editing:
+After you press `Start Editing` you will be taken to the editor page. When you initially create the podcast, this may take a **long** time to load as a lot of processing is happening. Once it has loaded, use the following tips to edit:
+- Click on the word in the transcript. This will bring up two options:
+    - `Seek` - move the editor to this point of the podcast.
+    - `Delete` - remove this word from the podcast.
+    - `Undo` - re-add a deleted word to the podcast.
 
 ## Project Dependencies
 
