@@ -5,7 +5,7 @@ import styles from './Navbar.module.css';
 import ProfileView from '@features/log-in/ProfileView';
 
 
-import logo from '@static/podplistic.png';
+import logo from '@static/logo.png';
 import profile from '@static/account.png';
 import { useState } from 'react';
 

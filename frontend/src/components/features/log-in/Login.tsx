@@ -2,7 +2,7 @@ import { removeNavBarFuncProp } from "@src/Interfaces";
 
 import styles from './Login.module.css';
 
-import logo from '@static/podplistic.png';
+import logo from '@static/logo.png';
 
 import { useAuth0 } from "@auth0/auth0-react";
 
