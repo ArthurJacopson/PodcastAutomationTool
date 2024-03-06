@@ -7,22 +7,15 @@ s3_client = create_s3_client(os.environ["MINIO_ENDPOINT"],
                              os.environ["ACCESS_KEY"], os.environ["SECRET_KEY"])
 
 
-def generate_thumbnail(bucket_name, object_key):
+def _get_first_5_secs(video_content, input_file, output_file) -> None:
     """
-    Recieves an mp4 file and generates a thumbnail from the frame 5s in, then uploads to server.
-    :param bucket_name: name of bucket that video is going to be recieved from in the server.
-    :param object_key: name of the video file that is being recieved from server.
-
+    Given some video content in the response from the MinIO,
+    extract the first 5 seconds
+    :param video_content:
     """
 
-    response = s3_client.get_object(Bucket=bucket_name, Key=object_key)
-    video_content = response['Body'].read()
-
-    with open('video.mp4', 'wb') as file:
+    with open(input_file, 'wb') as file:
         file.write(video_content)
-
-    input_file = 'video.mp4'
-    output_file = 'thumbnail.jpg'
 
     command = [
         'ffmpeg',
@@ -31,17 +24,38 @@ def generate_thumbnail(bucket_name, object_key):
         '-vframes', '1',
         output_file
     ]
-    subprocess.run(command, stderr=subprocess.STDOUT, stdout=subprocess.DEVNULL)
+    subprocess.run(command, stderr=subprocess.STDOUT,
+                   stdout=subprocess.DEVNULL)
 
+
+def generate_thumbnail(bucket_name, object_key):
+    """
+    Receives an mp4 file and generates a thumbnail from the frame 5s in, then uploads to server.
+    :param bucket_name: name of bucket that video is going to be recieved from in the server.
+    :param object_key: name of the video file that is being recieved from server.
+
+    """
+
+    response = s3_client.get_object(Bucket=bucket_name, Key=object_key)
+    video_content = response['Body'].read()
+
+    input_file = 'video.mp4'
+    output_file = 'thumbnail.jpg'
+
+    _get_first_5_secs(video_content, input_file, output_file)
+
+    # Save the output file back to the MinIO store
     with open(output_file, 'rb') as file:
         s3_client.put_object(Bucket=bucket_name, Key=(
             object_key + "_thumbnail.jpg"), Body=file, ACL='public-read')
 
+    # Make sure that we don't remove anything until it has been fully uploaded
     s3_client.get_waiter('object_exists').wait(
         Bucket=bucket_name,
         Key=(object_key + "_thumbnail.jpg")
     )
 
+    # Clean up files that were created during this process
     try:
         os.remove(input_file)
         os.remove(output_file)

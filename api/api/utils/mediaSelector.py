@@ -7,7 +7,7 @@ import sys
 
 import numpy as np
 
-from utils.trim import read_file_to_array
+from utils.editingUtils import read_file_to_array
 from utils.minioUtils import create_s3_client, upload_to_s3
 
 s3_client = create_s3_client(
@@ -94,6 +94,7 @@ def retrieve_files(bucket_name):
         print(f"Credentials not available: {e}", file=sys.stderr)
         return False
 
+
 def generate_response(final_output, bucket_name):
     """
     Generates the response to be returned by the API call.
@@ -121,7 +122,8 @@ def merge_and_isolate_microphones(audio_file1, audio_file2):
         '-map', '[aout]',
         merged_output
     ]
-    subprocess.run(command_merge, check=True, stderr=subprocess.STDOUT, stdout=subprocess.DEVNULL)
+    subprocess.run(command_merge, check=True,
+                   stderr=subprocess.STDOUT, stdout=subprocess.DEVNULL)
     print(f"Merged audio streams into {merged_output}", file=sys.stderr)
 
     # Step 2: Apply Audio Panning to Isolate Each Microphone
@@ -135,7 +137,8 @@ def merge_and_isolate_microphones(audio_file1, audio_file2):
         '-map', '[left]', isolated_output1,
         '-map', '[right]', isolated_output2
     ]
-    subprocess.run(command_isolate, check=True, stderr=subprocess.STDOUT, stdout=subprocess.DEVNULL)
+    subprocess.run(command_isolate, check=True,
+                   stderr=subprocess.STDOUT, stdout=subprocess.DEVNULL)
     print(
         f"Isolated audio streams into {isolated_output1} and {isolated_output2}", file=sys.stderr)
 
@@ -152,7 +155,7 @@ def choose_highest_sounds(audio_files):
         audio_array = read_file_to_array(audio_file, sample_rate)
         # add 1 in case an audio file is silent
         audio_arrays.append(np.abs(audio_array) / np.max(audio_array) + 1)
-    
+
     # Take the sum of the volume at every sample in a second
     # This takes a 1D array representing an audio file from size N to size N/sample_rate
     # Have to trim off some of the end of some of the arrays as a result - sorry!
@@ -162,7 +165,7 @@ def choose_highest_sounds(audio_files):
                    for audio_array in audio_arrays) // sample_rate
     audio_array_average_volume_seconds = np.array([audio_array[:new_size * sample_rate]
                                                    .reshape((new_size, sample_rate))
-                                                   .sum(axis=1) / sample_rate 
+                                                   .sum(axis=1) / sample_rate
                                                    for audio_array in audio_arrays[:2]])
     threshold_average = 0.02
     for i in range(new_size):
@@ -190,7 +193,8 @@ def find_silence_periods(audio_file, speaker_name):
         '-f', 'null',
         '-'
     ]
-    result = subprocess.run(command, text=True, stderr=subprocess.STDOUT, stdout=subprocess.DEVNULL)
+    result = subprocess.run(
+        command, text=True, stderr=subprocess.STDOUT, stdout=subprocess.DEVNULL)
     output = result.stderr
 
     # Parse the output to find silence periods
@@ -230,8 +234,10 @@ def process_video_segments(video_files, transitions, video_output, offsets):
     command = ['ffmpeg', '-y'] + inputs + ['-filter_complex',
                                            filter_complex_string, '-map', '[outv]', video_output]
     try:
-        subprocess.run(command, check=True, stderr=subprocess.STDOUT, stdout=subprocess.DEVNULL)
-        print(f"Processed video segments are merged into {video_output}", file=sys.stderr)
+        subprocess.run(command, check=True,
+                       stderr=subprocess.STDOUT, stdout=subprocess.DEVNULL)
+        print(
+            f"Processed video segments are merged into {video_output}", file=sys.stderr)
     except subprocess.CalledProcessError as e:
         print(
             f"An error occurred while processing video segments: {e}", file=sys.stderr)
@@ -262,8 +268,10 @@ def align_and_merge_audio(audio_files, transitions, audio_output, offsets):
     command = ['ffmpeg', '-y'] + inputs + ['-filter_complex',
                                            filter_complex_string, '-map', '[outa]', audio_output]
     try:
-        subprocess.run(command, check=True, stderr=subprocess.STDOUT, stdout=subprocess.DEVNULL)
-        print(f"Processed audio segments are merged into {audio_output}", file=sys.stderr)
+        subprocess.run(command, check=True,
+                       stderr=subprocess.STDOUT, stdout=subprocess.DEVNULL)
+        print(
+            f"Processed audio segments are merged into {audio_output}", file=sys.stderr)
     except subprocess.CalledProcessError as e:
         print(
             f"An error occurred while processing audio segments: {e}", file=sys.stderr)
@@ -281,7 +289,8 @@ def attach_audio_to_video(video_output, audio_output, final_output):
         final_output
     ]
     try:
-        subprocess.run(command, check=True, stderr=subprocess.STDOUT, stdout=subprocess.DEVNULL)
+        subprocess.run(command, check=True,
+                       stderr=subprocess.STDOUT, stdout=subprocess.DEVNULL)
         print(
             f"Final output with synchronized audio and video is available at {final_output}",
             file=sys.stderr)
@@ -299,7 +308,7 @@ def clear_up_api_folder():
     files = os.listdir(os.curdir)
     video_extensions = ['.mp4', '.avi', '.mkv', '.mov', '.wmv', '.flv']
     audio_extensions = ['.mp3', '.wav', '.ogg', '.aac', '.flac', '.wma']
-    
+
     for file_name in files:
         file_path = os.path.join(os.curdir, file_name)
 
@@ -309,27 +318,28 @@ def clear_up_api_folder():
                 os.remove(file_path)
                 print(f"Deleted file: {file_path}", file=sys.stderr)
             except OSError as e:
-                print(f"Error deleting file: {file_path} - {e}", file=sys.stderr)
+                print(
+                    f"Error deleting file: {file_path} - {e}", file=sys.stderr)
 
 
 def main(bucket_name):
 
     audio_files = {
-        'speaker1': 'mic1.wav', 
+        'speaker1': 'mic1.wav',
         'speaker2': 'mic2.wav',
         'wide': 'wide_shot.wav'}
     video_files = {
         'speaker1': 'camera1.mp4',
         'speaker2': 'camera2.mp4',
         'wide': 'wide_shot.mp4'}
-    
+
     clear_up_api_folder()
     try:
         if not retrieve_files(bucket_name):
             return {"Error": "Files not retrieved"}
 
         offsets = {}
-        
+
         transitions = choose_highest_sounds(audio_files)
 
         video_output = 'processed_video.mp4'
@@ -349,6 +359,5 @@ def main(bucket_name):
         upload_to_s3(s3_client, final_output, bucket_name)
         os.remove(final_output)
         clear_up_api_folder()
-
 
     return generate_response(final_output, bucket_name)
