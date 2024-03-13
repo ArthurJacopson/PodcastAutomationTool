@@ -7,25 +7,30 @@ s3_client = create_s3_client(os.environ["MINIO_ENDPOINT"],
                              os.environ["ACCESS_KEY"], os.environ["SECRET_KEY"])
 
 
-def _get_first_5_secs(video_content, input_file, output_file) -> None:
+def get_first_5_secs_frame(input_file, output_file, video_content=None) -> bool:
     """
     Given some video content in the response from the MinIO,
     extract the first 5 seconds
     :param video_content:
     """
+    try:
+        if video_content is not None:
+            with open(input_file, 'wb') as file:
+                file.write(video_content)
 
-    with open(input_file, 'wb') as file:
-        file.write(video_content)
-
-    command = [
-        'ffmpeg',
-        '-i', input_file,
-        '-ss', '00:00:05',
-        '-vframes', '1',
-        output_file
-    ]
-    subprocess.run(command, stderr=subprocess.STDOUT,
-                   stdout=subprocess.DEVNULL)
+        command = [
+            'ffmpeg',
+            '-i', input_file,
+            '-ss', '00:00:05',
+            '-vframes', '1',
+            output_file
+        ]
+        subprocess.run(command, stderr=subprocess.STDOUT,
+                       stdout=subprocess.DEVNULL)
+        return True
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return False
 
 
 def generate_thumbnail(bucket_name, object_key):
@@ -42,7 +47,7 @@ def generate_thumbnail(bucket_name, object_key):
     input_file = 'video.mp4'
     output_file = 'thumbnail.jpg'
 
-    _get_first_5_secs(video_content, input_file, output_file)
+    thumbnail_exists = get_first_5_secs_frame(input_file, output_file, video_content)
 
     # Save the output file back to the MinIO store
     with open(output_file, 'rb') as file:
@@ -65,5 +70,8 @@ def generate_thumbnail(bucket_name, object_key):
     except Exception as e:
         print(f"An error occurred: {e}")
 
-    return {"thumbnail_url":
-            f'{os.environ["MINIO_ENDPOINT"]}/{bucket_name}/{object_key}_thumbnail.jpg'}
+    if thumbnail_exists:
+        return {"thumbnail_url":
+                f'{os.environ["MINIO_ENDPOINT"]}/{bucket_name}/{object_key}_thumbnail.jpg'}
+    
+    return thumbnail_exists
