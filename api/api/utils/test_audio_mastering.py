@@ -11,8 +11,9 @@ LENGTH_TOLERANCE = 0.1
 
 def test_audio_limiter(mock_audio_file):
     """
-    Unit test for the audio_limiter function.
-    : param sample_audio: sample audio file to be tested
+    GIVEN an input audio file
+    WHEN the audio file is limited
+    THEN ensure the limiter has been applied and the length has not changed
     """
     temp_output_file = "temp_limiter.wav"
     audio_limiter(mock_audio_file, temp_output_file, 200, 3)
@@ -28,8 +29,9 @@ def test_audio_limiter(mock_audio_file):
 
 def test_audio_compressor(mock_audio_file):
     """
-    Unit test for the audio_compressor function.
-    : param sample_audio: sample audio file to be tested
+    GIVEN an input audio file
+    WHEN the audio file is compressed
+    THEN ensure the compressor has been applied and the length has not changed
 
     """
     temp_output_file = "temp_compressor.wav"
@@ -46,8 +48,9 @@ def test_audio_compressor(mock_audio_file):
 
 def test_audio_highpass_filter(mock_audio_file):
     """
-    Unit test for the audio_highpass_filter function.
-    : param sample_audio: sample audio file to be tested
+    GIVEN an input audio file
+    WHEN the audio file is put through highpass filter
+    THEN ensure the filter has been applied and the length has not changed
 
     """
     temp_output_file = "temp_highpass.wav"
@@ -64,8 +67,9 @@ def test_audio_highpass_filter(mock_audio_file):
 
 def test_apply_gain(mock_audio_file):
     """
-    Unit test for the apply_gain function.
-    : param sample_audio: sample audio file to be tested
+    GIVEN an input audio file
+    WHEN the audio file has gain applied
+    THEN ensure the gain has been applied and the length has not changed
 
     """
     temp_output_file = "temp_gain.wav"

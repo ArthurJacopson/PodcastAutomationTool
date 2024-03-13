@@ -37,59 +37,94 @@ def wait_for_file(file_path, timeout=60):
     return True
 
 
-def retrieve_files(bucket_name):
+def retrieve_files_general(bucket_name, prefix) -> None:
     """
-    Takes in a minio bucket and retrieves the files required to be merged
+    Retrieves all video and audio files for general shots (i.e. the wide shot etc.)
+    """
+
+    files = s3_client.list_objects_v2(
+        Bucket=bucket_name, Prefix=prefix)['Contents']
+
+    for file in files:
+        # Handle video (mp4) files
+        if file['Key'].lower().endswith(".mp4"):
+            download_file_path = "wide_shot.mp4"
+            s3_client.download_file(
+                bucket_name, file['Key'], download_file_path)
+            wait_for_file(download_file_path)
+            print(f"Downloaded: {file['Key']}", file=sys.stderr)
+
+        # Handle audio (wav) files
+        if file['Key'].lower().endswith(".wav"):
+            download_file_path = "wide_shot.wav"
+            s3_client.download_file(
+                bucket_name, file['Key'], download_file_path)
+            wait_for_file(download_file_path)
+            print(f"Downloaded: {file['Key']}", file=sys.stderr)
+
+
+def retrieve_files_participant(bucket_name, prefix, counter) -> None:
+    """
+    Retrieves all video and audio files for the participant
+    """
+
+    files = s3_client.list_objects_v2(
+        Bucket=bucket_name, Prefix=prefix)['Contents']
+
+    for file in files:
+        # Handle video (mp4) files
+        if file['Key'].lower().endswith(".mp4"):
+            # Download the file
+            download_file_path = f"camera{counter}.mp4"
+            s3_client.download_file(
+                bucket_name, file['Key'], download_file_path)
+            wait_for_file(download_file_path)
+            print(f"Downloaded: {file['Key']}", file=sys.stderr)
+
+        # Handle audio (wav) files
+        if file['Key'].lower().endswith(".wav"):
+            # Download the file
+            download_file_path = f"mic{counter}.wav"
+            s3_client.download_file(
+                bucket_name, file['Key'], download_file_path)
+            wait_for_file(download_file_path)
+            print(f"Downloaded: {file['Key']}", file=sys.stderr)
+
+
+def retrieve_files(bucket_name) -> bool:
+    """
+    Takes in a minio bucket and retrieves the files required to be merged.
+    Follows a different pipeline based on whether we want the 'general' files, 
+    or the files for a specific participant 
 
     :param bucket_name: the minio bucket the files have to be retrieved from.
+    :returns success: boolean indicating whether we successfully retrieved the files
     """
+
     try:
         # List all objects in the bucket
         objects = s3_client.list_objects(Bucket=bucket_name)['Contents']
-        i = 1
-        general_prefix = "general/"
-        for obj in objects:
-            participant_prefix = f"participant-{i}/"
-            # Get the file key (name)
-            file_key = obj['Key']
-            if file_key.startswith(general_prefix):
-                files = s3_client.list_objects_v2(
-                    Bucket=bucket_name, Prefix=general_prefix)['Contents']
-                for file in files:
-                    if file['Key'].lower().endswith(".mp4"):
-                        download_file_path = "wide_shot.mp4"
-                        s3_client.download_file(
-                            bucket_name, file['Key'], download_file_path)
-                        wait_for_file(download_file_path)
-                        print(f"Downloaded: {file['Key']}", file=sys.stderr)
-                    if file['Key'].lower().endswith(".wav"):
-                        download_file_path = "wide_shot.wav"
-                        s3_client.download_file(
-                            bucket_name, file['Key'], download_file_path)
-                        wait_for_file(download_file_path)
-                        print(f"Downloaded: {file['Key']}", file=sys.stderr)
-            if file_key.startswith(participant_prefix):
-                files = s3_client.list_objects_v2(
-                    Bucket=bucket_name, Prefix=participant_prefix)['Contents']
-                for file in files:
-                    if file['Key'].lower().endswith(".mp4"):
-                        # Download the file
-                        download_file_path = f"camera{i}.mp4"
-                        s3_client.download_file(
-                            bucket_name, file['Key'], download_file_path)
-                        wait_for_file(download_file_path)
-                        print(f"Downloaded: {file['Key']}", file=sys.stderr)
 
-                    if file['Key'].lower().endswith(".wav"):
-                        # Download the file
-                        download_file_path = f"mic{i}.wav"
-                        s3_client.download_file(
-                            bucket_name, file['Key'], download_file_path)
-                        wait_for_file(download_file_path)
-                        print(f"Downloaded: {file['Key']}", file=sys.stderr)
-                i += 1
+        # Loop through all MinIO objects that were fetched
+        participant_counter = 1
+        for obj in objects:
+            # Define two options for prefix
+            general_prefix = "general/"
+            participant_prefix = f"participant-{participant_counter}/"
+
+            file_key = obj['Key']
+
+            if file_key.startswith(general_prefix):
+                retrieve_files_general(
+                    bucket_name=bucket_name, prefix=general_prefix)
+
+            elif file_key.startswith(participant_prefix):
+                retrieve_files_participant(
+                    bucket_name=bucket_name, prefix=participant_prefix, counter=participant_counter)
+                participant_counter += 1
 
         return True
+
     except BaseException as e:
         print(f"Credentials not available: {e}", file=sys.stderr)
         return False
@@ -246,6 +281,8 @@ def process_video_segments(video_files, transitions, video_output, offsets):
 def align_and_merge_audio(audio_files, transitions, audio_output, offsets):
     filter_complex = []
     inputs = []
+
+    # Loop through each speaker 'switch' / transition
     for i, (start, end, speaker) in enumerate(transitions):
         inputs += ['-i', audio_files[speaker]]
         # Adjust start time by offset
@@ -256,6 +293,7 @@ def align_and_merge_audio(audio_files, transitions, audio_output, offsets):
         else:
             filter_complex.append(
                 f"[{i}:a]atrim=start={start_offset}:end={end},asetpts=PTS-STARTPTS[a{i}];")
+
     if len(transitions) > 0:
         filter_complex.append(
             ''.join(
@@ -271,7 +309,7 @@ def align_and_merge_audio(audio_files, transitions, audio_output, offsets):
         subprocess.run(command, check=True,
                        stderr=subprocess.STDOUT, stdout=subprocess.DEVNULL)
         print(
-            f"Processed audio segments are merged into {audio_output}", file=sys.stderr)
+            f"Processed audio segments merged into {audio_output}", file=sys.stderr)
     except subprocess.CalledProcessError as e:
         print(
             f"An error occurred while processing audio segments: {e}", file=sys.stderr)
