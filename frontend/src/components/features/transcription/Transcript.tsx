@@ -212,16 +212,21 @@ const Transcript = (props : TranscriptProps) => {
         }
         return tempIndex;
     };
+
+    /**
+     * For every frame update, check if there is an upcoming word to skip
+     * If there is, set up a timeout to skip the word when it is reached
+     * Going to the next unskipped word
+    */
     useEffect(() => {
         if (timestamps.length != 0){
             let tempIndex = findUpdatedTimestampIndex();
             timestampIndex.current = tempIndex;
-
-            let lookAheadTime = currentTime + 0.050; // we want to look ahead a certain amount of time
+            const startTime = currentTime + 0.050;
+            let lookAheadTime = startTime; // we want to look ahead a certain amount of time
             let foundSuitableStop = false;
             let firstSkipFound = false;
             let firstSkipTime = -1;
-            let seekTime = lookAheadTime;
             while (!foundSuitableStop && tempIndex <= timestamps.length - 1){
                 const data = timestamps[tempIndex].payload;
                 const enabled = timestamps[tempIndex].enabled;
@@ -230,16 +235,19 @@ const Transcript = (props : TranscriptProps) => {
                         firstSkipFound = true;
                         firstSkipTime = data.start;
                     }
-                    seekTime = data.end;
-                    lookAheadTime = seekTime + 0.050; // need to check if the following word is disabled too
                     tempIndex++;
+                    if (tempIndex <= timestamps.length - 1){
+                        lookAheadTime = timestamps[tempIndex].payload.start; // Need to check if the next word is disabled 
+                    } else {
+                        lookAheadTime = data.end;
+                    }
                 } else {
                     foundSuitableStop = true;  
                 }
             }
-            if (lookAheadTime != seekTime){ // i.e. there is a word(s) we want to skip
+            if (startTime != lookAheadTime){ // i.e. there is a word(s) we want to skip
                 setTimeout(() => {
-                    handleSeekTranscript(seekTime);
+                    handleSeekTranscript(lookAheadTime);
                 }, 1000 * (firstSkipTime - currentTime)); 
             }
         }
