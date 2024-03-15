@@ -126,7 +126,7 @@ const PodcastSectionUploads = forwardRef(({ uploadFile } : PodcastSectionProps,r
         </div>
     );
 
-    PodcastSectionUploads.displayName = "PodcastSectionUploads"; // Error without this????
+    PodcastSectionUploads.displayName = "PodcastSectionUploads";
     return (
         <div className={styles.sectionsContainer}>
             {sectionsInfo.map((props: PodcastSectionInfo) => {

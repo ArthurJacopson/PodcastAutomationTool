@@ -12,6 +12,7 @@ test('Component is created with correct contents, as defined in sampleData', () 
         size: sizeConversion(15000),
         file_type: "project",
         thumbnail: thumbnail,
+        onDelete : () => {},
         
     };
     const history = createMemoryHistory();
@@ -23,6 +24,7 @@ test('Component is created with correct contents, as defined in sampleData', () 
             size={sampleData.size}
             file_type={sampleData.file_type}
             thumbnail_url={sampleData.thumbnail}
+            onDelete={sampleData.onDelete}
         />,
     );
 

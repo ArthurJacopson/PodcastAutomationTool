@@ -57,6 +57,13 @@ lint-backend:
 test-frontend:
   stage: test
   image: node:latest
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - frontend/coverage/
+  only:
+    variables:
+      - $NIGHTLY_TEST
   needs:
     - build-frontend
   dependencies:
@@ -64,6 +71,7 @@ test-frontend:
   script:
     - cd frontend/
     - npm test
+    - npm run coverage
 
 test-backend:
   stage: test

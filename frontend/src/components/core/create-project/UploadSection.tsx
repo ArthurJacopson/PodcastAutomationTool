@@ -73,7 +73,8 @@ const UploadSection = ({id, name, uploadFile ,fileState}:UploadSectionInfo): JSX
                     className={`${styles.dragChild} ${styles.fileUpload}`} 
                     ref={inputFile} 
                     onChange={upload}
-                    title=" "/>
+                    title=" "
+                    data-testid="files-area"/>
             </div>
             <div className={styles.filesText}>
                 <p> Uploaded Files </p>
