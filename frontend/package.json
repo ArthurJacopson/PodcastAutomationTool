@@ -2,6 +2,11 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
+  "jest": {
+    "transformIgnorePatterns": [
+      "node_modules/(?!axios)/"
+    ]
+  },
   "dependencies": {
     "@auth0/auth0-react": "^2.2.4",
     "@ehibb/react-player": "2.13.0",
@@ -37,7 +42,8 @@
     "build": "craco build",
     "test": "craco test",
     "eject": "craco eject",
-    "lint-fix" : "npx eslint ./src/ --fix"
+    "lint-fix": "npx eslint ./src/ --fix",
+    "coverage": "CI=true && npm test -- --coverage --collctCoverageFrom=\"./src/**\" --watchAll=false"
   },
   "eslintConfig": {
     "extends": [
@@ -75,6 +81,7 @@
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-spellcheck": "^0.0.20",
+    "jest-watch-typeahead": "^2.2.2",
     "react-test-renderer": "^18.2.0",
     "typescript": "^4.9.5"
   }
