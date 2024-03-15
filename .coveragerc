@@ -1,0 +1,8 @@
+[run]
+    omit = 
+      test_*.py
+      /usr/lib/python3/dist-packages/*
+
+[report]
+    exclude_lines =
+      def main

@@ -68,6 +68,10 @@ test-frontend:
 test-backend:
   stage: test
   image: stgit.dcs.gla.ac.uk:5050/team-project-h/2023/sh30/cs30-main:latest
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - api/htmlcov/
   only:
     variables:
       - $NIGHTLY_TEST
@@ -76,7 +80,10 @@ test-backend:
     - pip3 install --upgrade pip
     - pip3 install -r requirements.txt
     - pip3 install pytest
+    - pip3 install coverage
     - python3 setup.py install 
   script:
     - pytest
+    - coverage run --rcfile=../.coveragerc -m  pytest .
+    - coverage html
   dependencies: []
